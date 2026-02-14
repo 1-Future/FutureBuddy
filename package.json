@@ -1,0 +1,43 @@
+{
+  "name": "futurebuddy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FutureBuddy — Your 24/7 IT Department. By #1 Future.",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "shared",
+    "server",
+    "app",
+    "web"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w server",
+    "dev:app": "npm run dev -w app",
+    "dev:web": "npm run dev -w web",
+    "build:web": "npm run build -w web",
+    "build:server": "npm run build -w server",
+    "build:shared": "npm run build -w shared",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "inventory": "tsx server/src/cli/inventory.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.55.0",
+    "vitest": "^4.0.18"
+  }
+}

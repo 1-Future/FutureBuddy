@@ -1,0 +1,57 @@
+# FutureBuddy — docker compose up and you're live
+# https://github.com/PromptedProjects/FutureBuddy
+
+services:
+  # Web frontend — Vite + React served via Nginx
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # API server — Fastify + SQLite + AI providers
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - futurebuddy_data:/app/data
+    environment:
+      - AI_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>{process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Local AI — Ollama for private, free inference
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # Uncomment for GPU support:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  futurebuddy_data:
+  ollama_data:

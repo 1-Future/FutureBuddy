@@ -1,0 +1,10 @@
+{
+  "name": "FutureBuddy",
+  "short_name": "FutureBuddy",
+  "description": "Your 24/7 IT Department",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "icons": []
+}

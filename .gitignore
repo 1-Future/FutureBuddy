@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+.expo/
+android/
+ios/
+coverage/
+.turbo/
+data/
+*.db
+*.sqlite
