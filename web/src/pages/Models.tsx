@@ -9,7 +9,6 @@ import {
   Zap,
   Play,
   Loader2,
-  CheckCircle,
   Server,
 } from "lucide-react";
 
