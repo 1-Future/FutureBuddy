@@ -1,0 +1,18 @@
+# Copyright 2025 #1 Future — Apache 2.0 License
+#
+# Dependabot configuration — keeps npm and GitHub Actions dependencies updated.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
