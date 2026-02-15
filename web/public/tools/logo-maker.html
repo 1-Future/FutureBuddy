@@ -1,0 +1,2782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PS-Style Logo Maker</title>
+<style>
+  /* PlayStation font from CDNFonts */
+  @import url('https://fonts.cdnfonts.com/css/playstation');
+  /* Google Fonts — creative, gaming, futuristic */
+  @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alfa+Slab+One&family=Anton&family=Archivo+Black&family=Audiowide&family=Bebas+Neue&family=Black+Ops+One&family=Bodoni+Moda:wght@700;900&family=Bruno+Ace&family=Bungee&family=Bungee+Shade&family=Ceviche+One&family=Chakra+Petch:wght@700&family=Cinzel+Decorative:wght@700;900&family=Concert+One&family=Cormorant:wght@700&family=Dancing+Script:wght@700&family=DM+Serif+Display&family=Electrolize&family=Exo+2:wght@700;900&family=Fugaz+One&family=Great+Vibes&family=Holtwood+One+SC&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Major+Mono+Display&family=Michroma&family=Orbitron:wght@700;900&family=Oswald:wght@700&family=Oxanium:wght@700&family=Pacifico&family=Passion+One:wght@700;900&family=Play:wght@700&family=Playfair+Display:wght@700;900&family=Press+Start+2P&family=Rajdhani:wght@700&family=Rammetto+One&family=Righteous&family=Rubik+Mono+One&family=Russo+One&family=Sacramento&family=Satisfy&family=Silkscreen&family=Sonsie+One&family=Space+Mono:wght@700&family=Teko:wght@700&family=Titan+One&family=Ultra&family=Yeseva+One&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    color: #ccc;
+    font-family: 'Cascadia Mono', Consolas, monospace;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  .sidebar {
+    width: 320px;
+    background: #111;
+    border-right: 1px solid #222;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar h1 {
+    font-size: 12px;
+    color: #555;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #1a1a1a;
+    padding-bottom: 4px;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-title::after {
+    content: '▾';
+    font-size: 8px;
+    color: #333;
+  }
+  .section-title.collapsed::after { content: '▸'; }
+  .section-body { transition: max-height 0.2s; overflow: hidden; }
+  .section-body.collapsed { max-height: 0 !important; }
+
+  .p-accent { color: #E66; }
+  .s-accent { color: #FA0; }
+
+  .field { margin-bottom: 6px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 3px;
+  }
+  .field input[type="text"], .field select {
+    width: 100%;
+    padding: 5px 8px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #ddd;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: #2563EB; }
+
+  .letter-input {
+    width: 50px !important;
+    text-align: center;
+    font-size: 18px !important;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .top-row { display: flex; gap: 8px; align-items: flex-end; }
+  .top-row .field:last-child { flex: 1; }
+
+  .color-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+  .color-row label { flex: 1; font-size: 10px; color: #555; }
+  .color-row input[type="color"] {
+    width: 28px; height: 22px;
+    border: 1px solid #2a2a2a;
+    background: none; padding: 0; cursor: pointer;
+  }
+  .color-row input::-webkit-color-swatch-wrapper { padding: 1px; }
+  .color-row input::-webkit-color-swatch { border: none; }
+
+  .field input[type="range"] { width: 100%; accent-color: #2563EB; }
+  .range-val { font-size: 10px; color: #555; float: right; }
+
+  .inline-row { display: flex; gap: 8px; }
+  .inline-row .field { flex: 1; }
+
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    padding: 5px 10px; background: #2563EB; color: #fff; border: none;
+    font-family: inherit; font-size: 11px; cursor: pointer; letter-spacing: 1px;
+  }
+  .btn:hover { background: #1d4ed8; }
+  .btn.sec { background: #222; }
+  .btn.sec:hover { background: #333; }
+  .btn.sm { font-size: 9px; padding: 3px 8px; }
+
+  .preset-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .preset {
+    width: 20px; height: 20px;
+    border: 2px solid #333; cursor: pointer; display: flex;
+  }
+  .preset:hover { border-color: #fff; }
+  .preset div { flex: 1; }
+
+  .seg-colors { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+  .seg-colors input[type="color"] {
+    width: 28px; height: 22px;
+    border: 1px solid #2a2a2a;
+    background: none; padding: 0; cursor: pointer;
+  }
+  .seg-colors input::-webkit-color-swatch-wrapper { padding: 1px; }
+  .seg-colors input::-webkit-color-swatch { border: none; }
+  .seg-colors label {
+    font-size: 8px; color: #444; width: 28px; text-align: center; display: block;
+  }
+  .seg-color-item { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+
+  /* Preview — sticky so it stays visible while scrolling sidebar */
+  .preview-area {
+    flex: 1;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px; gap: 0; overflow: hidden;
+  }
+
+  /* Frame container */
+  .frame-wrap {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative;
+    transition: border-radius 0.2s, border 0.2s;
+  }
+
+  .logo-scene {
+    perspective: 900px;
+    perspective-origin: 50% 40%;
+    position: relative;
+    width: 600px; height: 450px;
+    display: flex;
+    align-items: flex-end; justify-content: center;
+    transform-style: preserve-3d;
+  }
+
+  .logo-anchor {
+    position: relative;
+    transform-style: preserve-3d;
+    display: inline-flex;
+    align-items: flex-end;
+  }
+
+  .letter-group {
+    position: relative;
+    transform-style: preserve-3d;
+  }
+  .letter-group.p-group { z-index: 2; }
+  .letter-group.s-group {
+    position: absolute; z-index: 1;
+  }
+
+  .letter-segment {
+    font-weight: 900;
+    line-height: 0.85;
+    position: absolute;
+    top: 0; left: 0;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .logo-text { text-align: center; user-select: none; }
+  .logo-text .line1 { font-weight: 700; }
+  .logo-text .line2 { opacity: 0.6; }
+
+  #exportCanvas { display: none; }
+
+  /* PSX Water animated scroll — two layers at different speeds */
+  .psx-water-anim {
+    background-repeat: repeat !important;
+    image-rendering: pixelated !important;
+    animation: psxScroll 4s linear infinite !important;
+  }
+  @keyframes psxScroll {
+    0%   { background-position: 0px 0px, 0px 0px; }
+    100% { background-position: 64px 32px, -32px 64px; }
+  }
+
+  /* Frame BG overlay — sits between solid cBG and content */
+  .frame-bg-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Texture overlay */
+  .texture-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+  .frame-wrap { position: relative; z-index: 1; overflow: hidden; }
+  .frame-wrap > .logo-scene,
+  .frame-wrap > .logo-text { position: relative; z-index: 2; }
+
+  /* Grid overlay — above everything, no pointer events */
+  .grid-overlay {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+  }
+  .grid-overlay .grid-line {
+    position: absolute; background: rgba(72, 202, 228, 0.35);
+  }
+  .grid-overlay .grid-line.h { left: 0; right: 0; height: 1px; }
+  .grid-overlay .grid-line.v { top: 0; bottom: 0; width: 1px; }
+  .grid-overlay .grid-cross-h {
+    position: absolute; left: 0; right: 0; height: 1px; top: 50%;
+    background: rgba(72, 202, 228, 0.5);
+  }
+  .grid-overlay .grid-cross-v {
+    position: absolute; top: 0; bottom: 0; width: 1px; left: 50%;
+    background: rgba(72, 202, 228, 0.5);
+  }
+
+  /* PS1 Water Ripple */
+  .tex-ps1-water {
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(0,180,255,0.15) 8px, rgba(0,180,255,0.15) 10px),
+      repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0,120,200,0.1) 20px, rgba(0,120,200,0.1) 22px);
+    animation: waterMove 4s ease-in-out infinite;
+  }
+  @keyframes waterMove {
+    0%, 100% { background-position: 0 0, 0 0; }
+    50% { background-position: 15px 8px, -10px 5px; }
+  }
+
+  /* PS1 Boot Screen Diamonds */
+  .tex-ps1-boot {
+    background:
+      linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.08) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.08) 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0;
+    animation: bootShimmer 3s ease-in-out infinite;
+  }
+  @keyframes bootShimmer {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.6); }
+  }
+
+  /* Starfield */
+  .tex-ps1-stars {
+    background:
+      radial-gradient(1px 1px at 10% 20%, #fff, transparent),
+      radial-gradient(1px 1px at 30% 70%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 50% 10%, #fff, transparent),
+      radial-gradient(1px 1px at 70% 40%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 90% 80%, #fff, transparent),
+      radial-gradient(1px 1px at 15% 90%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 15%, #fff, transparent),
+      radial-gradient(2px 2px at 45% 55%, #fff, transparent),
+      radial-gradient(1px 1px at 60% 95%, #fff, transparent),
+      radial-gradient(1px 1px at 25% 45%, #aaf, transparent),
+      radial-gradient(1.5px 1.5px at 75% 60%, #ffa, transparent),
+      radial-gradient(1px 1px at 5% 50%, #fff, transparent),
+      radial-gradient(1px 1px at 95% 50%, #fff, transparent),
+      radial-gradient(1px 1px at 40% 85%, #fff, transparent),
+      radial-gradient(2px 2px at 55% 30%, #adf, transparent);
+    animation: starTwinkle 5s ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.4; }
+    33% { opacity: 0.6; }
+    66% { opacity: 0.35; }
+  }
+
+  /* Wireframe Grid */
+  .tex-ps1-grid {
+    background:
+      linear-gradient(rgba(0,255,100,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,100,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridPulse 3s ease-in-out infinite;
+  }
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.6; }
+  }
+
+  /* CRT Scanlines */
+  .tex-scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent, transparent 2px,
+      rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px
+    );
+  }
+
+  /* Checkerboard */
+  .tex-checkers {
+    background:
+      conic-gradient(rgba(255,255,255,0.1) 0.25turn, transparent 0.25turn 0.5turn, rgba(255,255,255,0.1) 0.5turn 0.75turn, transparent 0.75turn);
+    background-size: 40px 40px;
+  }
+
+  /* Vaporwave */
+  .tex-vaporwave {
+    background: linear-gradient(135deg, rgba(255,0,128,0.4), rgba(128,0,255,0.3), rgba(0,200,255,0.4));
+  }
+
+  /* Static Noise — animated via SVG filter */
+  .tex-noise {
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    mix-blend-mode: overlay;
+  }
+
+  /* Lava */
+  .tex-lava {
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(255,80,0,0.5), transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(255,200,0,0.4), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(200,0,0,0.3), transparent 60%);
+    animation: lavaFlow 6s ease-in-out infinite;
+  }
+  @keyframes lavaFlow {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    50% { background-position: 30% 20%, 70% 80%, 40% 60%; }
+  }
+
+  /* Dark Marble */
+  .tex-marble {
+    background:
+      linear-gradient(125deg, transparent 30%, rgba(255,255,255,0.05) 35%, transparent 40%),
+      linear-gradient(205deg, transparent 50%, rgba(255,255,255,0.04) 55%, transparent 60%),
+      linear-gradient(35deg, transparent 60%, rgba(255,255,255,0.06) 63%, transparent 66%),
+      linear-gradient(165deg, transparent 20%, rgba(200,200,220,0.04) 25%, transparent 30%);
+  }
+
+  /* Aurora */
+  .tex-aurora {
+    background:
+      linear-gradient(180deg, rgba(0,255,128,0.3) 0%, rgba(0,128,255,0.2) 30%, rgba(128,0,255,0.3) 60%, transparent 100%);
+    animation: auroraWave 8s ease-in-out infinite;
+  }
+  @keyframes auroraWave {
+    0%, 100% { background-position: 0 0; background-size: 100% 200%; }
+    50% { background-position: 0 -30%; background-size: 100% 250%; }
+  }
+
+  /* Nebula */
+  .tex-nebula {
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(100,0,200,0.5), transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(0,100,255,0.4), transparent 50%),
+      radial-gradient(ellipse at 50% 20%, rgba(200,50,100,0.3), transparent 40%);
+    animation: nebulaDrift 10s ease-in-out infinite;
+  }
+  @keyframes nebulaDrift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 0%; }
+    50% { background-position: 10% 10%, 90% 90%, 45% 15%; }
+  }
+
+  /* Color context menu */
+  .color-ctx {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    background: #151515;
+    border: 1px solid #2a2a2a;
+    padding: 8px;
+    min-width: 200px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  .color-ctx.open { display: block; }
+  .color-ctx .ctx-tier {
+    margin-bottom: 6px;
+  }
+  .color-ctx .ctx-tier:last-child { margin-bottom: 0; }
+  .color-ctx .ctx-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .color-ctx .ctx-label.similar { color: #4a4; }
+  .color-ctx .ctx-label.modest { color: #aa4; }
+  .color-ctx .ctx-label.risky { color: #a44; }
+  .color-ctx .ctx-swatches {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+  .color-ctx .ctx-swatch {
+    width: 28px;
+    height: 24px;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: border-color 0.1s, transform 0.1s;
+  }
+  .color-ctx .ctx-swatch:hover {
+    border-color: #fff;
+    transform: scale(1.15);
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h1>PS-Style Logo Maker</h1>
+
+  <div class="btn-row" style="margin-bottom:6px">
+    <button class="btn sm" onclick="resetToPS1()">PS1 Default</button>
+    <button class="btn sm" onclick="resetToPS()">FB2PS</button>
+    <button class="btn sm" onclick="resetToFB()">FutureBuddy</button>
+  </div>
+
+  <!-- Palette -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Palette</div>
+    <div class="section-body">
+      <div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">PS1 Base Colors</div>
+      <div style="display:flex;gap:4px;margin-bottom:8px;" id="paletteSwatches">
+        <div style="flex:1;height:28px;background:#df0024;border:1px solid #333;cursor:pointer;" title="P: #df0024" data-role="p" data-color="#df0024"></div>
+        <div style="flex:1;height:28px;background:#f3c300;border:1px solid #333;cursor:pointer;" title="S1: #f3c300" data-role="s0" data-color="#f3c300"></div>
+        <div style="flex:1;height:28px;background:#00ac9f;border:1px solid #333;cursor:pointer;" title="S2: #00ac9f" data-role="s1" data-color="#00ac9f"></div>
+        <div style="flex:1;height:28px;background:#2e6db4;border:1px solid #333;cursor:pointer;" title="S3: #2e6db4" data-role="s2" data-color="#2e6db4"></div>
+      </div>
+      <div class="field">
+        <label>Hue shift <span class="range-val" id="rvHueShift">0</span>deg</label>
+        <input type="range" id="hueShift" min="0" max="359" value="0" />
+      </div>
+      <div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px;margin:6px 0 4px;">Shifted Result <span style="color:#333;text-transform:none;">(right-click for alternatives)</span></div>
+      <div style="display:flex;gap:4px;" id="paletteResult">
+        <div style="flex:1;height:28px;background:#df0024;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResP" data-slot="0"></div>
+        <div style="flex:1;height:28px;background:#f3c300;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS0" data-slot="1"></div>
+        <div style="flex:1;height:28px;background:#00ac9f;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS1" data-slot="2"></div>
+        <div style="flex:1;height:28px;background:#2e6db4;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS2" data-slot="3"></div>
+      </div>
+      <div style="font-size:9px;color:#333;margin-top:3px;" id="variantLabel"></div>
+      <div style="margin-top:6px">
+        <button class="btn sm" onclick="applyPalette()">Apply to logo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Letters & Font -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Letters &amp; Font</div>
+    <div class="section-body">
+      <div class="top-row">
+        <div class="field">
+          <label>Upright</label>
+          <input type="text" id="pChar" value="P" maxlength="1" class="letter-input" />
+        </div>
+        <div class="field">
+          <label>Flat</label>
+          <input type="text" id="sChar" value="S" maxlength="1" class="letter-input" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Upright font</label>
+        <select id="fontSel">
+          <optgroup label="— PlayStation —">
+            <option value="'PlayStation', sans-serif" selected>PlayStation (Official)</option>
+          </optgroup>
+          <optgroup label="— Iconic / Logo —">
+            <option value="'Bodoni Moda', serif">Bodoni Moda</option>
+            <option value="'DM Serif Display', serif">DM Serif Display</option>
+            <option value="'Cinzel Decorative', serif">Cinzel Decorative</option>
+            <option value="'Cormorant', serif">Cormorant</option>
+            <option value="'Yeseva One', serif">Yeseva One</option>
+            <option value="'Ultra', serif">Ultra</option>
+          </optgroup>
+          <optgroup label="— Script / Curvy —">
+            <option value="'Lobster', sans-serif">Lobster</option>
+            <option value="'Pacifico', sans-serif">Pacifico</option>
+            <option value="'Satisfy', sans-serif">Satisfy</option>
+            <option value="'Dancing Script', sans-serif">Dancing Script</option>
+            <option value="'Great Vibes', sans-serif">Great Vibes</option>
+            <option value="'Sacramento', sans-serif">Sacramento</option>
+          </optgroup>
+          <optgroup label="— Elegant / Serif —">
+            <option value="'Abril Fatface', serif">Abril Fatface</option>
+            <option value="'Playfair Display', serif">Playfair Display</option>
+          </optgroup>
+          <optgroup label="— Chunky / Wide B —">
+            <option value="'Alfa Slab One', serif">Alfa Slab One</option>
+            <option value="'Lilita One', sans-serif">Lilita One</option>
+            <option value="'Luckiest Guy', sans-serif">Luckiest Guy</option>
+            <option value="'Titan One', sans-serif">Titan One</option>
+            <option value="'Passion One', sans-serif">Passion One</option>
+            <option value="'Rammetto One', sans-serif">Rammetto One</option>
+            <option value="'Sonsie One', serif">Sonsie One</option>
+            <option value="'Holtwood One SC', serif">Holtwood One SC</option>
+            <option value="'Rubik Mono One', sans-serif">Rubik Mono One</option>
+            <option value="'Bungee Shade', sans-serif">Bungee Shade</option>
+          </optgroup>
+          <optgroup label="— Retro / Art Deco —">
+            <option value="'Righteous', sans-serif">Righteous</option>
+            <option value="'Fugaz One', sans-serif">Fugaz One</option>
+            <option value="'Ceviche One', sans-serif">Ceviche One</option>
+            <option value="'Concert One', sans-serif">Concert One</option>
+          </optgroup>
+          <optgroup label="— Futuristic / Sci-Fi —">
+            <option value="'Orbitron', sans-serif">Orbitron</option>
+            <option value="'Audiowide', sans-serif">Audiowide</option>
+            <option value="'Bruno Ace', sans-serif">Bruno Ace</option>
+            <option value="'Electrolize', sans-serif">Electrolize</option>
+            <option value="'Michroma', sans-serif">Michroma</option>
+            <option value="'Oxanium', sans-serif">Oxanium</option>
+            <option value="'Exo 2', sans-serif">Exo 2</option>
+            <option value="'Chakra Petch', sans-serif">Chakra Petch</option>
+          </optgroup>
+          <optgroup label="— Bold / Display —">
+            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+            <option value="'Anton', sans-serif">Anton</option>
+            <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+            <option value="'Oswald', sans-serif">Oswald</option>
+            <option value="'Russo One', sans-serif">Russo One</option>
+            <option value="'Black Ops One', sans-serif">Black Ops One</option>
+            <option value="'Bungee', sans-serif">Bungee</option>
+            <option value="'Teko', sans-serif">Teko</option>
+            <option value="'Rajdhani', sans-serif">Rajdhani</option>
+            <option value="'Play', sans-serif">Play</option>
+          </optgroup>
+          <optgroup label="— Retro / Pixel —">
+            <option value="'Press Start 2P', sans-serif">Press Start 2P</option>
+            <option value="'Silkscreen', sans-serif">Silkscreen</option>
+          </optgroup>
+          <optgroup label="— Mono / Artistic —">
+            <option value="'Major Mono Display', monospace">Major Mono Display</option>
+            <option value="'Space Mono', monospace">Space Mono</option>
+            <option value="'Cascadia Mono', monospace">Cascadia Mono</option>
+          </optgroup>
+          <optgroup label="— System —">
+            <option value="'Arial Black', sans-serif">Arial Black</option>
+            <option value="Impact, sans-serif">Impact</option>
+            <option value="'Segoe UI Black', 'Segoe UI', sans-serif">Segoe UI Black</option>
+            <option value="Futura, 'Century Gothic', sans-serif">Futura</option>
+            <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Flat font</label>
+        <select id="sFontSel">
+          <optgroup label="— PlayStation —">
+            <option value="'PlayStation', sans-serif" selected>PlayStation (Official)</option>
+          </optgroup>
+          <optgroup label="— Iconic / Logo —">
+            <option value="'Bodoni Moda', serif">Bodoni Moda</option>
+            <option value="'DM Serif Display', serif">DM Serif Display</option>
+            <option value="'Cinzel Decorative', serif">Cinzel Decorative</option>
+            <option value="'Cormorant', serif">Cormorant</option>
+            <option value="'Yeseva One', serif">Yeseva One</option>
+            <option value="'Ultra', serif">Ultra</option>
+          </optgroup>
+          <optgroup label="— Script / Curvy —">
+            <option value="'Lobster', sans-serif">Lobster</option>
+            <option value="'Pacifico', sans-serif">Pacifico</option>
+            <option value="'Satisfy', sans-serif">Satisfy</option>
+            <option value="'Dancing Script', sans-serif">Dancing Script</option>
+            <option value="'Great Vibes', sans-serif">Great Vibes</option>
+            <option value="'Sacramento', sans-serif">Sacramento</option>
+          </optgroup>
+          <optgroup label="— Elegant / Serif —">
+            <option value="'Abril Fatface', serif">Abril Fatface</option>
+            <option value="'Playfair Display', serif">Playfair Display</option>
+          </optgroup>
+          <optgroup label="— Chunky / Wide B —">
+            <option value="'Alfa Slab One', serif">Alfa Slab One</option>
+            <option value="'Lilita One', sans-serif">Lilita One</option>
+            <option value="'Luckiest Guy', sans-serif">Luckiest Guy</option>
+            <option value="'Titan One', sans-serif">Titan One</option>
+            <option value="'Passion One', sans-serif">Passion One</option>
+            <option value="'Rammetto One', sans-serif">Rammetto One</option>
+            <option value="'Sonsie One', serif">Sonsie One</option>
+            <option value="'Holtwood One SC', serif">Holtwood One SC</option>
+            <option value="'Rubik Mono One', sans-serif">Rubik Mono One</option>
+            <option value="'Bungee Shade', sans-serif">Bungee Shade</option>
+          </optgroup>
+          <optgroup label="— Retro / Art Deco —">
+            <option value="'Righteous', sans-serif">Righteous</option>
+            <option value="'Fugaz One', sans-serif">Fugaz One</option>
+            <option value="'Ceviche One', sans-serif">Ceviche One</option>
+            <option value="'Concert One', sans-serif">Concert One</option>
+          </optgroup>
+          <optgroup label="— Futuristic / Sci-Fi —">
+            <option value="'Orbitron', sans-serif">Orbitron</option>
+            <option value="'Audiowide', sans-serif">Audiowide</option>
+            <option value="'Bruno Ace', sans-serif">Bruno Ace</option>
+            <option value="'Electrolize', sans-serif">Electrolize</option>
+            <option value="'Michroma', sans-serif">Michroma</option>
+            <option value="'Oxanium', sans-serif">Oxanium</option>
+            <option value="'Exo 2', sans-serif">Exo 2</option>
+            <option value="'Chakra Petch', sans-serif">Chakra Petch</option>
+          </optgroup>
+          <optgroup label="— Bold / Display —">
+            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+            <option value="'Anton', sans-serif">Anton</option>
+            <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+            <option value="'Oswald', sans-serif">Oswald</option>
+            <option value="'Russo One', sans-serif">Russo One</option>
+            <option value="'Black Ops One', sans-serif">Black Ops One</option>
+            <option value="'Bungee', sans-serif">Bungee</option>
+            <option value="'Teko', sans-serif">Teko</option>
+            <option value="'Rajdhani', sans-serif">Rajdhani</option>
+            <option value="'Play', sans-serif">Play</option>
+          </optgroup>
+          <optgroup label="— Retro / Pixel —">
+            <option value="'Press Start 2P', sans-serif">Press Start 2P</option>
+            <option value="'Silkscreen', sans-serif">Silkscreen</option>
+          </optgroup>
+          <optgroup label="— Mono / Artistic —">
+            <option value="'Major Mono Display', monospace">Major Mono Display</option>
+            <option value="'Space Mono', monospace">Space Mono</option>
+            <option value="'Cascadia Mono', monospace">Cascadia Mono</option>
+          </optgroup>
+          <optgroup label="— System —">
+            <option value="'Arial Black', sans-serif">Arial Black</option>
+            <option value="Impact, sans-serif">Impact</option>
+            <option value="'Segoe UI Black', 'Segoe UI', sans-serif">Segoe UI Black</option>
+            <option value="Futura, 'Century Gothic', sans-serif">Futura</option>
+            <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- P Letter -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)"><span class="p-accent">Upright Letter (P position)</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Size <span class="range-val" id="rvPSize">307</span></label>
+        <input type="range" id="pSize" min="80" max="400" value="307" />
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Segments</label>
+          <select id="pSegs" onchange="buildSegColors('p'); render();">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Split direction</label>
+          <select id="pDir" onchange="toggleCustomAngle('p'); render();">
+            <option value="0">Horizontal →</option>
+            <option value="90">Vertical ↓</option>
+            <option value="45">Diagonal ↘</option>
+            <option value="135">Diagonal ↙</option>
+            <option value="custom">Custom angle</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="pCustomWrap" style="display:none">
+        <label>Custom angle <span class="range-val" id="rvPCA">0</span>deg</label>
+        <input type="range" id="pCustomAngle" min="0" max="359" value="0" />
+      </div>
+      <div class="seg-colors" id="pColors"></div>
+      <div class="field">
+        <label>Y turn <span class="range-val" id="rvPY">-34</span>deg</label>
+        <input type="range" id="pRotY" min="-90" max="90" value="-34" />
+      </div>
+      <div class="field">
+        <label>Z tilt <span class="range-val" id="rvPZ">1</span>deg</label>
+        <input type="range" id="pRotZ" min="-90" max="90" value="1" />
+      </div>
+      <div class="field">
+        <label>X tilt <span class="range-val" id="rvPX">0</span>deg</label>
+        <input type="range" id="pRotX" min="-90" max="90" value="0" />
+      </div>
+    </div>
+  </div>
+
+  <!-- S Letter -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)"><span class="s-accent">Flat Letter (S position)</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Size <span class="range-val" id="rvSSize">400</span></label>
+        <input type="range" id="sSize" min="80" max="400" value="400" />
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Segments</label>
+          <select id="sSegs" onchange="buildSegColors('s'); render();">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Split direction</label>
+          <select id="sDir" onchange="toggleCustomAngle('s'); render();">
+            <option value="0">Horizontal →</option>
+            <option value="90">Vertical ↓</option>
+            <option value="45">Diagonal ↘</option>
+            <option value="135">Diagonal ↙</option>
+            <option value="custom">Custom angle</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="sCustomWrap" style="display:none">
+        <label>Custom angle <span class="range-val" id="rvSCA">0</span>deg</label>
+        <input type="range" id="sCustomAngle" min="0" max="359" value="0" />
+      </div>
+      <div class="seg-colors" id="sColors"></div>
+      <div class="field">
+        <label>X rotation (lie flat) <span class="range-val" id="rvSX">78</span>deg</label>
+        <input type="range" id="sRotX" min="30" max="88" value="78" />
+      </div>
+      <div class="field">
+        <label>Y turn <span class="range-val" id="rvSY">-1</span>deg</label>
+        <input type="range" id="sRotY" min="-90" max="90" value="-1" />
+      </div>
+      <div class="field">
+        <label>Z spin <span class="range-val" id="rvSZ">-27</span>deg</label>
+        <input type="range" id="sRotZ" min="-90" max="90" value="-27" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Positioning -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Positioning</div>
+    <div class="section-body">
+      <div style="font-size:9px;color:#E66;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">P offset</div>
+      <div class="field">
+        <label>P horizontal <span class="range-val" id="rvPOvX">33</span>px</label>
+        <input type="range" id="pOffsetX" min="-100" max="100" value="33" />
+      </div>
+      <div class="field">
+        <label>P vertical <span class="range-val" id="rvPOvY">39</span>px</label>
+        <input type="range" id="pOffsetY" min="-80" max="80" value="39" />
+      </div>
+      <div class="field">
+        <label>P depth <span class="range-val" id="rvPOvZ">4</span>px</label>
+        <input type="range" id="pOffsetZ" min="-100" max="100" value="4" />
+      </div>
+      <div style="font-size:9px;color:#FA0;text-transform:uppercase;letter-spacing:1px;margin:6px 0 4px;">S offset</div>
+      <div class="field">
+        <label>S horizontal overlap <span class="range-val" id="rvOvX">96</span>px</label>
+        <input type="range" id="overlapX" min="-20" max="200" value="96" />
+      </div>
+      <div class="field">
+        <label>S vertical <span class="range-val" id="rvOvY">-19</span>px</label>
+        <input type="range" id="overlapY" min="-80" max="80" value="-19" />
+      </div>
+      <div class="field">
+        <label>S depth <span class="range-val" id="rvOvZ">0</span>px</label>
+        <input type="range" id="overlapZ" min="-100" max="100" value="0" />
+      </div>
+      <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1px;margin:6px 0 4px;">Camera</div>
+      <div class="field">
+        <label>Perspective <span class="range-val" id="rvPersp">2000</span>px</label>
+        <input type="range" id="scenePerspective" min="300" max="2000" value="2000" />
+      </div>
+      <div class="field">
+        <label>Eye height <span class="range-val" id="rvEye">21</span>%</label>
+        <input type="range" id="eyeHeight" min="10" max="90" value="21" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Background & Presets -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Background &amp; Presets</div>
+    <div class="section-body">
+      <div class="color-row"><label>Background</label><input type="color" id="cBG" value="#000000" /></div>
+      <div class="field">
+        <label>Texture</label>
+        <select id="bgTexture">
+          <option value="none" selected>None</option>
+          <optgroup label="— PSX Water (Animated) —">
+            <option value="psx-ocean">Ocean Deep</option>
+            <option value="psx-river">River</option>
+            <option value="psx-warm">Warm Tropical</option>
+            <option value="psx-lava">Lava Flow</option>
+            <option value="psx-acid">Toxic Acid</option>
+            <option value="psx-ice">Frozen Ice</option>
+            <option value="psx-swamp">Swamp</option>
+            <option value="psx-blood">Blood</option>
+          </optgroup>
+          <optgroup label="— PSX Wood —">
+            <option value="asset-wood-oak">Light Oak</option>
+            <option value="asset-wood-gray">Weathered Gray</option>
+            <option value="asset-wood-mahogany">Mahogany</option>
+          </optgroup>
+          <optgroup label="— PSX Sand —">
+            <option value="asset-sand-dune">Golden Dunes</option>
+            <option value="asset-sand-beach">White Beach</option>
+            <option value="asset-sand-wet">Wet Sand</option>
+          </optgroup>
+          <optgroup label="— PSX Rock —">
+            <option value="asset-rock-slate">Blue Slate</option>
+            <option value="asset-rock-sandstone">Sandstone</option>
+            <option value="asset-rock-granite">Granite</option>
+          </optgroup>
+          <optgroup label="— PSX Mud —">
+            <option value="asset-mud-wet">Wet Mud</option>
+            <option value="asset-mud-cracked">Cracked Earth</option>
+            <option value="asset-mud-dark">Dark Cracked</option>
+          </optgroup>
+          <optgroup label="— PSX Metal —">
+            <option value="asset-metal-steel">Brushed Steel</option>
+            <option value="asset-metal-rust">Rusted</option>
+            <option value="asset-metal-corrugated">Corrugated</option>
+          </optgroup>
+          <optgroup label="— PSX Lava —">
+            <option value="asset-lava-red">Red Cracks</option>
+            <option value="asset-lava-orange">Orange Flow</option>
+            <option value="asset-lava-cooled">Cooled Rock</option>
+          </optgroup>
+          <optgroup label="— PSX Ice / Snow —">
+            <option value="asset-ice-teal">Teal Ice</option>
+            <option value="asset-ice-pale">Pale Ice</option>
+            <option value="asset-ice-snow">White Snow</option>
+          </optgroup>
+          <optgroup label="— PS1 Effects —">
+            <option value="ps1-water">Water Ripple</option>
+            <option value="ps1-boot">Boot Screen Diamonds</option>
+            <option value="ps1-stars">Starfield</option>
+            <option value="ps1-grid">Wireframe Grid</option>
+          </optgroup>
+          <optgroup label="— Retro —">
+            <option value="scanlines">CRT Scanlines</option>
+            <option value="checkers">Checkerboard</option>
+            <option value="vaporwave">Vaporwave Gradient</option>
+            <option value="noise">Static Noise</option>
+          </optgroup>
+          <optgroup label="— Elements —">
+            <option value="lava">Lava Flow</option>
+            <option value="marble">Dark Marble</option>
+            <option value="aurora">Aurora</option>
+            <option value="nebula">Nebula</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Texture opacity <span class="range-val" id="rvTexOp">40</span>%</label>
+        <input type="range" id="texOpacity" min="5" max="100" value="40" />
+      </div>
+      <div class="preset-row" id="presets"></div>
+    </div>
+  </div>
+
+  <!-- Frame -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Frame</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Shape</label>
+        <select id="frameShape">
+          <option value="none">None</option>
+          <option value="square" selected>Square</option>
+          <option value="rounded">Rounded Square</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+      <div id="frameOptions" style="display:none">
+        <div class="field">
+          <label>Frame size <span class="range-val" id="rvFrameSize">400</span>px</label>
+          <input type="range" id="frameSize" min="200" max="800" value="400" />
+        </div>
+        <div class="field">
+          <label>Padding <span class="range-val" id="rvFramePad">30</span>px</label>
+          <input type="range" id="framePad" min="0" max="100" value="30" />
+        </div>
+        <div class="field">
+          <label>Border width <span class="range-val" id="rvFrameBorder">0</span>px</label>
+          <input type="range" id="frameBorder" min="0" max="20" value="0" />
+        </div>
+        <div class="color-row"><label>Border color</label><input type="color" id="frameBorderColor" value="#aeff00" /></div>
+        <div class="color-row"><label>Frame bg</label><input type="color" id="frameBG" value="#ffffff" /></div>
+        <div class="field">
+          <label>Frame bg opacity <span class="range-val" id="rvFrameBGOp">100</span>%</label>
+          <input type="range" id="frameBGOpacity" min="0" max="100" value="100" />
+        </div>
+        <div class="field">
+          <label>Corner radius <span class="range-val" id="rvFrameRadius">40</span>px</label>
+          <input type="range" id="frameRadius" min="0" max="200" value="40" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Text Below</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Line 1</label>
+        <input type="text" id="line1" value="PlayStation" />
+      </div>
+      <div class="field">
+        <label>Line 2</label>
+        <input type="text" id="line2" value="" />
+      </div>
+      <div class="field">
+        <label>Font</label>
+        <select id="textFontSel">
+          <optgroup label="— PlayStation —">
+            <option value="'PlayStation', sans-serif" selected>PlayStation (Official)</option>
+          </optgroup>
+          <optgroup label="— Futuristic / Sci-Fi —">
+            <option value="'Orbitron', sans-serif">Orbitron (PS2 vibe)</option>
+            <option value="'Audiowide', sans-serif">Audiowide</option>
+            <option value="'Bruno Ace', sans-serif">Bruno Ace</option>
+            <option value="'Electrolize', sans-serif">Electrolize</option>
+            <option value="'Michroma', sans-serif">Michroma</option>
+            <option value="'Oxanium', sans-serif">Oxanium</option>
+            <option value="'Exo 2', sans-serif">Exo 2</option>
+            <option value="'Chakra Petch', sans-serif">Chakra Petch</option>
+          </optgroup>
+          <optgroup label="— Bold / Display —">
+            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+            <option value="'Anton', sans-serif">Anton</option>
+            <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+            <option value="'Oswald', sans-serif">Oswald</option>
+            <option value="'Russo One', sans-serif">Russo One</option>
+            <option value="'Black Ops One', sans-serif">Black Ops One</option>
+            <option value="'Bungee', sans-serif">Bungee</option>
+            <option value="'Righteous', sans-serif">Righteous</option>
+            <option value="'Teko', sans-serif">Teko</option>
+            <option value="'Rajdhani', sans-serif">Rajdhani</option>
+            <option value="'Play', sans-serif">Play</option>
+          </optgroup>
+          <optgroup label="— Retro / Pixel —">
+            <option value="'Press Start 2P', sans-serif">Press Start 2P</option>
+            <option value="'Silkscreen', sans-serif">Silkscreen</option>
+          </optgroup>
+          <optgroup label="— Mono / Artistic —">
+            <option value="'Major Mono Display', monospace">Major Mono Display</option>
+            <option value="'Space Mono', monospace">Space Mono</option>
+            <option value="'Cascadia Mono', monospace">Cascadia Mono</option>
+          </optgroup>
+          <optgroup label="— System —">
+            <option value="'Arial Black', sans-serif">Arial Black</option>
+            <option value="Impact, sans-serif">Impact</option>
+            <option value="'Segoe UI Black', 'Segoe UI', sans-serif">Segoe UI Black</option>
+            <option value="Futura, 'Century Gothic', sans-serif">Futura</option>
+            <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="color-row"><label>Text color</label><input type="color" id="cText" value="#050505" /></div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Size <span class="range-val" id="rvText">80</span></label>
+          <input type="range" id="textSize" min="12" max="80" value="80" />
+        </div>
+        <div class="field">
+          <label>Spacing <span class="range-val" id="rvLS">-1</span></label>
+          <input type="range" id="letterSp" min="-2" max="20" value="-1" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Gap <span class="range-val" id="rvGap">19</span></label>
+        <input type="range" id="gap" min="0" max="80" value="19" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout & Grid -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Layout &amp; Grid</div>
+    <div class="section-body">
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Logo Transform</div>
+      <div class="field">
+        <label>Scale <span class="range-val" id="rvLogoScale">100</span>%</label>
+        <input type="range" id="logoScale" min="20" max="200" value="100" />
+      </div>
+      <div class="field">
+        <label>Move X <span class="range-val" id="rvLogoMoveX">0</span>px</label>
+        <input type="range" id="logoMoveX" min="-300" max="300" value="0" />
+      </div>
+      <div class="field">
+        <label>Move Y <span class="range-val" id="rvLogoMoveY">0</span>px</label>
+        <input type="range" id="logoMoveY" min="-300" max="300" value="0" />
+      </div>
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Grid Overlay</div>
+      <label style="font-size:11px;color:#666;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:4px;">
+        <input type="checkbox" id="gridCenter" style="accent-color:#48CAE4;" /> Center cross
+      </label>
+      <label style="font-size:11px;color:#666;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:4px;">
+        <input type="checkbox" id="gridThirds" style="accent-color:#48CAE4;" /> Rule of thirds
+      </label>
+      <label style="font-size:11px;color:#666;display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="gridSnap" style="accent-color:#F59E0B;" /> Snap to grid
+      </label>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Export</div>
+    <div class="section-body">
+      <div style="margin-bottom:6px">
+        <label style="font-size:11px;color:#666;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="transparentBG" style="accent-color:#2563EB;" /> Transparent background
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="exportPNG(1)">PNG</button>
+        <button class="btn sec" onclick="exportPNG(2)">PNG @2x</button>
+        <button class="btn sec" onclick="exportPNG(4)">PNG @4x</button>
+        <button class="btn sec" onclick="exportGIF()" id="gifBtn">GIF</button>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn" onclick="copyJSON()" id="copyJsonBtn">Copy JSON</button>
+        <button class="btn sec" onclick="loadJSON()">Load JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-area" id="previewArea">
+  <div class="frame-wrap" id="frameWrap">
+    <div class="frame-bg-overlay" id="frameBGOverlay"></div>
+    <div class="texture-overlay" id="textureOverlay"></div>
+    <div class="grid-overlay" id="gridOverlay"></div>
+    <div class="logo-scene" id="logoScene">
+      <div class="logo-anchor" id="logoAnchor">
+        <div class="letter-group p-group" id="pGroup"></div>
+        <div class="letter-group s-group" id="sGroup"></div>
+      </div>
+    </div>
+    <div class="logo-text" id="logoText">
+      <div class="line1" id="textLine1">PlayStation</div>
+      <div class="line2" id="textLine2"></div>
+    </div>
+  </div>
+</div>
+
+<canvas id="exportCanvas"></canvas>
+<div class="color-ctx" id="colorCtx"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// Default segment colors
+const DEFAULT_P_COLORS = ['#df0024', '#df0024', '#df0024', '#df0024', '#df0024', '#df0024'];
+const DEFAULT_S_COLORS = ['#f3c300', '#00ac9f', '#2e6db4', '#f3c300', '#00ac9f', '#2e6db4'];
+const FB_P_COLORS = ['#2563EB', '#1d4ed8', '#60a5fa', '#3b82f6', '#2563EB', '#1e40af'];
+const FB_S_COLORS = ['#F59E0B', '#8B5CF6', '#2563EB', '#F59E0B', '#8B5CF6', '#2563EB'];
+
+// Current color state
+let pSegColors = [...DEFAULT_P_COLORS];
+let sSegColors = [...DEFAULT_S_COLORS];
+
+// ---- PSX Asset Texture Generator (7LAMPS-faithful) ----
+const assetTextures = {};
+(function generateAssetTextures() {
+  const S = 64;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+
+  function noise(x, y, seed) {
+    const n = Math.sin(x * 127.1 + y * 311.7 + seed * 43758.5453) * 43758.5453;
+    return n - Math.floor(n);
+  }
+  function smoothNoise(x, y, seed) {
+    const ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    const a = noise(ix, iy, seed), b = noise(ix+1, iy, seed);
+    const cc = noise(ix, iy+1, seed), d = noise(ix+1, iy+1, seed);
+    const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+    return (a*(1-ux)+b*ux)*(1-uy) + (cc*(1-ux)+d*ux)*uy;
+  }
+  function fbm(x, y, seed, oct) {
+    let v = 0, amp = 0.5, freq = 1;
+    for (let i = 0; i < oct; i++) { v += amp * smoothNoise(x*freq, y*freq, seed+i*7); amp *= 0.5; freq *= 2; }
+    return v;
+  }
+  function putPx(d, x, y, r, g, b) {
+    const i = (y * S + x) * 4;
+    d[i] = r; d[i+1] = g; d[i+2] = b; d[i+3] = 255;
+  }
+  function dither(v) { return v + (Math.random() - 0.5) * 12; }
+  function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
+  // Voronoi distance for crack patterns
+  function voronoi(x, y, seed, cellSize) {
+    const cx = Math.floor(x / cellSize), cy = Math.floor(y / cellSize);
+    let d1 = 999, d2 = 999;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+      const px = (cx + dx + 0.5) * cellSize + (noise(cx+dx, cy+dy, seed) - 0.5) * cellSize * 0.8;
+      const py = (cy + dy + 0.5) * cellSize + (noise(cy+dy, cx+dx, seed+3) - 0.5) * cellSize * 0.8;
+      const d = Math.hypot(x - px, y - py);
+      if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) { d2 = d; }
+    }
+    return { d1, d2, edge: d2 - d1 };
+  }
+
+  function gen(name, fn) {
+    const img = ctx.createImageData(S, S);
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      const [r, g, b] = fn(x, y);
+      putPx(img.data, x, y, clamp(r), clamp(g), clamp(b));
+    }
+    ctx.putImageData(img, 0, 0);
+    assetTextures[name] = c.toDataURL();
+  }
+
+  // ===== PSX WOOD (ref: 7LAMPS) =====
+  // Light Oak — warm beige/tan, vertical grain
+  gen('asset-wood-oak', (x, y) => {
+    const grain = Math.sin(y * 0.8 + Math.sin(y * 0.15 + Math.floor(x/16) * 5) * 4) * 0.5 + 0.5;
+    const n = fbm(x/10, y/6, 20, 3);
+    const gap = (x % 16 === 0) ? 0.5 : 1;
+    const base = (150 + grain * 60 + n * 30) * gap;
+    return [dither(base * 1.0), dither(base * 0.85), dither(base * 0.65)];
+  });
+  // Weathered Gray — silvery gray planks with seams
+  gen('asset-wood-gray', (x, y) => {
+    const grain = Math.sin(y * 0.6 + Math.sin(y * 0.12) * 3) * 0.5 + 0.5;
+    const n = fbm(x/8, y/8, 21, 3);
+    const gap = (x % 16 < 2) ? 0.45 : 1;
+    const base = (110 + grain * 30 + n * 25) * gap;
+    return [dither(base * 0.92), dither(base * 0.91), dither(base * 0.88)];
+  });
+  // Mahogany — rich reddish-brown
+  gen('asset-wood-mahogany', (x, y) => {
+    const grain = Math.sin(y * 0.9 + Math.sin(y * 0.18 + Math.floor(x/16) * 7) * 3) * 0.5 + 0.5;
+    const n = fbm(x/10, y/5, 22, 3);
+    const gap = (x % 16 === 0) ? 0.5 : 1;
+    const base = (100 + grain * 50 + n * 25) * gap;
+    return [dither(base * 1.15), dither(base * 0.55), dither(base * 0.35)];
+  });
+
+  // ===== PSX SAND (ref: 7LAMPS) =====
+  // Golden Dunes — orange-gold with diagonal wind ripples
+  gen('asset-sand-dune', (x, y) => {
+    const ripple = Math.sin((x + y) * 0.25 + fbm(x/20, y/20, 30, 2) * 4) * 0.5 + 0.5;
+    const n = fbm(x/12, y/12, 31, 3);
+    const base = 150 + ripple * 50 + n * 20;
+    return [dither(base * 1.05), dither(base * 0.72), dither(base * 0.4)];
+  });
+  // White Beach — pale near-white sand
+  gen('asset-sand-beach', (x, y) => {
+    const n = fbm(x/14, y/14, 32, 3);
+    const wash = Math.sin(y * 0.15 + n * 3) * 0.5 + 0.5;
+    const base = 200 + n * 30 + wash * 15;
+    return [dither(base * 0.98), dither(base * 0.95), dither(base * 0.88)];
+  });
+  // Wet Sand — gray with circular water ripples
+  gen('asset-sand-wet', (x, y) => {
+    const n = fbm(x/12, y/12, 33, 3);
+    const ripple = Math.sin(Math.hypot(x - 32, y - 32) * 0.3 + n * 2) * 0.3;
+    const base = 160 + n * 30 + ripple * 20;
+    return [dither(base * 0.93), dither(base * 0.93), dither(base * 0.9)];
+  });
+
+  // ===== PSX ROCK (ref: 7LAMPS — very pixelated) =====
+  // Blue Slate — blue-gray with fracture cracks
+  gen('asset-rock-slate', (x, y) => {
+    const n = fbm(x/8, y/8, 40, 4);
+    const crack = fbm(x/4, y/4, 42, 2) > 0.6 ? -30 : 0;
+    const strata = Math.sin(y * 0.2 + n * 3) * 10;
+    const base = 80 + n * 50 + strata + crack;
+    return [dither(base * 0.75), dither(base * 0.85), dither(base * 1.0)];
+  });
+  // Sandstone — warm brown
+  gen('asset-rock-sandstone', (x, y) => {
+    const n = fbm(x/7, y/7, 41, 4);
+    const crack = fbm(x/5, y/5, 43, 2) > 0.62 ? -25 : 0;
+    const base = 110 + n * 50 + crack;
+    return [dither(base * 1.05), dither(base * 0.8), dither(base * 0.58)];
+  });
+  // Granite — high-contrast speckle (dark+light mix)
+  gen('asset-rock-granite', (x, y) => {
+    const n = fbm(x/6, y/6, 44, 4);
+    const speck = noise(x * 5, y * 5, 45);
+    const base = speck > 0.55 ? 170 + n * 40 : 40 + n * 40;
+    return [dither(base * 0.95), dither(base * 0.95), dither(base * 0.98)];
+  });
+
+  // ===== PSX MUD (ref: 7LAMPS) =====
+  // Wet Mud — olive-gray smooth
+  gen('asset-mud-wet', (x, y) => {
+    const n = fbm(x/10, y/10, 50, 4);
+    const pebble = noise(x * 3, y * 3, 52) > 0.85 ? 15 : 0;
+    const base = 80 + n * 40 + pebble;
+    return [dither(base * 0.95), dither(base * 0.92), dither(base * 0.7)];
+  });
+  // Cracked Earth — terracotta with Voronoi cracks
+  gen('asset-mud-cracked', (x, y) => {
+    const v = voronoi(x, y, 51, 16);
+    const isCrack = v.edge < 2.5;
+    const n = fbm(x/12, y/12, 53, 3);
+    if (isCrack) return [dither(40 + n * 15), dither(25 + n * 10), dither(15 + n * 8)];
+    const base = 130 + n * 35;
+    return [dither(base * 1.05), dither(base * 0.65), dither(base * 0.42)];
+  });
+  // Dark Cracked — deep brown-gray cracked
+  gen('asset-mud-dark', (x, y) => {
+    const v = voronoi(x, y, 54, 14);
+    const isCrack = v.edge < 2.8;
+    const n = fbm(x/10, y/10, 55, 3);
+    if (isCrack) return [dither(20 + n * 10), dither(15 + n * 8), dither(10 + n * 6)];
+    const base = 70 + n * 30;
+    return [dither(base * 0.95), dither(base * 0.85), dither(base * 0.7)];
+  });
+
+  // ===== PSX METAL (ref: 7LAMPS) =====
+  // Brushed Steel — dark gray with horizontal brush marks
+  gen('asset-metal-steel', (x, y) => {
+    const n = fbm(x/10, y/10, 60, 3);
+    const brush = Math.sin(y * 1.2 + n * 3) * 6;
+    const base = 80 + n * 30 + brush;
+    return [dither(base * 0.88), dither(base * 0.92), dither(base * 1.0)];
+  });
+  // Rusted — orange rust on dark base
+  gen('asset-metal-rust', (x, y) => {
+    const n = fbm(x/8, y/8, 61, 4);
+    const rust = n > 0.4 ? (n - 0.4) * 2.5 : 0;
+    const base = 50 + n * 30;
+    return [dither(base * 0.7 + rust * 160), dither(base * 0.5 + rust * 60), dither(base * 0.45 + rust * 15)];
+  });
+  // Corrugated — vertical ridges
+  gen('asset-metal-corrugated', (x, y) => {
+    const ridge = Math.sin(x * 0.5) * 0.5 + 0.5;
+    const n = fbm(x/12, y/12, 62, 3);
+    const base = 55 + ridge * 25 + n * 15;
+    return [dither(base * 0.85), dither(base * 0.88), dither(base * 0.95)];
+  });
+
+  // ===== PSX LAVA (ref: 7LAMPS — very pixelated, iconic) =====
+  // Red Cracks — bright red veins on black (the iconic look)
+  gen('asset-lava-red', (x, y) => {
+    const v = voronoi(x, y, 70, 12);
+    const glow = Math.max(0, 1 - v.edge / 3);
+    const n = fbm(x/8, y/8, 71, 3);
+    const rock = 8 + n * 15;
+    return [dither(rock + glow * 230), dither(rock * 0.5 + glow * 30), dither(rock * 0.5 + glow * 10)];
+  });
+  // Orange Flow — thick flowing channels
+  gen('asset-lava-orange', (x, y) => {
+    const v = voronoi(x, y, 72, 10);
+    const glow = Math.max(0, 1 - v.edge / 4);
+    const n = fbm(x/6, y/6, 73, 3);
+    const rock = 20 + n * 20;
+    return [dither(rock + glow * 200), dither(rock * 0.5 + glow * 130), dither(rock * 0.3 + glow * 15)];
+  });
+  // Cooled Rock — mostly dark with scattered hot spots
+  gen('asset-lava-cooled', (x, y) => {
+    const n = fbm(x/8, y/8, 74, 4);
+    const hot = n > 0.65 ? (n - 0.65) * 4 : 0;
+    const base = 12 + n * 20;
+    return [dither(base + hot * 130), dither(base * 0.6 + hot * 25), dither(base * 0.5 + hot * 10)];
+  });
+
+  // ===== PSX ICE / SNOW (ref: 7LAMPS) =====
+  // Teal Ice — dark teal-blue with fracture cracks
+  gen('asset-ice-teal', (x, y) => {
+    const n = fbm(x/10, y/10, 80, 3);
+    const crack = fbm(x/5, y/5, 82, 2) > 0.6 ? 30 : 0;
+    const base = 55 + n * 35;
+    return [dither(base * 0.7 + crack * 0.4), dither(base * 1.05 + crack * 0.5), dither(base * 1.3 + crack * 0.6)];
+  });
+  // Pale Ice — light blue-white with bubble texture
+  gen('asset-ice-pale', (x, y) => {
+    const n = fbm(x/12, y/12, 81, 3);
+    const bubble = noise(x * 4, y * 4, 83) > 0.8 ? 15 : 0;
+    const base = 160 + n * 40 + bubble;
+    return [dither(base * 0.88), dither(base * 0.95), dither(base * 1.0)];
+  });
+  // White Snow — near-white with very faint variation
+  gen('asset-ice-snow', (x, y) => {
+    const n = fbm(x/16, y/16, 84, 2);
+    const base = 230 + n * 20;
+    return [dither(base * 0.97), dither(base * 0.98), dither(base * 1.0)];
+  });
+
+})();
+
+// ---- PSX Water Texture Generator ----
+// Generates dual-layer 32x32 water textures with limited palettes
+const psxWaterTextures = {};
+(function generatePSXWater() {
+  const S = 32; // Authentic PS1 resolution
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+
+  function noise(x, y, seed) {
+    const n = Math.sin(x * 127.1 + y * 311.7 + seed * 43758.5453) * 43758.5453;
+    return n - Math.floor(n);
+  }
+  function smoothNoise(x, y, seed) {
+    const ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+    const a = noise(ix, iy, seed), b = noise(ix+1, iy, seed);
+    const c2 = noise(ix, iy+1, seed), d = noise(ix+1, iy+1, seed);
+    return (a*(1-ux)+b*ux)*(1-uy) + (c2*(1-ux)+d*ux)*uy;
+  }
+  function fbm(x, y, seed, oct) {
+    let v = 0, amp = 0.5, freq = 1;
+    for (let i = 0; i < oct; i++) { v += amp * smoothNoise(x*freq, y*freq, seed+i*7); amp *= 0.5; freq *= 2; }
+    return v;
+  }
+  // Palette quantize — snap to nearest in a limited palette
+  function palettize(r, g, b, palette) {
+    let best = 0, bestD = Infinity;
+    for (let i = 0; i < palette.length; i++) {
+      const dr = r - palette[i][0], dg = g - palette[i][1], db = b - palette[i][2];
+      const d = dr*dr + dg*dg + db*db;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return palette[best];
+  }
+
+  function generateWater(name, palette, seed, causticIntensity, waveScale) {
+    // Generate two layers (A and B) for dual-scroll effect
+    for (let layer = 0; layer < 2; layer++) {
+      const img = ctx.createImageData(S, S);
+      const sd = seed + layer * 50;
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+        // Tileable noise: use sin/cos wrapping for seamless tiling
+        const tx = x / S, ty = y / S;
+        const nx = Math.sin(tx * Math.PI * 2) * 0.5, ny = Math.cos(ty * Math.PI * 2) * 0.5;
+        const mx = Math.cos(tx * Math.PI * 2) * 0.5, my = Math.sin(ty * Math.PI * 2) * 0.5;
+        const n = fbm(nx * waveScale + mx, ny * waveScale + my, sd, 3);
+        // Caustic highlights
+        const caustic = Math.pow(Math.max(0, Math.sin(n * 12 + x * 0.3) * Math.cos(n * 8 + y * 0.4)), 2) * causticIntensity;
+        // Base color from palette interpolation
+        const pi = n * (palette.length - 1);
+        const pi0 = Math.floor(pi), pi1 = Math.min(pi0 + 1, palette.length - 1);
+        const pt = pi - pi0;
+        let r = palette[pi0][0] * (1 - pt) + palette[pi1][0] * pt + caustic * 180;
+        let g = palette[pi0][1] * (1 - pt) + palette[pi1][1] * pt + caustic * 200;
+        let b = palette[pi0][2] * (1 - pt) + palette[pi1][2] * pt + caustic * 160;
+        // Quantize to palette for PS1 color banding
+        const [qr, qg, qb] = palettize(r, g, b, palette);
+        const i = (y * S + x) * 4;
+        img.data[i] = Math.max(0, Math.min(255, Math.round(qr + caustic * 60)));
+        img.data[i+1] = Math.max(0, Math.min(255, Math.round(qg + caustic * 80)));
+        img.data[i+2] = Math.max(0, Math.min(255, Math.round(qb + caustic * 40)));
+        img.data[i+3] = layer === 1 ? 160 : 255; // Layer B is semi-transparent
+      }
+      ctx.putImageData(img, 0, 0);
+      psxWaterTextures[name + (layer === 0 ? '-a' : '-b')] = c.toDataURL();
+    }
+  }
+
+  // Ocean Deep — deep blue, dark with bright caustic spots
+  generateWater('psx-ocean', [
+    [8, 16, 48], [12, 24, 72], [16, 32, 96], [20, 48, 120],
+    [24, 56, 140], [40, 72, 160], [28, 40, 108], [16, 28, 80]
+  ], 1, 0.8, 3);
+
+  // River — teal/green flowing water
+  generateWater('psx-river', [
+    [8, 40, 32], [12, 64, 56], [20, 88, 72], [28, 112, 88],
+    [16, 72, 64], [36, 120, 96], [24, 96, 80], [12, 56, 48]
+  ], 2, 0.6, 4);
+
+  // Warm Tropical — cyan/turquoise bright
+  generateWater('psx-warm', [
+    [16, 72, 88], [24, 104, 120], [40, 136, 144], [64, 168, 168],
+    [48, 152, 156], [80, 184, 180], [32, 120, 132], [56, 160, 164]
+  ], 3, 0.7, 3.5);
+
+  // Lava Flow — red/orange molten
+  generateWater('psx-lava', [
+    [96, 8, 0], [140, 24, 0], [180, 56, 0], [220, 96, 8],
+    [255, 140, 16], [255, 180, 32], [200, 72, 0], [160, 40, 0]
+  ], 4, 1.0, 3);
+
+  // Toxic Acid — sickly green
+  generateWater('psx-acid', [
+    [16, 48, 8], [32, 80, 12], [56, 120, 16], [80, 160, 24],
+    [108, 200, 32], [140, 220, 48], [64, 140, 20], [40, 96, 12]
+  ], 5, 0.9, 4);
+
+  // Frozen Ice — cold blue/white
+  generateWater('psx-ice', [
+    [120, 140, 180], [140, 160, 200], [160, 180, 220], [180, 200, 235],
+    [200, 216, 245], [220, 232, 255], [150, 170, 210], [170, 192, 228]
+  ], 6, 0.5, 2.5);
+
+  // Swamp — murky brown-green
+  generateWater('psx-swamp', [
+    [24, 32, 8], [40, 48, 16], [56, 60, 24], [72, 72, 28],
+    [48, 56, 20], [64, 64, 24], [32, 40, 12], [80, 80, 32]
+  ], 7, 0.3, 3);
+
+  // Blood — dark red
+  generateWater('psx-blood', [
+    [48, 4, 4], [72, 8, 8], [96, 12, 8], [120, 16, 12],
+    [80, 8, 8], [108, 16, 12], [60, 4, 4], [140, 24, 16]
+  ], 8, 0.7, 3.5);
+})();
+
+// ---- Segment clip-path math ----
+function getSegmentClipPath(index, total, angleDeg) {
+  if (total === 1) return 'none';
+
+  const theta = angleDeg * Math.PI / 180;
+  const ct = Math.cos(theta);
+  const st = Math.sin(theta);
+
+  // Project corners onto direction vector
+  const projs = [
+    0,                    // (0,0)
+    100 * ct,             // (100,0)
+    100 * st,             // (0,100)
+    100 * (ct + st)       // (100,100)
+  ];
+  const minP = Math.min(...projs);
+  const maxP = Math.max(...projs);
+  const range = maxP - minP;
+
+  if (range < 0.01) return 'none';
+
+  const p0 = minP + (index / total) * range;
+  const p1 = minP + ((index + 1) / total) * range;
+
+  const T = 500; // extend lines far beyond element
+
+  // Two points on boundary line p0
+  const a1x = p0 * ct - T * st;
+  const a1y = p0 * st + T * ct;
+  const a2x = p0 * ct + T * st;
+  const a2y = p0 * st - T * ct;
+
+  // Two points on boundary line p1
+  const b1x = p1 * ct + T * st;
+  const b1y = p1 * st - T * ct;
+  const b2x = p1 * ct - T * st;
+  const b2y = p1 * st + T * ct;
+
+  return `polygon(${a1x}% ${a1y}%, ${a2x}% ${a2y}%, ${b1x}% ${b1y}%, ${b2x}% ${b2y}%)`;
+}
+
+// ---- OKLCH Palette / Perceptual Hue Shift ----
+const PS1_BASE = ['#df0024', '#f3c300', '#00ac9f', '#2e6db4'];
+
+// sRGB hex → linear RGB
+function hexToLinear(hex) {
+  const to01 = v => { v = parseInt(v, 16) / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return [to01(hex.slice(1,3)), to01(hex.slice(3,5)), to01(hex.slice(5,7))];
+}
+
+// linear RGB → sRGB hex (with gamut clamp)
+function linearToHex(r, g, b) {
+  const gamma = v => { v = Math.max(0, Math.min(1, v)); return v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1/2.4) - 0.055; };
+  const toHex = v => Math.round(gamma(v) * 255).toString(16).padStart(2, '0');
+  return '#' + toHex(r) + toHex(g) + toHex(b);
+}
+
+// linear RGB → OKLAB
+function linearToOklab(r, g, b) {
+  const l_ = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m_ = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s_ = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [
+    0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+    1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+    0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+  ];
+}
+
+// OKLAB → linear RGB
+function oklabToLinear(L, a, b) {
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l3 = l_ * l_ * l_, m3 = m_ * m_ * m_, s3 = s_ * s_ * s_;
+  return [
+    +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3,
+    -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3,
+    -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3
+  ];
+}
+
+// OKLAB → OKLCH
+function oklabToOklch(L, a, b) {
+  const C = Math.sqrt(a * a + b * b);
+  let h = Math.atan2(b, a) * 180 / Math.PI;
+  if (h < 0) h += 360;
+  return [L, C, h];
+}
+
+// OKLCH → OKLAB
+function oklchToOklab(L, C, h) {
+  const hRad = h * Math.PI / 180;
+  return [L, C * Math.cos(hRad), C * Math.sin(hRad)];
+}
+
+// hex → OKLCH
+function hexToOklch(hex) {
+  const [r, g, b] = hexToLinear(hex);
+  const [L, a, bb] = linearToOklab(r, g, b);
+  return oklabToOklch(L, a, bb);
+}
+
+// OKLCH → hex (with gamut mapping via chroma reduction)
+function oklchToHex(L, C, h) {
+  let c = C;
+  for (let i = 0; i < 20; i++) {
+    const [labL, labA, labB] = oklchToOklab(L, c, h);
+    const [r, g, b] = oklabToLinear(labL, labA, labB);
+    if (r >= -0.001 && r <= 1.001 && g >= -0.001 && g <= 1.001 && b >= -0.001 && b <= 1.001) {
+      return linearToHex(r, g, b);
+    }
+    c *= 0.95; // reduce chroma to fit in gamut
+  }
+  const [labL, labA, labB] = oklchToOklab(L, c, h);
+  const [r, g, b] = oklabToLinear(labL, labA, labB);
+  return linearToHex(r, g, b);
+}
+
+// Perceptual hue shift: rotate hue in OKLCH, preserving L and C
+function shiftHex(hex, deg) {
+  const [L, C, h] = hexToOklch(hex);
+  return oklchToHex(L, C, ((h + deg) % 360 + 360) % 360);
+}
+
+// Cache the base shifted colors and slot overrides
+let baseShifted = [...PS1_BASE];
+const slotOverride = [null, null, null, null]; // null = use base shifted
+
+const SLOT_ELS = ['palResP', 'palResS0', 'palResS1', 'palResS2'];
+const SLOT_NAMES = ['P', 'S1', 'S2', 'S3'];
+
+// Generate color options for a slot by tier
+function generateTier(baseHex, tier) {
+  const [L, C, h] = hexToOklch(baseHex);
+  const colors = [];
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const wrap = v => ((v % 360) + 360) % 360;
+
+  if (tier === 'similar') {
+    // Close neighbors — stays recognizable
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 10)),  label: 'hue +10' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 10)),  label: 'hue -10' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 20)),  label: 'hue +20' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 20)),  label: 'hue -20' });
+    colors.push({ hex: oklchToHex(clamp01(L + 0.05), C, h), label: 'lighter' });
+    colors.push({ hex: oklchToHex(clamp01(L - 0.05), C, h), label: 'darker' });
+    colors.push({ hex: oklchToHex(L, Math.max(0, C + 0.03), h), label: 'vivid' });
+    colors.push({ hex: oklchToHex(L, Math.max(0, C - 0.03), h), label: 'muted' });
+  } else if (tier === 'modest') {
+    // Analogous range — different but harmonious
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 35)),  label: 'analog +35' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 35)),  label: 'analog -35' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 55)),  label: 'analog +55' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 55)),  label: 'analog -55' });
+    colors.push({ hex: oklchToHex(clamp01(L + 0.04), C, wrap(h + 30)), label: 'warm lift' });
+    colors.push({ hex: oklchToHex(clamp01(L - 0.04), C, wrap(h - 30)), label: 'cool drop' });
+    colors.push({ hex: oklchToHex(L, Math.max(0, C + 0.04), wrap(h + 40)), label: 'vivid warm' });
+    colors.push({ hex: oklchToHex(L, Math.max(0, C - 0.03), wrap(h - 40)), label: 'muted cool' });
+  } else { // risky
+    // Complementary, triadic, split-comp — bold moves
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 180)), label: 'complement' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 120)), label: 'triadic +' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 120)), label: 'triadic -' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 150)), label: 'split-comp +' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 150)), label: 'split-comp -' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h + 90)),  label: 'square +' });
+    colors.push({ hex: oklchToHex(L, C, wrap(h - 90)),  label: 'square -' });
+    colors.push({ hex: oklchToHex(clamp01(L + 0.06), Math.max(0, C + 0.04), wrap(h + 180)), label: 'bright comp' });
+  }
+  return colors;
+}
+
+// Context menu state
+let ctxSlot = -1;
+
+function openColorCtx(e, slot) {
+  e.preventDefault();
+  ctxSlot = slot;
+  const base = getFinalColor(slot);
+  const menu = $('colorCtx');
+
+  const tiers = [
+    { key: 'similar', label: 'Similar', cls: 'similar' },
+    { key: 'modest',  label: 'Modest',  cls: 'modest' },
+    { key: 'risky',   label: 'Risky',   cls: 'risky' },
+  ];
+
+  let html = '';
+  for (const t of tiers) {
+    const colors = generateTier(base, t.key);
+    html += '<div class="ctx-tier">';
+    html += '<div class="ctx-label ' + t.cls + '">' + t.label + '</div>';
+    html += '<div class="ctx-swatches">';
+    for (const c of colors) {
+      html += '<div class="ctx-swatch" style="background:' + c.hex + ';" title="' + c.label + ' ' + c.hex + '" data-hex="' + c.hex + '"></div>';
+    }
+    html += '</div></div>';
+  }
+  // Reset option
+  html += '<div style="margin-top:4px;"><span style="font-size:9px;color:#555;cursor:pointer;text-decoration:underline;" id="ctxReset">reset to base</span></div>';
+
+  menu.innerHTML = html;
+
+  // Position near click
+  const x = Math.min(e.clientX, window.innerWidth - 220);
+  const y = Math.min(e.clientY, window.innerHeight - 300);
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  menu.classList.add('open');
+
+  // Wire swatch clicks
+  menu.querySelectorAll('.ctx-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      slotOverride[ctxSlot] = sw.dataset.hex;
+      renderPaletteSwatches();
+      closeColorCtx();
+    });
+  });
+  $('ctxReset').addEventListener('click', () => {
+    slotOverride[ctxSlot] = null;
+    renderPaletteSwatches();
+    closeColorCtx();
+  });
+}
+
+function closeColorCtx() {
+  $('colorCtx').classList.remove('open');
+  ctxSlot = -1;
+}
+
+// Close on click outside
+document.addEventListener('click', (e) => {
+  if (!$('colorCtx').contains(e.target) && !SLOT_ELS.some(id => $(id).contains(e.target))) {
+    closeColorCtx();
+  }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeColorCtx(); });
+
+function getFinalColor(slot) {
+  return slotOverride[slot] || baseShifted[slot];
+}
+
+function updatePalette() {
+  const shift = parseInt($('hueShift').value);
+  $('rvHueShift').textContent = shift;
+  baseShifted = PS1_BASE.map(c => shiftHex(c, shift));
+  // Reset overrides when slider moves
+  slotOverride[0] = slotOverride[1] = slotOverride[2] = slotOverride[3] = null;
+  renderPaletteSwatches();
+}
+
+function renderPaletteSwatches() {
+  for (let i = 0; i < 4; i++) {
+    const color = getFinalColor(i);
+    const el = $(SLOT_ELS[i]);
+    el.style.background = color;
+    el.title = color + (slotOverride[i] ? ' (custom)' : '');
+    el.style.borderColor = slotOverride[i] ? '#FFFF00' : '#333';
+  }
+  const active = slotOverride.map((v, i) => v ? SLOT_NAMES[i] + ':' + v : '').filter(Boolean);
+  $('variantLabel').textContent = active.length ? active.join('  ') : '';
+}
+
+// Wire up right-click on result swatches
+SLOT_ELS.forEach((id, i) => {
+  $(id).addEventListener('contextmenu', (e) => openColorCtx(e, i));
+});
+
+function applyPalette() {
+  const colors = [0,1,2,3].map(i => getFinalColor(i));
+  for (let i = 0; i < 6; i++) pSegColors[i] = colors[0];
+  sSegColors[0] = colors[1]; sSegColors[3] = colors[1];
+  sSegColors[1] = colors[2]; sSegColors[4] = colors[2];
+  sSegColors[2] = colors[3]; sSegColors[5] = colors[3];
+  $('cText').value = colors[0];
+  buildSegColors('p'); buildSegColors('s');
+  render();
+}
+
+$('hueShift').addEventListener('input', updatePalette);
+
+// ---- Section toggle ----
+function toggleSection(titleEl) {
+  titleEl.classList.toggle('collapsed');
+  const body = titleEl.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+// ---- Custom angle toggle ----
+function toggleCustomAngle(prefix) {
+  const dir = $(prefix + 'Dir').value;
+  $(prefix + 'CustomWrap').style.display = dir === 'custom' ? 'block' : 'none';
+}
+
+// ---- Build segment color pickers ----
+function buildSegColors(prefix) {
+  const count = parseInt($(prefix + 'Segs').value);
+  const container = $(prefix + 'Colors');
+  const colors = prefix === 'p' ? pSegColors : sSegColors;
+  container.innerHTML = '';
+
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'seg-color-item';
+
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = colors[i] || '#888888';
+    input.dataset.prefix = prefix;
+    input.dataset.index = i;
+    input.addEventListener('input', (e) => {
+      if (prefix === 'p') pSegColors[e.target.dataset.index] = e.target.value;
+      else sSegColors[e.target.dataset.index] = e.target.value;
+      render();
+    });
+
+    const label = document.createElement('label');
+    if (count <= 3) {
+      label.textContent = count === 1 ? 'color' : count === 2 ? (i === 0 ? 'left' : 'right') : ['left', 'mid', 'right'][i];
+    } else {
+      label.textContent = (i + 1) + '/' + count;
+    }
+
+    item.appendChild(input);
+    item.appendChild(label);
+    container.appendChild(item);
+  }
+}
+
+// ---- Get angle for a letter ----
+function getAngle(prefix) {
+  const dir = $(prefix + 'Dir').value;
+  if (dir === 'custom') return parseInt($(prefix + 'CustomAngle').value);
+  return parseInt(dir);
+}
+
+// ---- Measure text ----
+function measureChar(ch, font, size) {
+  const m = document.createElement('span');
+  m.style.fontFamily = font;
+  m.style.fontSize = size + 'px';
+  m.style.fontWeight = '900';
+  m.style.lineHeight = '0.85';
+  m.style.position = 'absolute';
+  m.style.visibility = 'hidden';
+  m.style.whiteSpace = 'nowrap';
+  m.textContent = ch;
+  document.body.appendChild(m);
+  const w = m.offsetWidth;
+  const h = m.offsetHeight;
+  document.body.removeChild(m);
+  return { w, h };
+}
+
+// ---- Presets ----
+const PRESETS = [
+  { name:"PS Original", pC:['#E60012','#3333CC','#E60012'], sC:['#F5AA1C','#00A651','#3366CC'], BG:"#000000", text:"#CCCCCC" },
+  { name:"FutureBuddy", pC:['#2563EB','#1d4ed8','#60a5fa'], sC:['#F59E0B','#8B5CF6','#2563EB'], BG:"#000000", text:"#CCCCCC" },
+  { name:"Ocean", pC:['#0077B6','#00B4D8','#03045E'], sC:['#00B4D8','#48CAE4','#0077B6'], BG:"#000000", text:"#CAF0F8" },
+  { name:"Mono White", pC:['#FFFFFF','#FFFFFF','#FFFFFF'], sC:['#FFFFFF','#FFFFFF','#FFFFFF'], BG:"#000000", text:"#FFFFFF" },
+  { name:"Neon", pC:['#FF006E','#FFBE0B','#8338EC'], sC:['#FFBE0B','#8338EC','#FF006E'], BG:"#000000", text:"#FB5607" },
+  { name:"Cyber", pC:['#00FF41','#39FF14','#00FF41'], sC:['#39FF14','#00FF41','#39FF14'], BG:"#0D0208", text:"#008F11" },
+  { name:"Sunset", pC:['#FF6B6B','#FFA07A','#FFD93D'], sC:['#FFA07A','#FFD93D','#FF6B6B'], BG:"#1A1A2E", text:"#E8E8E8" },
+];
+
+const presetsEl = $('presets');
+PRESETS.forEach(p => {
+  const el = document.createElement('div');
+  el.className = 'preset';
+  el.title = p.name;
+  el.innerHTML = `<div style="background:${p.pC[0]}"></div><div style="background:${p.sC[0]}"></div><div style="background:${p.sC[1] || p.sC[0]}"></div>`;
+  el.onclick = () => {
+    for (let i = 0; i < 6; i++) {
+      pSegColors[i] = p.pC[i % p.pC.length];
+      sSegColors[i] = p.sC[i % p.sC.length];
+    }
+    $('cBG').value = p.BG;
+    $('cText').value = p.text;
+    buildSegColors('p');
+    buildSegColors('s');
+    render();
+  };
+  presetsEl.appendChild(el);
+});
+
+function resetToPS() {
+  $('pChar').value = 'P'; $('sChar').value = 'S';
+  $('fontSel').value = "'PlayStation', sans-serif";
+  $('sFontSel').value = "'PlayStation', sans-serif";
+  $('textFontSel').value = "'PlayStation', sans-serif";
+  $('pSegs').value = '1'; $('sSegs').value = '3';
+  $('pDir').value = '0'; $('sDir').value = '0';
+  pSegColors = ['#D03068', '#D03068', '#D03068', '#D03068', '#D03068', '#D03068'];
+  sSegColors = ['#D87818', '#7838B8', '#1870D8', '#D87818', '#7838B8', '#1870D8'];
+  $('cBG').value = '#000000'; $('cText').value = '#D03068';
+  $('pRotY').value = -34; $('pRotZ').value = 1; $('pRotX').value = 0;
+  $('sRotX').value = 78; $('sRotY').value = -1; $('sRotZ').value = -27;
+  $('pOffsetX').value = 33; $('pOffsetY').value = 39; $('pOffsetZ').value = 4;
+  $('overlapX').value = 96; $('overlapY').value = -19; $('overlapZ').value = 0;
+  $('pSize').value = 307; $('sSize').value = 400;
+  $('scenePerspective').value = 2000; $('eyeHeight').value = 21;
+  $('line1').value = 'SoulScape'; $('line2').value = '';
+  $('textSize').value = 80; $('letterSp').value = -1; $('gap').value = 19;
+  $('frameShape').value = 'square'; $('frameSize').value = 400;
+  $('framePad').value = 30; $('frameBorder').value = 0;
+  $('frameBorderColor').value = '#aeff00'; $('frameBG').value = '#ffffff'; $('frameBGOpacity').value = 100;
+  $('frameRadius').value = 40;
+  $('logoScale').value = 100; $('logoMoveX').value = 0; $('logoMoveY').value = 0;
+  toggleCustomAngle('p'); toggleCustomAngle('s');
+  buildSegColors('p'); buildSegColors('s');
+  render();
+}
+
+function resetToFB() {
+  $('pChar').value = 'F'; $('sChar').value = 'B';
+  $('fontSel').value = "'PlayStation', sans-serif";
+  $('sFontSel').value = "'PlayStation', sans-serif";
+  $('textFontSel').value = "'Orbitron', sans-serif";
+  $('pSegs').value = '3'; $('sSegs').value = '3';
+  $('pDir').value = '0'; $('sDir').value = '0';
+  pSegColors = ['#2563EB', '#1d4ed8', '#60a5fa', '#3b82f6', '#2563EB', '#1e40af'];
+  sSegColors = ['#F59E0B', '#8B5CF6', '#2563EB', '#F59E0B', '#8B5CF6', '#2563EB'];
+  $('cBG').value = '#000000'; $('cText').value = '#CCCCCC';
+  $('pRotY').value = -15; $('pRotZ').value = 0; $('pRotX').value = 0;
+  $('sRotX').value = 72; $('sRotY').value = 0; $('sRotZ').value = 0;
+  $('pOffsetX').value = 0; $('pOffsetY').value = 0; $('pOffsetZ').value = 0;
+  $('overlapX').value = 60; $('overlapY').value = 0; $('overlapZ').value = 0;
+  $('pSize').value = 240; $('sSize').value = 240;
+  $('scenePerspective').value = 900; $('eyeHeight').value = 40;
+  $('line1').value = 'FutureBuddy'; $('line2').value = '';
+  $('textSize').value = 36; $('letterSp').value = 6; $('gap').value = 20;
+  $('logoScale').value = 100; $('logoMoveX').value = 0; $('logoMoveY').value = 0;
+  toggleCustomAngle('p'); toggleCustomAngle('s');
+  buildSegColors('p'); buildSegColors('s');
+  render();
+}
+
+function resetToPS1() {
+  const c = {"pChar":"P","sChar":"S","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":307,"sSize":400,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":0,"pRotY":-34,"pRotZ":1,"pRotX":0,"pOffsetX":26,"pOffsetY":40,"pOffsetZ":24,"sRotX":78,"sRotY":-1,"sRotZ":-27,"overlapX":96,"overlapY":-19,"overlapZ":0,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#050505","line1":"PlayStation","line2":"","textSize":80,"letterSpacing":-1,"gap":19,"frameShape":"square","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":100,"frameRadius":40,"bgTexture":"none","texOpacity":40};
+  applyConfig(c);
+}
+
+function applyConfig(c) {
+  if (c.pChar) $('pChar').value = c.pChar;
+  if (c.sChar) $('sChar').value = c.sChar;
+  if (c.font) $('fontSel').value = c.font;
+  if (c.sFont) $('sFontSel').value = c.sFont;
+  else if (c.font) $('sFontSel').value = c.font;
+  if (c.textFont) $('textFontSel').value = c.textFont;
+  if (c.pSize) $('pSize').value = c.pSize;
+  if (c.sSize) $('sSize').value = c.sSize;
+  if (c.pSegs) $('pSegs').value = c.pSegs;
+  if (c.sSegs) $('sSegs').value = c.sSegs;
+  if (c.pColors) { for (let i = 0; i < 6; i++) pSegColors[i] = c.pColors[i % c.pColors.length]; }
+  if (c.sColors) { for (let i = 0; i < 6; i++) sSegColors[i] = c.sColors[i % c.sColors.length]; }
+  if (c.pDir) $('pDir').value = c.pDir;
+  if (c.sDir) $('sDir').value = c.sDir;
+  if (c.pCustomAngle != null) $('pCustomAngle').value = c.pCustomAngle;
+  if (c.sCustomAngle != null) $('sCustomAngle').value = c.sCustomAngle;
+  if (c.pRotY != null) $('pRotY').value = c.pRotY;
+  if (c.pRotZ != null) $('pRotZ').value = c.pRotZ;
+  if (c.pRotX != null) $('pRotX').value = c.pRotX;
+  if (c.pOffsetX != null) $('pOffsetX').value = c.pOffsetX;
+  if (c.pOffsetY != null) $('pOffsetY').value = c.pOffsetY;
+  if (c.pOffsetZ != null) $('pOffsetZ').value = c.pOffsetZ;
+  if (c.sRotX != null) $('sRotX').value = c.sRotX;
+  if (c.sRotY != null) $('sRotY').value = c.sRotY;
+  if (c.sRotZ != null) $('sRotZ').value = c.sRotZ;
+  if (c.overlapX != null) $('overlapX').value = c.overlapX;
+  if (c.overlapY != null) $('overlapY').value = c.overlapY;
+  if (c.overlapZ != null) $('overlapZ').value = c.overlapZ;
+  if (c.perspective) $('scenePerspective').value = c.perspective;
+  if (c.eyeHeight) $('eyeHeight').value = c.eyeHeight;
+  if (c.bgColor) $('cBG').value = c.bgColor;
+  if (c.textColor) $('cText').value = c.textColor;
+  if (c.line1 != null) $('line1').value = c.line1;
+  if (c.line2 != null) $('line2').value = c.line2;
+  if (c.textSize) $('textSize').value = c.textSize;
+  if (c.letterSpacing != null) $('letterSp').value = c.letterSpacing;
+  if (c.gap != null) $('gap').value = c.gap;
+  if (c.frameShape) $('frameShape').value = c.frameShape;
+  if (c.frameSize) $('frameSize').value = c.frameSize;
+  if (c.framePad != null) $('framePad').value = c.framePad;
+  if (c.frameBorder != null) $('frameBorder').value = c.frameBorder;
+  if (c.frameBorderColor) $('frameBorderColor').value = c.frameBorderColor;
+  if (c.frameBG) $('frameBG').value = c.frameBG;
+  if (c.frameBGOpacity != null) $('frameBGOpacity').value = c.frameBGOpacity;
+  if (c.frameRadius != null) $('frameRadius').value = c.frameRadius;
+  if (c.bgTexture) $('bgTexture').value = c.bgTexture;
+  else $('bgTexture').value = 'none';
+  if (c.texOpacity != null) $('texOpacity').value = c.texOpacity;
+  if (c.logoScale != null) $('logoScale').value = c.logoScale;
+  else $('logoScale').value = 100;
+  if (c.logoMoveX != null) $('logoMoveX').value = c.logoMoveX;
+  else $('logoMoveX').value = 0;
+  if (c.logoMoveY != null) $('logoMoveY').value = c.logoMoveY;
+  else $('logoMoveY').value = 0;
+  toggleCustomAngle('p'); toggleCustomAngle('s');
+  buildSegColors('p'); buildSegColors('s');
+  render();
+}
+
+// ---- Auto-uppercase ----
+$('pChar').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().slice(-1); render(); });
+$('sChar').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().slice(-1); render(); });
+
+// ---- Listen all ----
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('input', render);
+  if (el.tagName === 'SELECT' || el.type === 'checkbox') el.addEventListener('change', render);
+});
+
+// ---- RENDER ----
+function render() {
+  const pChar = $('pChar').value || 'P';
+  const sChar = $('sChar').value || 'S';
+  const pFont = $('fontSel').value;
+  const sFont = $('sFontSel').value;
+  const cBG = $('cBG').value;
+  const cText = $('cText').value;
+  const pSize = parseInt($('pSize').value);
+  const sSize = parseInt($('sSize').value);
+  const textSize = parseInt($('textSize').value);
+  const gapVal = parseInt($('gap').value);
+  const letterSp = parseInt($('letterSp').value);
+
+  const pRY = parseInt($('pRotY').value);
+  const pRZ = parseInt($('pRotZ').value);
+  const pRX = parseInt($('pRotX').value);
+  const sRX = parseInt($('sRotX').value);
+  const sRY = parseInt($('sRotY').value);
+  const sRZ = parseInt($('sRotZ').value);
+
+  const pOvX = parseInt($('pOffsetX').value);
+  const pOvY = parseInt($('pOffsetY').value);
+  const pOvZ = parseInt($('pOffsetZ').value);
+  const ovX = parseInt($('overlapX').value);
+  const ovY = parseInt($('overlapY').value);
+  const ovZ = parseInt($('overlapZ').value);
+  const persp = parseInt($('scenePerspective').value);
+  const eye = parseInt($('eyeHeight').value);
+
+  const pSegCount = parseInt($('pSegs').value);
+  const sSegCount = parseInt($('sSegs').value);
+  const pAngle = getAngle('p');
+  const sAngle = getAngle('s');
+
+  // Update range labels
+  $('rvPSize').textContent = pSize;
+  $('rvSSize').textContent = sSize;
+  $('rvPY').textContent = pRY; $('rvPZ').textContent = pRZ; $('rvPX').textContent = pRX;
+  $('rvSX').textContent = sRX; $('rvSY').textContent = sRY; $('rvSZ').textContent = sRZ;
+  $('rvPOvX').textContent = pOvX; $('rvPOvY').textContent = pOvY; $('rvPOvZ').textContent = pOvZ;
+  $('rvOvX').textContent = ovX; $('rvOvY').textContent = ovY; $('rvOvZ').textContent = ovZ;
+  $('rvPersp').textContent = persp; $('rvEye').textContent = eye;
+  $('rvText').textContent = textSize; $('rvLS').textContent = letterSp; $('rvGap').textContent = gapVal;
+  if ($('pCustomWrap').style.display !== 'none') $('rvPCA').textContent = pAngle;
+  if ($('sCustomWrap').style.display !== 'none') $('rvSCA').textContent = sAngle;
+
+  // Scene
+  const scene = $('logoScene');
+  scene.style.perspective = persp + 'px';
+  scene.style.perspectiveOrigin = `50% ${eye}%`;
+  $('previewArea').style.background = '#0a0a0a';
+
+  // Logo transform (scale + move)
+  const logoScale = parseInt($('logoScale').value);
+  let logoMX = parseInt($('logoMoveX').value);
+  let logoMY = parseInt($('logoMoveY').value);
+  $('rvLogoScale').textContent = logoScale;
+  // Snap to grid intersections (thirds = 33.3%, 66.6% mapped to px range)
+  if ($('gridSnap').checked) {
+    const snapStep = 50; // px grid step
+    logoMX = Math.round(logoMX / snapStep) * snapStep;
+    logoMY = Math.round(logoMY / snapStep) * snapStep;
+    $('logoMoveX').value = logoMX;
+    $('logoMoveY').value = logoMY;
+  }
+  $('rvLogoMoveX').textContent = logoMX;
+  $('rvLogoMoveY').textContent = logoMY;
+  const anchor = $('logoAnchor');
+  anchor.style.transform = `translate(${logoMX}px, ${logoMY}px) scale(${logoScale / 100})`;
+  anchor.style.transformOrigin = 'center bottom';
+
+  // Grid overlay
+  const gridEl = $('gridOverlay');
+  gridEl.innerHTML = '';
+  if ($('gridCenter').checked) {
+    gridEl.innerHTML += '<div class="grid-cross-h"></div><div class="grid-cross-v"></div>';
+  }
+  if ($('gridThirds').checked) {
+    gridEl.innerHTML +=
+      '<div class="grid-line h" style="top:33.333%"></div>' +
+      '<div class="grid-line h" style="top:66.666%"></div>' +
+      '<div class="grid-line v" style="left:33.333%"></div>' +
+      '<div class="grid-line v" style="left:66.666%"></div>';
+  }
+
+  // Texture overlay
+  const texVal = $('bgTexture').value;
+  const texOp = parseInt($('texOpacity').value) / 100;
+  $('rvTexOp').textContent = Math.round(texOp * 100);
+  const overlay = $('textureOverlay');
+  if (texVal.startsWith('psx-') && psxWaterTextures[texVal + '-a']) {
+    // PSX Water — dual-layer animated scroll
+    const urlA = psxWaterTextures[texVal + '-a'];
+    const urlB = psxWaterTextures[texVal + '-b'];
+    overlay.className = 'texture-overlay psx-water-anim';
+    overlay.style.backgroundImage = `url(${urlA}), url(${urlB})`;
+    overlay.style.backgroundSize = '64px 64px, 48px 48px';
+    overlay.style.backgroundRepeat = 'repeat';
+    overlay.style.imageRendering = 'pixelated';
+    // Vary speed per type
+    const speeds = { 'psx-ocean': '6s', 'psx-river': '3s', 'psx-warm': '5s', 'psx-lava': '8s', 'psx-acid': '2.5s', 'psx-ice': '10s', 'psx-swamp': '7s', 'psx-blood': '6s' };
+    overlay.style.animationDuration = speeds[texVal] || '4s';
+  } else if (texVal.startsWith('asset-') && assetTextures[texVal]) {
+    // Static asset texture
+    overlay.className = 'texture-overlay';
+    overlay.style.backgroundImage = `url(${assetTextures[texVal]})`;
+    overlay.style.backgroundSize = '64px 64px';
+    overlay.style.backgroundRepeat = 'repeat';
+    overlay.style.imageRendering = 'pixelated';
+    overlay.style.animationDuration = '';
+  } else {
+    // CSS-class textures
+    overlay.style.backgroundImage = '';
+    overlay.style.backgroundSize = '';
+    overlay.style.backgroundRepeat = '';
+    overlay.style.imageRendering = '';
+    overlay.style.animationDuration = '';
+    overlay.className = 'texture-overlay' + (texVal !== 'none' ? ' tex-' + texVal : '');
+  }
+  overlay.style.opacity = texOp;
+
+  // Measure
+  const pM = measureChar(pChar, pFont, pSize);
+  const sM = measureChar(sChar, sFont, sSize);
+
+  // ---- Build P letter segments ----
+  const pGroup = $('pGroup');
+  pGroup.innerHTML = '';
+  pGroup.style.width = pM.w + 'px';
+  pGroup.style.height = pM.h + 'px';
+  pGroup.style.transform = `translate3d(${pOvX}px, ${pOvY}px, ${pOvZ}px) rotateY(${pRY}deg) rotateX(${pRX}deg) rotateZ(${pRZ}deg)`;
+  pGroup.style.transformOrigin = 'bottom center';
+
+  for (let i = 0; i < pSegCount; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'letter-segment';
+    seg.textContent = pChar;
+    seg.style.fontFamily = pFont;
+    seg.style.fontSize = pSize + 'px';
+    seg.style.color = pSegColors[i] || '#888';
+    seg.style.clipPath = getSegmentClipPath(i, pSegCount, pAngle);
+    seg.style.width = pM.w + 'px';
+    seg.style.height = pM.h + 'px';
+    pGroup.appendChild(seg);
+  }
+
+  // ---- Build S letter segments ----
+  const sGroup = $('sGroup');
+  sGroup.innerHTML = '';
+  sGroup.style.width = sM.w + 'px';
+  sGroup.style.height = sM.h + 'px';
+  sGroup.style.right = -(sM.w - ovX) + 'px';
+  sGroup.style.bottom = ovY + 'px';
+  sGroup.style.transform = `rotateX(${sRX}deg) rotateY(${sRY}deg) rotateZ(${sRZ}deg) translateZ(${ovZ}px)`;
+  sGroup.style.transformOrigin = 'bottom left';
+
+  for (let i = 0; i < sSegCount; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'letter-segment';
+    seg.textContent = sChar;
+    seg.style.fontFamily = sFont;
+    seg.style.fontSize = sSize + 'px';
+    seg.style.color = sSegColors[i] || '#888';
+    seg.style.clipPath = getSegmentClipPath(i, sSegCount, sAngle);
+    seg.style.width = sM.w + 'px';
+    seg.style.height = sM.h + 'px';
+    sGroup.appendChild(seg);
+  }
+
+  // Text
+  const textFont = $('textFontSel').value;
+  const logoText = $('logoText');
+  logoText.style.marginTop = gapVal + 'px';
+  const t1 = $('textLine1');
+  t1.textContent = $('line1').value;
+  t1.style.fontFamily = textFont;
+  t1.style.fontSize = textSize + 'px';
+  t1.style.color = cText;
+  t1.style.letterSpacing = letterSp + 'px';
+  const t2 = $('textLine2');
+  t2.textContent = $('line2').value;
+  t2.style.fontFamily = textFont;
+  t2.style.fontSize = (textSize * 0.7) + 'px';
+  t2.style.color = cText;
+  t2.style.letterSpacing = (letterSp * 0.6) + 'px';
+  t2.style.display = $('line2').value ? 'block' : 'none';
+
+  // Frame
+  renderFrame();
+}
+
+function renderFrame() {
+  const shape = $('frameShape').value;
+  const fw = $('frameWrap');
+  const opts = $('frameOptions');
+
+  // Reset logo scene sizing
+  const scene = $('logoScene');
+
+  const bgOverlay = $('frameBGOverlay');
+
+  if (shape === 'none') {
+    opts.style.display = 'none';
+    fw.style.width = '';
+    fw.style.height = '';
+    fw.style.borderRadius = '';
+    fw.style.border = '';
+    fw.style.background = $('cBG').value;
+    fw.style.padding = '20px';
+    fw.style.overflow = '';
+    bgOverlay.style.background = '';
+    scene.style.width = '600px';
+    scene.style.height = '450px';
+    scene.style.minWidth = '';
+    return;
+  }
+
+  opts.style.display = 'block';
+  const size = parseInt($('frameSize').value);
+  const pad = parseInt($('framePad').value);
+  const bw = parseInt($('frameBorder').value);
+  const bc = $('frameBorderColor').value;
+  const bg = $('frameBG').value;
+  const bgOp = parseInt($('frameBGOpacity').value) / 100;
+  const radius = parseInt($('frameRadius').value);
+
+  $('rvFrameSize').textContent = size;
+  $('rvFramePad').textContent = pad;
+  $('rvFrameBorder').textContent = bw;
+  $('rvFrameRadius').textContent = radius;
+  $('rvFrameBGOp').textContent = Math.round(bgOp * 100);
+
+  // Convert hex to rgba
+  const bgR = parseInt(bg.slice(1,3),16);
+  const bgG = parseInt(bg.slice(3,5),16);
+  const bgB = parseInt(bg.slice(5,7),16);
+
+  const inner = size - pad * 2;
+  fw.style.width = size + 'px';
+  fw.style.height = size + 'px';
+  fw.style.padding = pad + 'px';
+  // Solid cBG base — text always readable against this
+  fw.style.background = $('cBG').value;
+  // Frame BG overlay with opacity on top — doesn't affect text
+  bgOverlay.style.background = `rgba(${bgR},${bgG},${bgB},${bgOp})`;
+  fw.style.border = bw > 0 ? `${bw}px solid ${bc}` : 'none';
+  fw.style.overflow = 'hidden';
+
+  // Fit scene inside frame
+  scene.style.width = inner + 'px';
+  scene.style.height = (inner * 0.75) + 'px';
+  scene.style.minWidth = '0';
+
+  if (shape === 'square') {
+    fw.style.borderRadius = '0';
+  } else if (shape === 'rounded') {
+    fw.style.borderRadius = radius + 'px';
+  } else if (shape === 'circle') {
+    fw.style.borderRadius = '50%';
+  }
+
+  // Disable radius slider for non-rounded
+  $('frameRadius').disabled = shape !== 'rounded';
+  $('frameRadius').style.opacity = shape === 'rounded' ? '1' : '0.3';
+}
+
+// ---- EXPORT ----
+function exportPNG(scale, texTime) {
+  const pChar = $('pChar').value || 'P';
+  const sChar = $('sChar').value || 'S';
+  const pFont = $('fontSel').value;
+  const sFont = $('sFontSel').value;
+  const cBG = $('cBG').value;
+  const cText = $('cText').value;
+  const pSize = parseInt($('pSize').value);
+  const sSize = parseInt($('sSize').value);
+  const textSize = parseInt($('textSize').value);
+  const gapVal = parseInt($('gap').value);
+  const letterSp = parseInt($('letterSp').value);
+  const line1 = $('line1').value;
+  const line2 = $('line2').value;
+
+  const pRY = parseInt($('pRotY').value);
+  const sRX = parseInt($('sRotX').value);
+  const pOvX = parseInt($('pOffsetX').value);
+  const pOvY = parseInt($('pOffsetY').value);
+  const ovX = parseInt($('overlapX').value);
+
+  const pSegCount = parseInt($('pSegs').value);
+  const sSegCount = parseInt($('sSegs').value);
+  const pAngle = getAngle('p');
+  const sAngle = getAngle('s');
+
+  const canvas = $('exportCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const pFontFam = pFont.split(',')[0].replace(/'/g, '').trim();
+  const sFontFam = sFont.split(',')[0].replace(/'/g, '').trim();
+  const textFontVal = $('textFontSel').value;
+  const textFontFam = textFontVal.split(',')[0].replace(/'/g, '').trim();
+  const S = scale;
+  const pFontStr = `900 ${pSize * S}px ${pFontFam}, sans-serif`;
+  const sFontStr = `900 ${sSize * S}px ${sFontFam}, sans-serif`;
+  const textFontStr = `700 ${textSize * S}px ${textFontFam}, sans-serif`;
+  const text2FontStr = `400 ${Math.round(textSize * 0.7) * S}px ${textFontFam}, sans-serif`;
+
+  ctx.font = pFontStr;
+  const pW = ctx.measureText(pChar).width;
+  const pH = pSize * S * 0.85;
+  ctx.font = sFontStr;
+  const sW = ctx.measureText(sChar).width;
+  const sH = sSize * S * 0.85;
+  const sScaleY = Math.cos((sRX * Math.PI) / 180);
+  const pSkew = Math.tan((pRY * Math.PI) / 180) * 0.3;
+
+  const pad = 50 * S;
+  const logoW = pW + sW - ovX * S;
+
+  ctx.font = textFontStr;
+  const t1W = line1 ? ctx.measureText(line1).width : 0;
+  ctx.font = text2FontStr;
+  const t2W = line2 ? ctx.measureText(line2).width : 0;
+
+  const contentW = Math.max(logoW, t1W, t2W) + pad * 2;
+  const t1H = line1 ? textSize * S * 1.3 : 0;
+  const t2H = line2 ? textSize * S * 1.0 : 0;
+  const contentH = pH + gapVal * S + t1H + t2H + pad * 2;
+
+  // Frame settings
+  const frameShape = $('frameShape').value;
+  const frameSize = parseInt($('frameSize').value) * S;
+  const framePad = parseInt($('framePad').value) * S;
+  const frameBW = parseInt($('frameBorder').value) * S;
+  const frameBC = $('frameBorderColor').value;
+  const frameBGC = $('frameBG').value;
+  const frameBGOp = parseInt($('frameBGOpacity').value) / 100;
+  const frameR = parseInt($('frameRadius').value) * S;
+
+  const useFrame = frameShape !== 'none';
+  const transpBG = $('transparentBG').checked;
+  const totalW = useFrame ? frameSize + frameBW * 2 : contentW;
+  const totalH = useFrame ? frameSize + frameBW * 2 : contentH;
+
+  canvas.width = totalW;
+  canvas.height = totalH;
+
+  // Frame background + clipping
+  if (useFrame) {
+    // Draw border
+    if (frameBW > 0 && !transpBG) {
+      ctx.fillStyle = frameBC;
+      if (frameShape === 'circle') {
+        ctx.beginPath();
+        ctx.arc(totalW / 2, totalH / 2, totalW / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (frameShape === 'rounded') {
+        roundRect(ctx, 0, 0, totalW, totalH, frameR + frameBW);
+        ctx.fillStyle = frameBC;
+        ctx.fill();
+      } else {
+        ctx.fillRect(0, 0, totalW, totalH);
+      }
+    }
+    // Clip to inner frame shape
+    ctx.save();
+    if (frameShape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(totalW / 2, totalH / 2, frameSize / 2, 0, Math.PI * 2);
+      ctx.clip();
+    } else if (frameShape === 'rounded') {
+      roundRect(ctx, frameBW, frameBW, frameSize, frameSize, frameR);
+      ctx.clip();
+    } else {
+      ctx.beginPath();
+      ctx.rect(frameBW, frameBW, frameSize, frameSize);
+      ctx.clip();
+    }
+    if (!transpBG) {
+      // Solid cBG base layer
+      ctx.fillStyle = cBG;
+      ctx.fillRect(0, 0, totalW, totalH);
+      // Frame BG overlay with opacity on top
+      const r = parseInt(frameBGC.slice(1,3),16), g = parseInt(frameBGC.slice(3,5),16), b = parseInt(frameBGC.slice(5,7),16);
+      ctx.fillStyle = `rgba(${r},${g},${b},${frameBGOp})`;
+      ctx.fillRect(0, 0, totalW, totalH);
+    }
+  } else {
+    if (!transpBG) {
+      ctx.fillStyle = cBG;
+      ctx.fillRect(0, 0, totalW, totalH);
+    }
+  }
+
+  // Draw texture overlay (for GIF frames with texTime, or static)
+  if (texTime !== undefined) {
+    const texVal = $('bgTexture').value;
+    const texOp = parseInt($('texOpacity').value) / 100;
+    if (texVal.startsWith('psx-') && window._gifTexImgA && window._gifTexImgB) {
+      const drawLayer = (img, ox, oy, tileSize, alpha) => {
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.globalAlpha = alpha * texOp;
+        const pat = ctx.createPattern(img, 'repeat');
+        ctx.translate(ox % tileSize, oy % tileSize);
+        ctx.fillStyle = pat;
+        ctx.fillRect(-tileSize * 2, -tileSize * 2, totalW + tileSize * 4, totalH + tileSize * 4);
+        ctx.restore();
+      };
+      drawLayer(window._gifTexImgA, texTime * 64, texTime * 32, 64, 1.0);
+      drawLayer(window._gifTexImgB, texTime * -32, texTime * 64, 48, 0.6);
+    } else if (texVal.startsWith('asset-') && window._gifTexImgA) {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.globalAlpha = texOp;
+      const pat = ctx.createPattern(window._gifTexImgA, 'repeat');
+      ctx.fillStyle = pat;
+      ctx.fillRect(0, 0, totalW, totalH);
+      ctx.restore();
+    }
+  }
+
+  // Logo transform (scale + move)
+  const lScale = parseInt($('logoScale').value) / 100;
+  const lMX = parseInt($('logoMoveX').value) * S;
+  const lMY = parseInt($('logoMoveY').value) * S;
+
+  // Center content in frame (or in canvas if no frame)
+  const offsetX = useFrame ? (totalW - contentW) / 2 : 0;
+  const offsetY = useFrame ? (totalH - contentH) / 2 : 0;
+  const logoX = offsetX + (contentW - logoW) / 2;
+  const baseY = offsetY + pad + pH;
+
+  // Apply logo transform around center of content
+  ctx.save();
+  ctx.translate(totalW / 2 + lMX, (offsetY + pad + pH / 2) + lMY);
+  ctx.scale(lScale, lScale);
+  ctx.translate(-totalW / 2, -(offsetY + pad + pH / 2));
+
+  // Helper: canvas clip for segment
+  function clipSegment(ctx, index, total, angleDeg, w, h) {
+    if (total <= 1) return;
+    const theta = angleDeg * Math.PI / 180;
+    const ct = Math.cos(theta);
+    const st = Math.sin(theta);
+
+    const projs = [0, w * ct, h * st, w * ct + h * st];
+    const minP = Math.min(...projs);
+    const maxP = Math.max(...projs);
+    const range = maxP - minP;
+    if (range < 0.01) return;
+
+    const p0 = minP + (index / total) * range;
+    const p1 = minP + ((index + 1) / total) * range;
+    const T = w + h + 500;
+
+    ctx.beginPath();
+    ctx.moveTo(p0 * ct - T * st, p0 * st + T * ct);
+    ctx.lineTo(p0 * ct + T * st, p0 * st - T * ct);
+    ctx.lineTo(p1 * ct + T * st, p1 * st - T * ct);
+    ctx.lineTo(p1 * ct - T * st, p1 * st + T * ct);
+    ctx.closePath();
+    ctx.clip();
+  }
+
+  // Draw S segments (behind P)
+  const sX = logoX + pW - ovX * S;
+  for (let i = 0; i < sSegCount; i++) {
+    ctx.save();
+    ctx.translate(sX, baseY);
+    ctx.transform(1, 0, 0, -sScaleY, 0, 0);
+    clipSegment(ctx, i, sSegCount, sAngle, sW, sSize * S);
+    ctx.font = sFontStr;
+    ctx.fillStyle = sSegColors[i] || '#888';
+    ctx.textBaseline = 'top';
+    ctx.fillText(sChar, 0, 0);
+    ctx.restore();
+  }
+
+  // Draw P segments (in front)
+  for (let i = 0; i < pSegCount; i++) {
+    ctx.save();
+    ctx.translate(logoX + pW / 2 + pOvX * S, baseY + pOvY * S);
+    ctx.transform(1, 0, pSkew, 1, 0, 0);
+    // Clip in pre-transform space, so measure from -pW/2
+    ctx.translate(-pW / 2, -pH);
+    clipSegment(ctx, i, pSegCount, pAngle, pW, pH);
+    ctx.translate(pW / 2, pH);
+    ctx.font = pFontStr;
+    ctx.fillStyle = pSegColors[i] || '#888';
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'center';
+    ctx.fillText(pChar, 0, 0);
+    ctx.restore();
+  }
+
+  // Text
+  const textBaseY = baseY + gapVal * S;
+  ctx.textAlign = 'center';
+  if (line1) {
+    ctx.font = textFontStr;
+    ctx.fillStyle = cText;
+    ctx.textBaseline = 'top';
+    try { ctx.letterSpacing = (letterSp * S) + 'px'; } catch(e) {}
+    ctx.fillText(line1, totalW / 2, textBaseY);
+  }
+  if (line2) {
+    ctx.font = text2FontStr;
+    ctx.fillStyle = cText;
+    ctx.globalAlpha = 0.6;
+    ctx.textBaseline = 'top';
+    ctx.fillText(line2, totalW / 2, textBaseY + t1H);
+    ctx.globalAlpha = 1;
+  }
+
+  // Restore logo transform
+  ctx.restore();
+
+  // Restore frame clip
+  if (useFrame) ctx.restore();
+
+  // If called with texTime, it's a GIF frame — don't download
+  if (texTime !== undefined) return;
+
+  const a = document.createElement('a');
+  a.download = `logo-${pChar}${sChar}-${scale}x.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+// Canvas rounded rect helper
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ---- GIF Encoder (self-contained LZW + GIF89a) ----
+function buildGIF(framesData, w, h, delayMs) {
+  const buf = [];
+  const wb = b => buf.push(b & 0xFF);
+  const ws = s => { wb(s); wb(s >> 8); };
+  const wstr = s => { for (let i = 0; i < s.length; i++) wb(s.charCodeAt(i)); };
+
+  // Quantize RGBA pixels to 256-color palette
+  function quantize(pixels) {
+    const counts = new Map();
+    for (let i = 0; i < pixels.length; i += 4) {
+      const k = (pixels[i] << 16) | (pixels[i+1] << 8) | pixels[i+2];
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 256);
+    const pal = sorted.map(([c]) => [(c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF]);
+    while (pal.length < 256) pal.push([0, 0, 0]);
+
+    // Build lookup
+    const lookup = new Map();
+    sorted.forEach(([c], i) => lookup.set(c, i));
+
+    const idx = new Uint8Array(pixels.length / 4);
+    for (let i = 0; i < pixels.length; i += 4) {
+      const k = (pixels[i] << 16) | (pixels[i+1] << 8) | pixels[i+2];
+      if (lookup.has(k)) { idx[i / 4] = lookup.get(k); continue; }
+      // Nearest color
+      let best = 0, bestD = Infinity;
+      for (let j = 0; j < sorted.length; j++) {
+        const dr = pixels[i] - pal[j][0], dg = pixels[i+1] - pal[j][1], db = pixels[i+2] - pal[j][2];
+        const d = dr * dr + dg * dg + db * db;
+        if (d < bestD) { bestD = d; best = j; }
+      }
+      idx[i / 4] = best;
+    }
+    return { pal, idx };
+  }
+
+  // LZW compress
+  function lzwEncode(indices, minCS) {
+    const cc = 1 << minCS, eoi = cc + 1;
+    let cs = minCS + 1, nc = eoi + 1;
+    let tbl = new Map();
+    for (let i = 0; i < cc; i++) tbl.set(String(i), i);
+
+    const out = [];
+    let bb = 0, bc = 0;
+    const wbits = (code, sz) => {
+      bb |= code << bc; bc += sz;
+      while (bc >= 8) { out.push(bb & 0xFF); bb >>= 8; bc -= 8; }
+    };
+
+    wbits(cc, cs);
+    let cur = String(indices[0]);
+    for (let i = 1; i < indices.length; i++) {
+      const next = cur + ',' + indices[i];
+      if (tbl.has(next)) { cur = next; continue; }
+      wbits(tbl.get(cur), cs);
+      if (nc < 4096) {
+        tbl.set(next, nc++);
+        if (nc > (1 << cs) && cs < 12) cs++;
+      } else {
+        wbits(cc, cs);
+        tbl = new Map();
+        for (let j = 0; j < cc; j++) tbl.set(String(j), j);
+        nc = eoi + 1; cs = minCS + 1;
+      }
+      cur = String(indices[i]);
+    }
+    wbits(tbl.get(cur), cs);
+    wbits(eoi, cs);
+    if (bc > 0) out.push(bb & 0xFF);
+    return out;
+  }
+
+  // --- Build GIF ---
+  wstr('GIF89a');
+  ws(w); ws(h);
+  const q0 = quantize(framesData[0]);
+  wb(0xF7); wb(0); wb(0); // GCT 256
+  for (let i = 0; i < 256; i++) { wb(q0.pal[i][0]); wb(q0.pal[i][1]); wb(q0.pal[i][2]); }
+
+  // NETSCAPE loop
+  wb(0x21); wb(0xFF); wb(11); wstr('NETSCAPE2.0');
+  wb(3); wb(1); ws(0); wb(0);
+
+  const delay100 = Math.round(delayMs / 10);
+  for (let f = 0; f < framesData.length; f++) {
+    const q = f === 0 ? q0 : quantize(framesData[f]);
+
+    // GCE
+    wb(0x21); wb(0xF9); wb(4); wb(0);
+    ws(delay100); wb(0); wb(0);
+
+    // Image descriptor
+    wb(0x2C); ws(0); ws(0); ws(w); ws(h);
+    if (f === 0) {
+      wb(0);
+    } else {
+      wb(0x87);
+      for (let i = 0; i < 256; i++) { wb(q.pal[i][0]); wb(q.pal[i][1]); wb(q.pal[i][2]); }
+    }
+
+    // LZW
+    wb(8);
+    const lzw = lzwEncode(q.idx, 8);
+    let pos = 0;
+    while (pos < lzw.length) {
+      const chunk = Math.min(255, lzw.length - pos);
+      wb(chunk);
+      for (let i = 0; i < chunk; i++) wb(lzw[pos++]);
+    }
+    wb(0);
+  }
+
+  wb(0x3B); // trailer
+  return new Uint8Array(buf);
+}
+
+// ---- GIF Export ----
+async function exportGIF() {
+  const btn = $('gifBtn');
+  btn.textContent = 'Encoding...';
+  btn.disabled = true;
+
+  // Let UI update
+  await new Promise(r => setTimeout(r, 50));
+
+  const texVal = $('bgTexture').value;
+  const isPSX = texVal.startsWith('psx-') && psxWaterTextures[texVal + '-a'];
+  const isAsset = texVal.startsWith('asset-') && assetTextures[texVal];
+  const frameCount = isPSX ? 24 : (isAsset ? 1 : 12);
+  const speeds = { 'psx-ocean': 6000, 'psx-river': 3000, 'psx-warm': 5000, 'psx-lava': 8000, 'psx-acid': 2500, 'psx-ice': 10000, 'psx-swamp': 7000, 'psx-blood': 6000 };
+  const duration = speeds[texVal] || 4000;
+  const delayMs = Math.round(duration / frameCount);
+
+  // Preload texture images
+  const loadImg = (src) => new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+
+  try {
+    if (isPSX) {
+      window._gifTexImgA = await loadImg(psxWaterTextures[texVal + '-a']);
+      window._gifTexImgB = await loadImg(psxWaterTextures[texVal + '-b']);
+    } else if (isAsset) {
+      window._gifTexImgA = await loadImg(assetTextures[texVal]);
+      window._gifTexImgB = null;
+    } else {
+      window._gifTexImgA = null;
+      window._gifTexImgB = null;
+    }
+
+    const canvas = $('exportCanvas');
+    const ctx = canvas.getContext('2d');
+    const scale = 1;
+    const framesData = [];
+
+    for (let f = 0; f < frameCount; f++) {
+      btn.textContent = `Frame ${f + 1}/${frameCount}`;
+      await new Promise(r => setTimeout(r, 10));
+
+      const t = (f / frameCount) * duration / 1000; // seconds elapsed
+      exportPNG(scale, isPSX || isAsset ? t : 0);
+      framesData.push(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
+    }
+
+    btn.textContent = 'Building GIF...';
+    await new Promise(r => setTimeout(r, 10));
+
+    const gif = buildGIF(framesData, canvas.width, canvas.height, delayMs);
+    const blob = new Blob([gif], { type: 'image/gif' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const pChar = $('pChar').value || 'P';
+    const sChar = $('sChar').value || 'S';
+    a.download = `logo-${pChar}${sChar}.gif`;
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error('GIF export error:', e);
+    alert('GIF export failed: ' + e.message);
+  }
+
+  btn.textContent = 'GIF';
+  btn.disabled = false;
+}
+
+// ---- JSON Import/Export ----
+function getConfig() {
+  const pSegs = parseInt($('pSegs').value);
+  const sSegs = parseInt($('sSegs').value);
+  return {
+    pChar: $('pChar').value,
+    sChar: $('sChar').value,
+    font: $('fontSel').value,
+    sFont: $('sFontSel').value,
+    textFont: $('textFontSel').value,
+    pSize: parseInt($('pSize').value),
+    sSize: parseInt($('sSize').value),
+    pSegs,
+    sSegs,
+    pColors: pSegColors.slice(0, pSegs),
+    sColors: sSegColors.slice(0, sSegs),
+    pDir: $('pDir').value,
+    sDir: $('sDir').value,
+    pCustomAngle: parseInt($('pCustomAngle').value),
+    sCustomAngle: parseInt($('sCustomAngle').value),
+    pRotY: parseInt($('pRotY').value),
+    pRotZ: parseInt($('pRotZ').value),
+    pRotX: parseInt($('pRotX').value),
+    pOffsetX: parseInt($('pOffsetX').value),
+    pOffsetY: parseInt($('pOffsetY').value),
+    pOffsetZ: parseInt($('pOffsetZ').value),
+    sRotX: parseInt($('sRotX').value),
+    sRotY: parseInt($('sRotY').value),
+    sRotZ: parseInt($('sRotZ').value),
+    overlapX: parseInt($('overlapX').value),
+    overlapY: parseInt($('overlapY').value),
+    overlapZ: parseInt($('overlapZ').value),
+    perspective: parseInt($('scenePerspective').value),
+    eyeHeight: parseInt($('eyeHeight').value),
+    bgColor: $('cBG').value,
+    textColor: $('cText').value,
+    line1: $('line1').value,
+    line2: $('line2').value,
+    textSize: parseInt($('textSize').value),
+    letterSpacing: parseInt($('letterSp').value),
+    gap: parseInt($('gap').value),
+    frameShape: $('frameShape').value,
+    frameSize: parseInt($('frameSize').value),
+    framePad: parseInt($('framePad').value),
+    frameBorder: parseInt($('frameBorder').value),
+    frameBorderColor: $('frameBorderColor').value,
+    frameBG: $('frameBG').value,
+    frameBGOpacity: parseInt($('frameBGOpacity').value),
+    frameRadius: parseInt($('frameRadius').value),
+    bgTexture: $('bgTexture').value,
+    texOpacity: parseInt($('texOpacity').value),
+    logoScale: parseInt($('logoScale').value),
+    logoMoveX: parseInt($('logoMoveX').value),
+    logoMoveY: parseInt($('logoMoveY').value),
+  };
+}
+
+function copyJSON() {
+  const json = JSON.stringify(getConfig(), null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    const btn = $('copyJsonBtn');
+    btn.textContent = 'Copied!';
+    btn.style.background = '#16a34a';
+    setTimeout(() => { btn.textContent = 'Copy JSON'; btn.style.background = ''; }, 1500);
+  });
+}
+
+function loadJSON() {
+  const json = prompt('Paste logo JSON:');
+  if (!json) return;
+  try {
+    applyConfig(JSON.parse(json));
+  } catch(e) {
+    alert('Invalid JSON: ' + e.message);
+  }
+}
+
+// ---- Init ----
+buildSegColors('p');
+buildSegColors('s');
+render();
+
+// Re-render after fonts load (PlayStation font is async from CDNFonts)
+document.fonts.ready.then(() => render());
+window.addEventListener('load', () => render());
+</script>
+</body>
+</html>
