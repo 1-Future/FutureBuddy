@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { Send, Plus, MessageSquare, Columns } from "lucide-react";
 import {
   streamMessage,
@@ -38,6 +39,8 @@ export function ChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const { selectedText, selectionRect, clearSelection } = useTextSelection(messagesRef);
 
   const { data: conversations, refetch: refetchConversations } = useQuery({
@@ -56,6 +59,15 @@ export function ChatPage() {
     setStreamingContent("");
     setTranslations(new Map());
   }, []);
+
+  // Auto-load conversation from ?id= query param (e.g. navigated from Ideas page)
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      loadConversation(idParam);
+      setSearchParams({}, { replace: true });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startNew = useCallback(() => {
     setConversationId(undefined);

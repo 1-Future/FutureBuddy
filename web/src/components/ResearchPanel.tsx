@@ -6,7 +6,7 @@ import { createResearchThread, streamMessage, type ChatMessage } from "../servic
 
 interface ResearchPanelProps {
   text: string;
-  parentConversationId: string;
+  parentConversationId?: string;
   onClose: () => void;
 }
 

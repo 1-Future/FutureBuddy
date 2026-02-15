@@ -1038,7 +1038,7 @@
   <!-- Effects -->
   <div>
     <div class="section-title" onclick="toggleSection(this)">Effects</div>
-    <div class="section-body">
+    <div class="section-body" style="max-height:2000px">
 
       <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Upright Letter</div>
       <div class="inline-row">
@@ -3034,7 +3034,7 @@ render();
 
 // Re-render after fonts load (PlayStation font is async from CDNFonts)
 document.fonts.ready.then(() => render());
-window.addEventListener('load', () => { render(); document.querySelector('#pStrokeW').closest('.section-body').scrollIntoView({behavior:'smooth'}); });
+window.addEventListener('load', () => { render(); setTimeout(() => { const el = document.querySelector('#pStrokeW'); if(el) el.closest('.section-body').scrollIntoView({behavior:'smooth'}); }, 500); });
 </script>
 </body>
 </html>
