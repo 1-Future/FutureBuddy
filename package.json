@@ -8,12 +8,15 @@
     "shared",
     "server",
     "app",
-    "web"
+    "web",
+    "desktop"
   ],
   "scripts": {
     "dev:server": "npm run dev -w server",
     "dev:app": "npm run dev -w app",
     "dev:web": "npm run dev -w web",
+    "dev:desktop": "npm run dev -w desktop",
+    "build:desktop": "npm run build -w desktop",
     "build:web": "npm run build -w web",
     "build:server": "npm run build -w server",
     "build:shared": "npm run build -w shared",
