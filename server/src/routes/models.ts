@@ -3,7 +3,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { loadConfig } from "../config.js";
 import { OllamaManager } from "../modules/ai/ollama-manager.js";
-import { getAIProvider, getAvailableProviders } from "../modules/ai/router.js";
+import { getAvailableProviders } from "../modules/ai/router.js";
 
 export const modelsRoutes: FastifyPluginAsync = async (app) => {
   const config = loadConfig();

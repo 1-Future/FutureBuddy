@@ -58,7 +58,7 @@ export function FilesPage() {
       setCurrentPath(data.parent);
       setViewingFile(null);
     }
-  }, [data?.parent]);
+  }, [data]);
 
   const copyContent = useCallback(async () => {
     if (!viewingFile) return;

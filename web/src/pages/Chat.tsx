@@ -167,7 +167,7 @@ export function ChatPage() {
                 Hey there
               </h2>
               <p className="text-sm">
-                I'm FutureBuddy. Ask me anything — I remember everything.
+                I&apos;m FutureBuddy. Ask me anything — I remember everything.
               </p>
             </div>
           )}

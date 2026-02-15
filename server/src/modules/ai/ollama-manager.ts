@@ -66,7 +66,7 @@ export class OllamaManager {
       body: JSON.stringify({ name }),
     });
     if (!res.ok) throw new Error(`Ollama error: ${res.status}`);
-    return res.json();
+    return res.json() as Promise<Record<string, unknown>>;
   }
 
   async pullModel(
