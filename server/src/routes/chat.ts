@@ -11,10 +11,25 @@ import { classifyAndExtractActions } from "../modules/it-department/action-class
 import { toolRegistry } from "../modules/it-department/tool-registry.js";
 import { buildContext } from "../modules/memory/context.js";
 import { extractMemories } from "../modules/memory/extraction.js";
+import { extractUrls } from "../modules/bookmarks/extractor.js";
+import { extractContent, buildUrlContextPrompt } from "../modules/summarize/index.js";
 
 export const chatRoutes: FastifyPluginAsync = async (app) => {
   const config = loadConfig();
   const db = await getDb(config.dbPath);
+
+  // Extract URL content from user message (non-blocking best-effort)
+  async function extractUrlContext(message: string): Promise<string> {
+    try {
+      const urls = extractUrls(message, "chat");
+      if (urls.length === 0) return "";
+      // Extract content from the first URL only (avoid blowing up context)
+      const extracted = await extractContent(urls[0].url);
+      return buildUrlContextPrompt(extracted);
+    } catch {
+      return "";
+    }
+  }
 
   // Send a message and get AI response
   app.post<{ Body: ChatRequest }>("/", async (request) => {
@@ -50,6 +65,12 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
       context = await buildContext(db, message, config.ai);
     } catch {
       // Context building failed — continue without it
+    }
+
+    // Extract URL content if the message contains a URL
+    const urlContext = await extractUrlContext(message);
+    if (urlContext) {
+      context = context ? context + "\n\n" + urlContext : urlContext;
     }
 
     // Build tool capabilities summary
@@ -136,6 +157,12 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
       // Context building failed — continue without it
     }
 
+    // Extract URL content if the message contains a URL
+    const urlContext = await extractUrlContext(message);
+    if (urlContext) {
+      context = context ? context + "\n\n" + urlContext : urlContext;
+    }
+
     // Build tool capabilities summary
     const toolCapabilities = toolRegistry.buildToolCapabilitiesSummary();
 
@@ -193,39 +220,47 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
       Connection: "keep-alive",
     });
 
-    // Stream chunks to the client
-    const fullResponse = await provider.streamChat(
-      messagesWithContext,
-      config.ai,
-      (chunk: string) => {
-        reply.raw.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
-      },
-    );
+    try {
+      // Stream chunks to the client
+      const fullResponse = await provider.streamChat(
+        messagesWithContext,
+        config.ai,
+        (chunk: string) => {
+          reply.raw.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
+        },
+      );
 
-    // Store assistant message
-    execute(
-      db,
-      "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
-      [conversationId, "assistant", fullResponse, new Date().toISOString()],
-    );
+      // Store assistant message
+      execute(
+        db,
+        "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+        [conversationId, "assistant", fullResponse, new Date().toISOString()],
+      );
 
-    // Update conversation timestamp
-    execute(db, "UPDATE conversations SET updated_at = datetime('now') WHERE id = ?", [
-      conversationId,
-    ]);
+      // Update conversation timestamp
+      execute(db, "UPDATE conversations SET updated_at = datetime('now') WHERE id = ?", [
+        conversationId,
+      ]);
 
-    // Extract memories from this exchange (async, non-blocking)
-    extractMemories(history.slice(-4), conversationId, db, config.ai).catch(() => {
-      // Memory extraction is best-effort
-    });
+      // Extract memories from this exchange (async, non-blocking)
+      extractMemories(history.slice(-4), conversationId, db, config.ai).catch(() => {
+        // Memory extraction is best-effort
+      });
 
-    // Classify actions from the full response
-    const actions = classifyAndExtractActions(fullResponse, conversationId, db);
+      // Classify actions from the full response
+      const actions = classifyAndExtractActions(fullResponse, conversationId, db);
 
-    // Send final done event
-    reply.raw.write(
-      `data: ${JSON.stringify({ done: true, conversationId, actions: actions.length > 0 ? actions : undefined })}\n\n`,
-    );
+      // Send final done event
+      reply.raw.write(
+        `data: ${JSON.stringify({ done: true, conversationId, actions: actions.length > 0 ? actions : undefined })}\n\n`,
+      );
+    } catch (err: any) {
+      // Send error as SSE event instead of crashing
+      reply.raw.write(
+        `data: ${JSON.stringify({ error: err.message || "AI provider error" })}\n\n`,
+      );
+    }
+
     reply.raw.end();
     return reply;
   });

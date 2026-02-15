@@ -111,6 +111,16 @@ export const ITEM_STATUSES = {
   lost: { label: "Lost" },
 } as const;
 
+// ── Summarize ─────────────────────────────────────────────────────────
+
+export const SUMMARY_LENGTHS = {
+  short: { label: "Short", words: 200 },
+  medium: { label: "Medium", words: 500 },
+  long: { label: "Long", words: 1000 },
+} as const;
+
+export const SUMMARY_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
 // ── Tool System ──────────────────────────────────────────────────────
 
 export const TOOL_DOMAINS = {

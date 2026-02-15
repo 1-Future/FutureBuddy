@@ -136,6 +136,20 @@ export async function initDatabase(dbPath: string): Promise<Database> {
       duration INTEGER NOT NULL,
       executed_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS summaries (
+      id TEXT PRIMARY KEY,
+      url_hash TEXT NOT NULL,
+      url TEXT NOT NULL,
+      title TEXT,
+      content_type TEXT NOT NULL,
+      extracted_text TEXT,
+      summary TEXT,
+      summary_length TEXT,
+      provider TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      expires_at TEXT NOT NULL
+    );
   `);
 
   // Create indexes (IF NOT EXISTS is implied by catching errors)
@@ -216,6 +230,16 @@ export async function initDatabase(dbPath: string): Promise<Database> {
   }
   try {
     db.run("CREATE INDEX idx_tool_ops_log_domain ON tool_operations_log(domain)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_summaries_url_hash ON summaries(url_hash)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_summaries_expires_at ON summaries(expires_at)");
   } catch {
     // Index already exists
   }

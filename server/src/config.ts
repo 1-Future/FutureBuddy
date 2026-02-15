@@ -16,6 +16,7 @@ export function loadConfig(): ServerConfig {
       provider,
       model: process.env.AI_MODEL || providerDefaults.defaultModel,
       baseUrl:
+        process.env.OPENAI_BASE_URL ||
         process.env.OLLAMA_BASE_URL ||
         ("defaultBaseUrl" in providerDefaults ? providerDefaults.defaultBaseUrl : undefined),
       apiKey:

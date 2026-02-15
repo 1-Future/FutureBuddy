@@ -1,106 +1,142 @@
-// Copyright 2025 #1 Future — Apache 2.0 License
+// REST API client for the new FutureBuddy server
 
-const DEFAULT_SERVER = "http://192.168.1.93:3000";
+import { useConnectionStore } from '../stores/connection.store';
+import type {
+  ChatRequest,
+  ChatResponse,
+  ConversationListResponse,
+  ConversationDetail,
+  PendingActionsResponse,
+  ActionResolveRequest,
+  FileListResponse,
+  FileReadResponse,
+  TerminalCreateRequest,
+  TerminalSessionsResponse,
+  SystemStatusResponse,
+  ModelsResponse,
+  ProvidersResponse,
+  ToolsResponse,
+  ToolOperationsResponse,
+} from '../types/api';
+import type { Action, TerminalSession } from '../types/models';
 
-let serverUrl = DEFAULT_SERVER;
-
-export function setServerUrl(url: string) {
-  serverUrl = url.replace(/\/$/, "");
+function getBaseUrl(): string {
+  return useConnectionStore.getState().serverUrl.replace(/\/+$/, '');
 }
 
-export function getServerUrl() {
-  return serverUrl;
-}
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const url = `${getBaseUrl()}${path}`;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${serverUrl}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const error = await response.text().catch(() => response.statusText);
-    throw new Error(`API Error ${response.status}: ${error}`);
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${text}`);
   }
-
-  return response.json() as Promise<T>;
+  return res.json() as Promise<T>;
 }
 
-// Health check
-export async function checkConnection(): Promise<boolean> {
-  try {
-    const data = await request<{ status: string }>("/");
-    return data.status === "running";
-  } catch {
-    return false;
-  }
+// --- Health ---
+
+export function checkConnection(): Promise<{ status: string }> {
+  return request('/');
 }
 
-// Chat
-export async function sendMessage(message: string, conversationId?: string) {
-  return request<{
-    message: { role: string; content: string; timestamp: string };
-    conversationId: string;
-    actions?: any[];
-  }>("/api/chat", {
-    method: "POST",
-    body: JSON.stringify({ message, conversationId }),
+// --- Chat ---
+
+export function sendMessage(body: ChatRequest): Promise<ChatResponse> {
+  return request('/api/chat', {
+    method: 'POST',
+    body: JSON.stringify(body),
   });
 }
 
-export async function getConversations() {
-  return request<{ conversations: any[] }>("/api/chat");
+export function getConversations(): Promise<ConversationListResponse> {
+  return request('/api/chat');
 }
 
-export async function getConversation(id: string) {
-  return request<{ conversationId: string; messages: any[] }>(`/api/chat/${id}`);
+export function getConversation(id: string): Promise<ConversationDetail> {
+  return request(`/api/chat/${id}`);
 }
 
-// System
-export async function getSystemStatus() {
-  return request<any>("/api/system/status");
+// --- Actions ---
+
+export function getPendingActions(): Promise<PendingActionsResponse> {
+  return request('/api/actions/pending');
 }
 
-export async function getSecurityScan() {
-  return request<any>("/api/system/security");
-}
-
-export async function applyConfig(module: string, action: string, params?: Record<string, string>) {
-  return request<any>("/api/system/config", {
-    method: "POST",
-    body: JSON.stringify({ module, action, params }),
+export function resolveAction(id: string, approved: boolean): Promise<Action> {
+  return request(`/api/actions/${id}/resolve`, {
+    method: 'POST',
+    body: JSON.stringify({ approved } satisfies ActionResolveRequest),
   });
 }
 
-// Files
-export async function listFiles(path: string) {
-  return request<any>(`/api/files/list?path=${encodeURIComponent(path)}`);
+// --- Files ---
+
+export function listFiles(path?: string): Promise<FileListResponse> {
+  const query = path ? `?path=${encodeURIComponent(path)}` : '';
+  return request(`/api/files/list${query}`);
 }
 
-export async function readFile(path: string) {
-  return request<any>(`/api/files/read?path=${encodeURIComponent(path)}`);
+export function readFile(path: string): Promise<FileReadResponse> {
+  return request(`/api/files/read?path=${encodeURIComponent(path)}`);
 }
 
-// Actions
-export async function getPendingActions() {
-  return request<{ actions: any[] }>("/api/actions/pending");
-}
+// --- Terminal ---
 
-export async function resolveAction(id: string, approved: boolean) {
-  return request<any>(`/api/actions/${id}/resolve`, {
-    method: "POST",
-    body: JSON.stringify({ approved }),
+export function createTerminal(opts?: TerminalCreateRequest): Promise<TerminalSession> {
+  return request('/api/terminal/create', {
+    method: 'POST',
+    body: JSON.stringify(opts ?? {}),
   });
 }
 
-// Terminal
-export async function createTerminal(cols = 120, rows = 30) {
-  return request<{ id: string; pid: number; createdAt: string }>("/api/terminal/create", {
-    method: "POST",
-    body: JSON.stringify({ cols, rows }),
-  });
+export function getTerminalSessions(): Promise<TerminalSessionsResponse> {
+  return request('/api/terminal/sessions');
 }
 
-export async function getTerminalSessions() {
-  return request<{ sessions: any[] }>("/api/terminal/sessions");
+export function killTerminal(id: string): Promise<{ success: boolean }> {
+  return request(`/api/terminal/${id}`, { method: 'DELETE' });
+}
+
+// --- System ---
+
+export function getSystemStatus(): Promise<SystemStatusResponse> {
+  return request('/api/system/status');
+}
+
+// --- Models ---
+
+export function getModels(): Promise<ModelsResponse> {
+  return request('/api/models');
+}
+
+export function getProviders(): Promise<ProvidersResponse> {
+  return request('/api/models/providers');
+}
+
+export function getModelStatus(): Promise<{ ollama: string; baseUrl: string }> {
+  return request('/api/models/status');
+}
+
+// --- Tools ---
+
+export function getTools(): Promise<ToolsResponse> {
+  return request('/api/tools');
+}
+
+export function getInstalledTools(): Promise<ToolsResponse> {
+  return request('/api/tools/installed');
+}
+
+export function getToolOperations(): Promise<ToolOperationsResponse> {
+  return request('/api/tools/operations');
+}
+
+export function scanTools(): Promise<ToolsResponse> {
+  return request('/api/tools/scan', { method: 'POST' });
 }

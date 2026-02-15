@@ -324,6 +324,39 @@ export interface ToolOperationResult {
   duration: number;
 }
 
+// ── Summarize ─────────────────────────────────────────────────────
+
+export type SummaryLength = "short" | "medium" | "long";
+export type ContentType = "article" | "youtube" | "pdf";
+
+export interface SummarizeRequest {
+  url: string;
+  length?: SummaryLength;
+}
+
+export interface SummarizeResponse {
+  summary: string;
+  title: string;
+  source: string;
+  type: ContentType;
+  wordCount: number;
+  cached: boolean;
+}
+
+export interface ExtractedContent {
+  url: string;
+  title: string;
+  type: ContentType;
+  text: string;
+  metadata?: {
+    author?: string;
+    siteName?: string;
+    duration?: string;
+    channel?: string;
+    description?: string;
+  };
+}
+
 // ── Server Config ───────────────────────────────────────────────────
 
 export interface ServerConfig {

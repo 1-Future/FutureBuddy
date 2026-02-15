@@ -20,6 +20,7 @@ import { modelsRoutes } from "./routes/models.js";
 import { nudgeRoutes } from "./routes/nudge.js";
 import { toolsRoutes } from "./routes/tools.js";
 import { autotubeRoutes } from "./routes/autotube.js";
+import { summarizeRoutes } from "./routes/summarize.js";
 import { wsHandler } from "./routes/ws.js";
 import { toolRegistry } from "./modules/it-department/tool-registry.js";
 import { packagesOrchestrator } from "./modules/it-department/packages/index.js";
@@ -56,10 +57,13 @@ app.get("/", async () => ({
   timestamp: new Date().toISOString(),
 }));
 
-// Lightweight health probe for Docker
-app.get("/health", async (_, reply) => {
-  reply.code(200).send({ status: "ok" });
-});
+// Health probe — also serves as server info for the web UI
+app.get("/health", async () => ({
+  name: APP_NAME,
+  version: VERSION,
+  status: "running",
+  uptime: process.uptime(),
+}));
 
 // API routes
 await app.register(chatRoutes, { prefix: "/api/chat" });
@@ -76,6 +80,7 @@ await app.register(modelsRoutes, { prefix: "/api/models" });
 await app.register(nudgeRoutes, { prefix: "/api/nudges" });
 await app.register(toolsRoutes, { prefix: "/api/tools" });
 await app.register(autotubeRoutes, { prefix: "/api/autotube" });
+await app.register(summarizeRoutes, { prefix: "/api/summarize" });
 
 // WebSocket
 await app.register(wsHandler, { prefix: WS_PATH });

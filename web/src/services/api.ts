@@ -141,7 +141,7 @@ export async function getServerInfo(): Promise<{
   status: string;
   uptime: number;
 }> {
-  const res = await fetch("/");
+  const res = await fetch("/health");
   if (!res.ok) throw new Error("Server unreachable");
   return res.json();
 }
@@ -187,13 +187,17 @@ export async function streamMessage(
       if (!line.startsWith("data: ")) continue;
       try {
         const data = JSON.parse(line.slice(6));
-        if (data.done) {
+        if (data.error) {
+          throw new Error(data.error);
+        } else if (data.done) {
           onDone(data);
         } else if (data.delta) {
           onChunk(data.delta);
         }
-      } catch {
-        // skip malformed
+      } catch (err) {
+        if (err instanceof Error && err.message !== "Unexpected end of JSON input") {
+          throw err;
+        }
       }
     }
   }
@@ -227,7 +231,8 @@ export async function getSecurityScan(): Promise<{
 // ── Actions ──────────────────────────────────────────────────────────
 
 export async function getPendingActions(): Promise<Action[]> {
-  return get("/actions/pending");
+  const data = await get<{ actions: Action[] }>("/actions/pending");
+  return data.actions;
 }
 
 export async function getActions(
@@ -238,7 +243,8 @@ export async function getActions(
   if (status) params.set("status", status);
   if (limit) params.set("limit", String(limit));
   const qs = params.toString();
-  return get(`/actions${qs ? `?${qs}` : ""}`);
+  const data = await get<{ actions: Action[] }>(`/actions${qs ? `?${qs}` : ""}`);
+  return data.actions;
 }
 
 export async function resolveAction(
@@ -268,16 +274,18 @@ export async function getMemories(
   category?: string,
 ): Promise<Memory[]> {
   const qs = category ? `?category=${category}` : "";
-  return get(`/memory${qs}`);
+  const data = await get<{ memories: Memory[] }>(`/memory${qs}`);
+  return data.memories;
 }
 
 export async function searchMemories(
   query: string,
   limit = 10,
 ): Promise<{ memory: Memory; similarity: number }[]> {
-  return get(
+  const data = await get<{ results: { memory: Memory; similarity: number }[] }>(
     `/memory/search?q=${encodeURIComponent(query)}&limit=${limit}`,
   );
+  return data.results;
 }
 
 export async function getMemoryStats(): Promise<{
@@ -316,7 +324,8 @@ export async function getInventoryItems(params?: {
   if (params?.status) sp.set("status", params.status);
   if (params?.tag) sp.set("tag", params.tag);
   const qs = sp.toString();
-  return get(`/inventory${qs ? `?${qs}` : ""}`);
+  const data = await get<{ items: InventoryItem[] }>(`/inventory${qs ? `?${qs}` : ""}`);
+  return data.items;
 }
 
 export async function getInventorySummary(): Promise<InventorySummary> {
