@@ -255,6 +255,62 @@
     background: rgba(72, 202, 228, 0.5);
   }
 
+  /* Debug overlay */
+  .debug-overlay {
+    position: absolute; inset: 0; z-index: 20; pointer-events: none; display: none;
+  }
+  .debug-overlay.active { display: block; }
+  /* Full grid */
+  .debug-overlay .dbg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,0,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,0,0.07) 1px, transparent 1px);
+    background-size: 10% 10%;
+  }
+  /* Center cross (thicker) */
+  .debug-overlay .dbg-h {
+    position: absolute; left: 0; right: 0; height: 1px; top: 50%;
+    background: rgba(0,255,0,0.7);
+  }
+  .debug-overlay .dbg-v {
+    position: absolute; top: 0; bottom: 0; width: 1px; left: 50%;
+    background: rgba(0,255,0,0.7);
+  }
+  /* Quarter lines */
+  .debug-overlay .dbg-q1 { position: absolute; left: 0; right: 0; height: 1px; top: 25%; background: rgba(0,255,0,0.2); }
+  .debug-overlay .dbg-q2 { position: absolute; left: 0; right: 0; height: 1px; top: 75%; background: rgba(0,255,0,0.2); }
+  .debug-overlay .dbg-q3 { position: absolute; top: 0; bottom: 0; width: 1px; left: 25%; background: rgba(0,255,0,0.2); }
+  .debug-overlay .dbg-q4 { position: absolute; top: 0; bottom: 0; width: 1px; left: 75%; background: rgba(0,255,0,0.2); }
+  /* Center dot */
+  .debug-overlay .dbg-dot {
+    position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
+    margin: -4px 0 0 -4px; border-radius: 50%;
+    background: rgba(0,255,0,0.9); box-shadow: 0 0 6px rgba(0,255,0,0.5);
+  }
+  /* Content center marker (red) — positioned by JS */
+  .debug-overlay .dbg-content-dot {
+    position: absolute; width: 10px; height: 10px;
+    margin: -5px 0 0 -5px; border-radius: 50%;
+    background: rgba(255,0,0,0.9); box-shadow: 0 0 6px rgba(255,0,0,0.5);
+    display: none;
+  }
+  /* Content bbox outline (red) — positioned by JS */
+  .debug-overlay .dbg-content-box {
+    position: absolute; border: 1px dashed rgba(255,0,0,0.5);
+    display: none;
+  }
+  .debug-overlay .dbg-label {
+    position: absolute; top: 4px; left: 6px;
+    font: bold 9px monospace; color: rgba(0,255,0,0.7);
+    text-shadow: 0 0 3px #000;
+  }
+  .debug-overlay .dbg-dims {
+    position: absolute; bottom: 4px; right: 6px;
+    font: 9px monospace; color: rgba(0,255,0,0.5);
+    text-shadow: 0 0 3px #000; text-align: right;
+  }
+
   /* PS1 Water Ripple */
   .tex-ps1-water {
     background:
@@ -470,6 +526,9 @@
     <button class="btn sm" onclick="resetToPS1()">PS1 Default</button>
     <button class="btn sm" onclick="resetToPS()">FB2PS</button>
     <button class="btn sm" onclick="resetToFB()">FutureBuddy</button>
+    <button class="btn sm" onclick="resetToFBAlt()">FB Alt</button>
+    <button class="btn sm" onclick="resetToFBBlue()">FB Blue</button>
+    <button class="btn sm" onclick="resetToFBFlare()">FB Flare</button>
   </div>
 
   <!-- Palette -->
@@ -926,9 +985,9 @@
         <label>Shape</label>
         <select id="frameShape">
           <option value="none">None</option>
-          <option value="square" selected>Square</option>
+          <option value="square">Square</option>
           <option value="rounded">Rounded Square</option>
-          <option value="circle">Circle</option>
+          <option value="circle" selected>Circle</option>
         </select>
       </div>
       <div id="frameOptions" style="display:none">
@@ -1030,15 +1089,15 @@
       </div>
       <div class="field">
         <label>Gap <span class="range-val" id="rvGap">19</span></label>
-        <input type="range" id="gap" min="0" max="80" value="19" />
+        <input type="range" id="gap" min="-40" max="80" value="19" />
       </div>
     </div>
   </div>
 
   <!-- Effects -->
   <div>
-    <div class="section-title" onclick="toggleSection(this)">Effects</div>
-    <div class="section-body" style="max-height:2000px">
+    <div class="section-title collapsed" onclick="toggleSection(this)">Effects</div>
+    <div class="section-body collapsed">
 
       <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Upright Letter</div>
       <div class="inline-row">
@@ -1135,20 +1194,37 @@
 
   <!-- Layout & Grid -->
   <div>
-    <div class="section-title" onclick="toggleSection(this)">Layout &amp; Grid</div>
+    <div class="section-title" onclick="toggleSection(this)">Position &amp; Layout</div>
     <div class="section-body">
-      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Logo Transform</div>
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Logo (icon)</div>
       <div class="field">
-        <label>Scale <span class="range-val" id="rvLogoScale">100</span>%</label>
+        <label>Logo Scale <span class="range-val" id="rvLogoScale">100</span>%</label>
         <input type="range" id="logoScale" min="20" max="200" value="100" />
       </div>
-      <div class="field">
-        <label>Move X <span class="range-val" id="rvLogoMoveX">0</span>px</label>
-        <input type="range" id="logoMoveX" min="-300" max="300" value="0" />
+      <div class="inline-row">
+        <div class="field">
+          <label>Logo X <span class="range-val" id="rvLogoMoveX">0</span>px</label>
+          <input type="range" id="logoMoveX" min="-300" max="300" value="0" />
+        </div>
+        <div class="field">
+          <label>Logo Y <span class="range-val" id="rvLogoMoveY">0</span>px</label>
+          <input type="range" id="logoMoveY" min="-300" max="300" value="0" />
+        </div>
       </div>
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Text</div>
       <div class="field">
-        <label>Move Y <span class="range-val" id="rvLogoMoveY">0</span>px</label>
-        <input type="range" id="logoMoveY" min="-300" max="300" value="0" />
+        <label>Text Scale <span class="range-val" id="rvTextScale">100</span>%</label>
+        <input type="range" id="textScale" min="20" max="200" value="100" />
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Text X <span class="range-val" id="rvTextMoveX">0</span>px</label>
+          <input type="range" id="textMoveX" min="-200" max="200" value="0" />
+        </div>
+        <div class="field">
+          <label>Text Y <span class="range-val" id="rvTextMoveY">0</span>px</label>
+          <input type="range" id="textMoveY" min="-200" max="200" value="0" />
+        </div>
       </div>
       <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Grid Overlay</div>
       <label style="font-size:11px;color:#666;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:4px;">
@@ -1173,10 +1249,13 @@
         </label>
       </div>
       <div class="btn-row">
-        <button class="btn" onclick="exportPNG(1)">PNG</button>
-        <button class="btn sec" onclick="exportPNG(2)">PNG @2x</button>
-        <button class="btn sec" onclick="exportPNG(4)">PNG @4x</button>
+        <button class="btn" onclick="screenshotFrame()" id="ssBtn">Screenshot</button>
+        <button class="btn" onclick="hdExport(2)" id="exportBtn">Export @2x</button>
+        <button class="btn sec" onclick="hdExport(4)">Export @4x</button>
         <button class="btn sec" onclick="exportGIF()" id="gifBtn">GIF</button>
+      </div>
+      <div class="btn-row" style="margin-top:4px">
+        <button class="btn sec sm" onclick="toggleDebug()" id="dbgToggle">Debug</button>
       </div>
       <div style="margin-top:8px">
         <button class="btn" onclick="copyJSON()" id="copyJsonBtn">Copy JSON</button>
@@ -1191,6 +1270,18 @@
     <div class="frame-bg-overlay" id="frameBGOverlay"></div>
     <div class="texture-overlay" id="textureOverlay"></div>
     <div class="grid-overlay" id="gridOverlay"></div>
+    <div class="debug-overlay" id="debugOverlay">
+      <div class="dbg-grid"></div>
+      <div class="dbg-q1"></div><div class="dbg-q2"></div>
+      <div class="dbg-q3"></div><div class="dbg-q4"></div>
+      <div class="dbg-h"></div>
+      <div class="dbg-v"></div>
+      <div class="dbg-dot"></div>
+      <div class="dbg-content-box" id="dbgContentBox"></div>
+      <div class="dbg-content-dot" id="dbgContentDot"></div>
+      <div class="dbg-label">DEBUG</div>
+      <div class="dbg-dims" id="dbgDims"></div>
+    </div>
     <div class="logo-scene" id="logoScene">
       <div class="logo-anchor" id="logoAnchor">
         <div class="letter-group p-group" id="pGroup"></div>
@@ -2014,7 +2105,7 @@ function resetToPS() {
   $('scenePerspective').value = 2000; $('eyeHeight').value = 21;
   $('line1').value = 'SoulScape'; $('line2').value = '';
   $('textSize').value = 80; $('letterSp').value = -1; $('gap').value = 19;
-  $('frameShape').value = 'square'; $('frameSize').value = 400;
+  $('frameShape').value = 'circle'; $('frameSize').value = 400;
   $('framePad').value = 30; $('frameBorder').value = 0;
   $('frameBorderColor').value = '#aeff00'; $('frameBG').value = '#ffffff'; $('frameBGOpacity').value = 100;
   $('frameRadius').value = 40;
@@ -2028,12 +2119,27 @@ function resetToPS() {
 }
 
 function resetToFB() {
-  const c = {"pChar":"F","sChar":"B","font":"'Lobster', sans-serif","sFont":"'Cinzel Decorative', serif","textFont":"'PlayStation', sans-serif","pSize":307,"sSize":400,"pSegs":1,"sSegs":3,"pColors":["#00b7ff"],"sColors":["#00ffa2","#ff00ea","#fbff00"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":0,"pRotY":-34,"pRotZ":1,"pRotX":0,"pOffsetX":40,"pOffsetY":31,"pOffsetZ":100,"sRotX":78,"sRotY":-1,"sRotZ":-27,"overlapX":14,"overlapY":-43,"overlapZ":-3,"perspective":2000,"eyeHeight":10,"bgColor":"#000000","textColor":"#00b7ff","line1":"FutureBuddy","line2":"","textSize":72,"letterSpacing":-1,"gap":19,"frameShape":"square","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#000000","frameBGOpacity":100,"frameRadius":40,"bgTexture":"none","texOpacity":40,"logoScale":116,"logoMoveX":-100,"logoMoveY":0};
+  const c = {"pChar":"F","sChar":"B","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":292,"sSize":351,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":154,"pRotY":11,"pRotZ":0,"pRotX":2,"pOffsetX":19,"pOffsetY":22,"pOffsetZ":24,"sRotX":70,"sRotY":12,"sRotZ":-24,"overlapX":94,"overlapY":-3,"overlapZ":-8,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#ffffff","line1":"FutureBuddy","line2":"","textSize":69,"letterSpacing":0,"gap":17,"frameShape":"circle","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":0,"frameRadius":64,"bgTexture":"none","texOpacity":65,"logoScale":105,"logoMoveX":0,"logoMoveY":10,"pStrokeW":0,"pStrokeC":"#000000","pShadX":0,"pShadY":0,"pShadB":0,"pShadC":"#000000","sStrokeW":0,"sStrokeC":"#000000","sShadX":0,"sShadY":0,"sShadB":0,"sShadC":"#000000","tStrokeW":0,"tStrokeC":"#000000","tShadX":0,"tShadY":0,"tShadB":0,"tShadC":"#000000"};
+  applyConfig(c);
+}
+
+function resetToFBAlt() {
+  const c = {"pChar":"F","sChar":"B","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":292,"sSize":351,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":154,"pRotY":11,"pRotZ":0,"pRotX":2,"pOffsetX":19,"pOffsetY":22,"pOffsetZ":24,"sRotX":70,"sRotY":12,"sRotZ":-24,"overlapX":94,"overlapY":-3,"overlapZ":-8,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#ffffff","line1":"FutureBuddy","line2":"","textSize":69,"letterSpacing":0,"gap":17,"frameShape":"circle","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":0,"frameRadius":64,"bgTexture":"vaporwave","texOpacity":65,"logoScale":105,"logoMoveX":0,"logoMoveY":10,"pStrokeW":0,"pStrokeC":"#000000","pShadX":0,"pShadY":0,"pShadB":0,"pShadC":"#000000","sStrokeW":0,"sStrokeC":"#000000","sShadX":0,"sShadY":0,"sShadB":0,"sShadC":"#000000","tStrokeW":0,"tStrokeC":"#000000","tShadX":0,"tShadY":0,"tShadB":0,"tShadC":"#000000"};
+  applyConfig(c);
+}
+
+function resetToFBBlue() {
+  const c = {"pChar":"F","sChar":"B","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":292,"sSize":351,"pSegs":1,"sSegs":3,"pColors":["#02888f"],"sColors":["#b2c8fe","#d07590","#720d96"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":154,"pRotY":11,"pRotZ":0,"pRotX":2,"pOffsetX":19,"pOffsetY":22,"pOffsetZ":24,"sRotX":70,"sRotY":12,"sRotZ":-24,"overlapX":94,"overlapY":-3,"overlapZ":-8,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#c7fcff","line1":"FutureBuddy","line2":"","textSize":69,"letterSpacing":0,"gap":17,"frameShape":"circle","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":0,"frameRadius":64,"bgTexture":"vaporwave","texOpacity":65,"logoScale":105,"logoMoveX":0,"logoMoveY":10,"pStrokeW":0,"pStrokeC":"#000000","pShadX":0,"pShadY":0,"pShadB":0,"pShadC":"#000000","sStrokeW":0,"sStrokeC":"#000000","sShadX":0,"sShadY":0,"sShadB":0,"sShadC":"#000000","tStrokeW":0,"tStrokeC":"#000000","tShadX":0,"tShadY":0,"tShadB":0,"tShadC":"#000000"};
+  applyConfig(c);
+}
+
+function resetToFBFlare() {
+  const c = {"pChar":"F","sChar":"B","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":292,"sSize":351,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":154,"pRotY":11,"pRotZ":0,"pRotX":2,"pOffsetX":19,"pOffsetY":22,"pOffsetZ":24,"sRotX":70,"sRotY":12,"sRotZ":-24,"overlapX":94,"overlapY":-3,"overlapZ":-8,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#ffffff","line1":"FutureBuddy","line2":"","textSize":69,"letterSpacing":0,"gap":17,"frameShape":"circle","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":0,"frameRadius":64,"bgTexture":"lava","texOpacity":65,"logoScale":105,"logoMoveX":0,"logoMoveY":10,"pStrokeW":0,"pStrokeC":"#000000","pShadX":0,"pShadY":0,"pShadB":0,"pShadC":"#000000","sStrokeW":0,"sStrokeC":"#000000","sShadX":0,"sShadY":0,"sShadB":0,"sShadC":"#000000","tStrokeW":0,"tStrokeC":"#000000","tShadX":0,"tShadY":0,"tShadB":0,"tShadC":"#000000"};
   applyConfig(c);
 }
 
 function resetToPS1() {
-  const c = {"pChar":"P","sChar":"S","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":307,"sSize":400,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":0,"pRotY":-34,"pRotZ":1,"pRotX":0,"pOffsetX":26,"pOffsetY":40,"pOffsetZ":24,"sRotX":78,"sRotY":-1,"sRotZ":-27,"overlapX":96,"overlapY":-19,"overlapZ":0,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#050505","line1":"PlayStation","line2":"","textSize":80,"letterSpacing":-1,"gap":19,"frameShape":"square","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":100,"frameRadius":40,"bgTexture":"none","texOpacity":40};
+  const c = {"pChar":"P","sChar":"S","font":"'PlayStation', sans-serif","sFont":"'PlayStation', sans-serif","textFont":"'PlayStation', sans-serif","pSize":307,"sSize":400,"pSegs":1,"sSegs":3,"pColors":["#df0024"],"sColors":["#f3c300","#00ac9f","#2e6db4"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":0,"pRotY":-34,"pRotZ":1,"pRotX":0,"pOffsetX":26,"pOffsetY":40,"pOffsetZ":24,"sRotX":78,"sRotY":-1,"sRotZ":-27,"overlapX":96,"overlapY":-19,"overlapZ":0,"perspective":2000,"eyeHeight":21,"bgColor":"#000000","textColor":"#050505","line1":"PlayStation","line2":"","textSize":80,"letterSpacing":-1,"gap":19,"frameShape":"circle","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#ffffff","frameBGOpacity":100,"frameRadius":40,"bgTexture":"none","texOpacity":40};
   applyConfig(c);
 }
 
@@ -2092,6 +2198,12 @@ function applyConfig(c) {
   else $('logoMoveX').value = 0;
   if (c.logoMoveY != null) $('logoMoveY').value = c.logoMoveY;
   else $('logoMoveY').value = 0;
+  if (c.textMoveX != null) $('textMoveX').value = c.textMoveX;
+  else $('textMoveX').value = 0;
+  if (c.textMoveY != null) $('textMoveY').value = c.textMoveY;
+  else $('textMoveY').value = 0;
+  if (c.textScale != null) $('textScale').value = c.textScale;
+  else $('textScale').value = 100;
   // Effects
   $('pStrokeW').value = c.pStrokeW || 0;
   $('pStrokeC').value = c.pStrokeC || '#000000';
@@ -2114,6 +2226,8 @@ function applyConfig(c) {
   toggleCustomAngle('p'); toggleCustomAngle('s');
   buildSegColors('p'); buildSegColors('s');
   render();
+  // Re-render after fonts finish loading (font measurements may be wrong initially)
+  document.fonts.ready.then(() => render());
 }
 
 // ---- Auto-uppercase ----
@@ -2333,8 +2447,16 @@ function render() {
   // Text
   const textFont = $('textFontSel').value;
   const tShadow = (tShadX || tShadY || tShadB) ? `${tShadX}px ${tShadY}px ${tShadB}px ${tShadC}` : '';
+  const textMX = parseInt($('textMoveX').value) || 0;
+  const textMY = parseInt($('textMoveY').value) || 0;
+  const textScaleVal = (parseInt($('textScale').value) || 100) / 100;
+  $('rvTextMoveX').textContent = textMX;
+  $('rvTextMoveY').textContent = textMY;
+  $('rvTextScale').textContent = Math.round(textScaleVal * 100);
   const logoText = $('logoText');
   logoText.style.marginTop = gapVal + 'px';
+  logoText.style.transform = `translate(${textMX}px, ${textMY}px) scale(${textScaleVal})`;
+  logoText.style.transformOrigin = 'center top';
   const t1 = $('textLine1');
   t1.textContent = $('line1').value;
   t1.style.fontFamily = textFont;
@@ -2357,6 +2479,98 @@ function render() {
 
   // Frame
   renderFrame();
+  autoCenter();
+  updateDebugDims();
+}
+
+function autoCenter() {
+  const fw = $('frameWrap');
+  const scene = $('logoScene');
+  const text = $('logoText');
+  const fwR = fw.getBoundingClientRect();
+  if (fwR.width === 0) return;
+  // Reset correction so we measure natural position
+  scene.style.left = '0px'; scene.style.top = '0px';
+  text.style.left = '0px'; text.style.top = '0px';
+  // Measure content bounds relative to frame
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  [$('logoAnchor'), text].forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return;
+    minX = Math.min(minX, r.left - fwR.left);
+    minY = Math.min(minY, r.top - fwR.top);
+    maxX = Math.max(maxX, r.right - fwR.left);
+    maxY = Math.max(maxY, r.bottom - fwR.top);
+  });
+  if (minX >= Infinity) return;
+  // Calculate offset from frame center
+  const dx = Math.round(fwR.width / 2 - (minX + maxX) / 2);
+  const dy = Math.round(fwR.height / 2 - (minY + maxY) / 2);
+  // Apply correction — position:relative + left/top just shifts the visual
+  // without affecting the 3D perspective (which is self-contained in logoScene)
+  scene.style.left = dx + 'px'; scene.style.top = dy + 'px';
+  text.style.left = dx + 'px'; text.style.top = dy + 'px';
+}
+
+function toggleDebug() {
+  const ov = $('debugOverlay');
+  ov.classList.toggle('active');
+  $('dbgToggle').style.background = ov.classList.contains('active') ? '#2563EB' : '';
+  if (ov.classList.contains('active')) updateDebugDims();
+}
+
+function updateDebugDims() {
+  const ov = $('debugOverlay');
+  if (!ov.classList.contains('active')) return;
+  const fw = $('frameWrap');
+  const fwR = fw.getBoundingClientRect();
+  const anchor = $('logoAnchor');
+  const text = $('logoText');
+  const scene = $('logoScene');
+  // Gather all content bounding rects relative to frameWrap
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  [anchor, text].forEach(el => {
+    if (!el || !el.getBoundingClientRect) return;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return;
+    minX = Math.min(minX, r.left - fwR.left);
+    minY = Math.min(minY, r.top - fwR.top);
+    maxX = Math.max(maxX, r.right - fwR.left);
+    maxY = Math.max(maxY, r.bottom - fwR.top);
+  });
+  const dims = $('dbgDims');
+  const cBox = $('dbgContentBox');
+  const cDot = $('dbgContentDot');
+  if (minX < Infinity) {
+    const cW = maxX - minX;
+    const cH = maxY - minY;
+    const ccx = minX + cW / 2;
+    const ccy = minY + cH / 2;
+    const fcx = fwR.width / 2;
+    const fcy = fwR.height / 2;
+    const dx = Math.round(ccx - fcx);
+    const dy = Math.round(ccy - fcy);
+    // Position red content bbox
+    cBox.style.display = 'block';
+    cBox.style.left = minX + 'px'; cBox.style.top = minY + 'px';
+    cBox.style.width = cW + 'px'; cBox.style.height = cH + 'px';
+    // Position red content center dot
+    cDot.style.display = 'block';
+    cDot.style.left = ccx + 'px'; cDot.style.top = ccy + 'px';
+    // Show correction applied by autoCenter
+    const scL = parseFloat(scene.style.left) || 0;
+    const scT = parseFloat(scene.style.top) || 0;
+    dims.textContent =
+      `frame ${Math.round(fwR.width)}x${Math.round(fwR.height)}\n` +
+      `content ${Math.round(cW)}x${Math.round(cH)}\n` +
+      `offset Δ${dx},${dy}\n` +
+      `correction L:${scL} T:${scT}`;
+    dims.style.color = (Math.abs(dx) > 2 || Math.abs(dy) > 2) ? 'rgba(255,80,80,0.7)' : 'rgba(0,255,0,0.5)';
+  } else {
+    dims.textContent = `${Math.round(fwR.width)}x${Math.round(fwR.height)}`;
+    cBox.style.display = 'none';
+    cDot.style.display = 'none';
+  }
 }
 
 function renderFrame() {
@@ -2434,7 +2648,150 @@ function renderFrame() {
   $('frameRadius').style.opacity = shape === 'rounded' ? '1' : '0.3';
 }
 
-// ---- EXPORT ----
+// ---- SCREENSHOT (Screen Capture API — pixel-perfect) ----
+async function screenshotFrame() {
+  const btn = $('ssBtn');
+  btn.textContent = 'Share tab...';
+  btn.disabled = true;
+
+  try {
+    // Capture the current tab
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: 'browser', cursor: 'never' },
+      preferCurrentTab: true,
+      selfBrowserSurface: 'include'
+    });
+
+    // Wait for share dialog to close and page to settle
+    await new Promise(r => setTimeout(r, 500));
+    btn.textContent = 'Cropping...';
+
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    await video.play();
+    await new Promise(r => setTimeout(r, 200));
+
+    // Get frame position after dialog is gone
+    const el = $('frameWrap');
+    const rect = el.getBoundingClientRect();
+
+    // Map CSS viewport coords to capture pixel coords
+    const sx = video.videoWidth / document.documentElement.clientWidth;
+    const sy = video.videoHeight / document.documentElement.clientHeight;
+
+    // Use rect.width/height directly to avoid asymmetric rounding from separate left/right
+    const cx = Math.round(rect.left * sx);
+    const cy = Math.round(rect.top * sy);
+    const cw = Math.round(rect.width * sx);
+    const ch = Math.round(rect.height * sy);
+    const canvas = document.createElement('canvas');
+    canvas.width = cw;
+    canvas.height = ch;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, cx, cy, cw, ch, 0, 0, cw, ch);
+
+    stream.getTracks().forEach(t => t.stop());
+
+    const a = document.createElement('a');
+    a.download = `logo-${$('pChar').value}${$('sChar').value}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch(err) {
+    console.error('Screenshot:', err);
+    if (err.name !== 'NotAllowedError') alert('Screenshot failed: ' + err.message);
+  }
+
+  btn.textContent = 'Screenshot';
+  btn.disabled = false;
+}
+
+// Perspective-correct 3D strip rendering for canvas export.
+// Replicates CSS transform: rotateX(a) rotateY(b) rotateZ(c) translateZ(d)
+// by first applying rotateZ+rotateY to an intermediate canvas, then
+// strip-rendering with rotateX perspective (matching CSS transform order).
+function drawPerspective3D(dstCtx, srcCanvas, dstX, dstY, originX, originY,
+                           rotXDeg, rotYDeg, rotZDeg, transZ, perspDist) {
+  const radX = rotXDeg * Math.PI / 180;
+  const cosX = Math.cos(radX), sinX = Math.sin(radX);
+  const radZ = rotZDeg * Math.PI / 180;
+  const cosZ = Math.cos(radZ), sinZ = Math.sin(radZ);
+  const skew = -Math.tan(rotYDeg * Math.PI / 180) * 0.5;
+  const sw = srcCanvas.width, sh = srcCanvas.height;
+
+  // For small rotateX, skip strip rendering (negligible perspective)
+  if (Math.abs(rotXDeg) < 3) {
+    dstCtx.save();
+    dstCtx.translate(dstX + originX, dstY + originY);
+    dstCtx.rotate(radZ);
+    dstCtx.transform(1, 0, skew, cosX, 0, 0);
+    dstCtx.drawImage(srcCanvas, -originX, -originY);
+    dstCtx.restore();
+    return;
+  }
+
+  // Step 1: Pre-apply rotateZ and rotateY skew to intermediate canvas
+  // (CSS applies these BEFORE rotateX in the transform chain)
+  const hasPreRotation = Math.abs(rotZDeg) > 0.5 || Math.abs(rotYDeg) > 0.5;
+  let intCanvas, intOX, intOY;
+
+  if (hasPreRotation) {
+    // Calculate rotated bounding box
+    const corners = [
+      [-originX, -originY], [sw - originX, -originY],
+      [sw - originX, sh - originY], [-originX, sh - originY]
+    ];
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [cx, cy] of corners) {
+      // Apply rotateZ then skew to each corner
+      const rx = cx * cosZ - cy * sinZ;
+      const ry = cx * sinZ + cy * cosZ;
+      const sx = rx; // skew doesn't change x
+      const sy = ry + rx * skew;
+      minX = Math.min(minX, sx); maxX = Math.max(maxX, sx);
+      minY = Math.min(minY, sy); maxY = Math.max(maxY, sy);
+    }
+    const pad = 10;
+    const intW = Math.ceil(maxX - minX) + pad * 2;
+    const intH = Math.ceil(maxY - minY) + pad * 2;
+    intOX = Math.round(-minX + pad);
+    intOY = Math.round(-minY + pad);
+
+    intCanvas = document.createElement('canvas');
+    intCanvas.width = intW; intCanvas.height = intH;
+    const ic = intCanvas.getContext('2d');
+    ic.translate(intOX, intOY);
+    ic.rotate(radZ);
+    ic.transform(1, 0, skew, 1, 0, 0);
+    ic.drawImage(srcCanvas, -originX, -originY);
+  } else {
+    intCanvas = srcCanvas;
+    intOX = originX;
+    intOY = originY;
+  }
+
+  // Step 2: Strip-render with rotateX + perspective
+  const intW = intCanvas.width, intH = intCanvas.height;
+
+  dstCtx.save();
+  dstCtx.translate(dstX + originX, dstY + originY);
+
+  for (let y = 0; y < intH; y++) {
+    const dy = y - intOY; // displacement from transform origin
+    const dz = dy * sinX + transZ;
+    const dyProj = dy * cosX;
+    const s = perspDist / (perspDist - dz);
+    if (s <= 0 || s > 20) continue;
+    const projDY = dyProj * s;
+    dstCtx.drawImage(intCanvas,
+      0, y, intW, 1,
+      -intOX * s, projDY - 0.5, intW * s, 1.5
+    );
+  }
+
+  dstCtx.restore();
+}
+
+// ---- EXPORT (canvas) ----
 function exportPNG(scale, texTime) {
   const pChar = $('pChar').value || 'P';
   const sChar = $('sChar').value || 'S';
@@ -2451,10 +2808,15 @@ function exportPNG(scale, texTime) {
   const line2 = $('line2').value;
 
   const pRY = parseInt($('pRotY').value);
+  const pRZ = parseInt($('pRotZ').value);
+  const pRX = parseInt($('pRotX').value);
   const sRX = parseInt($('sRotX').value);
+  const sRY = parseInt($('sRotY').value);
+  const sRZ = parseInt($('sRotZ').value);
   const pOvX = parseInt($('pOffsetX').value);
   const pOvY = parseInt($('pOffsetY').value);
   const ovX = parseInt($('overlapX').value);
+  const ovY = parseInt($('overlapY').value);
 
   const pSegCount = parseInt($('pSegs').value);
   const sSegCount = parseInt($('sSegs').value);
@@ -2502,14 +2864,19 @@ function exportPNG(scale, texTime) {
   const sH = sSize * S * 0.85;
   const sScaleY = Math.cos((sRX * Math.PI) / 180);
   const pSkew = Math.tan((pRY * Math.PI) / 180) * 0.3;
+  const perspVal = parseInt($('scenePerspective').value) * S;
+  const pOvZ = parseInt($('pOffsetZ').value) * S;
+  const ovZ = parseInt($('overlapZ').value) * S;
 
   const pad = 50 * S;
   const logoW = pW + sW - ovX * S;
 
   ctx.font = textFontStr;
+  try { ctx.letterSpacing = (letterSp * S) + 'px'; } catch(e) {}
   const t1W = line1 ? ctx.measureText(line1).width : 0;
   ctx.font = text2FontStr;
   const t2W = line2 ? ctx.measureText(line2).width : 0;
+  try { ctx.letterSpacing = '0px'; } catch(e) {}
 
   const contentW = Math.max(logoW, t1W, t2W) + pad * 2;
   const t1H = line1 ? textSize * S * 1.3 : 0;
@@ -2528,15 +2895,18 @@ function exportPNG(scale, texTime) {
 
   const useFrame = frameShape !== 'none';
   const transpBG = $('transparentBG').checked;
-  const totalW = useFrame ? frameSize + frameBW * 2 : contentW;
-  const totalH = useFrame ? frameSize + frameBW * 2 : contentH;
+  // CSS uses border-box: border is INSIDE frameSize, not added on top
+  // So totalW = frameSize (matches CSS), not frameSize + frameBW*2
+  const totalW = Math.ceil(useFrame ? frameSize : contentW);
+  const totalH = Math.ceil(useFrame ? frameSize : contentH);
+  const innerSize = frameSize - frameBW * 2; // content area inside border
 
   canvas.width = totalW;
   canvas.height = totalH;
 
   // Frame background + clipping
   if (useFrame) {
-    // Draw border
+    // Draw border (fill entire frame shape with border color, then clip inner)
     if (frameBW > 0 && !transpBG) {
       ctx.fillStyle = frameBC;
       if (frameShape === 'circle') {
@@ -2544,29 +2914,30 @@ function exportPNG(scale, texTime) {
         ctx.arc(totalW / 2, totalH / 2, totalW / 2, 0, Math.PI * 2);
         ctx.fill();
       } else if (frameShape === 'rounded') {
-        roundRect(ctx, 0, 0, totalW, totalH, frameR + frameBW);
+        roundRect(ctx, 0, 0, totalW, totalH, frameR);
         ctx.fillStyle = frameBC;
         ctx.fill();
       } else {
         ctx.fillRect(0, 0, totalW, totalH);
       }
     }
-    // Clip to inner frame shape
+    // Clip to inner frame shape (inside the border)
     ctx.save();
     if (frameShape === 'circle') {
       ctx.beginPath();
-      ctx.arc(totalW / 2, totalH / 2, frameSize / 2, 0, Math.PI * 2);
+      ctx.arc(totalW / 2, totalH / 2, innerSize / 2, 0, Math.PI * 2);
       ctx.clip();
     } else if (frameShape === 'rounded') {
-      roundRect(ctx, frameBW, frameBW, frameSize, frameSize, frameR);
+      const innerR = Math.max(0, frameR - frameBW);
+      roundRect(ctx, frameBW, frameBW, innerSize, innerSize, innerR);
       ctx.clip();
     } else {
       ctx.beginPath();
-      ctx.rect(frameBW, frameBW, frameSize, frameSize);
+      ctx.rect(frameBW, frameBW, innerSize, innerSize);
       ctx.clip();
     }
     if (!transpBG) {
-      // Solid cBG base layer
+      // Solid cBG base layer — fill entire canvas (clip restricts to inner frame)
       ctx.fillStyle = cBG;
       ctx.fillRect(0, 0, totalW, totalH);
       // Frame BG overlay with opacity on top
@@ -2586,23 +2957,40 @@ function exportPNG(scale, texTime) {
     const texVal = $('bgTexture').value;
     const texOp = parseInt($('texOpacity').value) / 100;
     if (texVal.startsWith('psx-') && window._gifTexImgA && window._gifTexImgB) {
+      // texTime is animation progress 0-1; CSS bg-size is tileSize×tileSize per layer
       const drawLayer = (img, ox, oy, tileSize, alpha) => {
         ctx.save();
         ctx.imageSmoothingEnabled = false;
         ctx.globalAlpha = alpha * texOp;
-        const pat = ctx.createPattern(img, 'repeat');
-        ctx.translate(ox % tileSize, oy % tileSize);
+        // Render tile at CSS background-size × export scale
+        const ts = tileSize * S;
+        const tile = document.createElement('canvas');
+        tile.width = ts; tile.height = ts;
+        const tc = tile.getContext('2d');
+        tc.imageSmoothingEnabled = false;
+        tc.drawImage(img, 0, 0, ts, ts);
+        const pat = ctx.createPattern(tile, 'repeat');
+        // ox/oy are in CSS pixels; convert to canvas pixels for offset
+        ctx.translate((ox * S) % ts, (oy * S) % ts);
         ctx.fillStyle = pat;
-        ctx.fillRect(-tileSize * 2, -tileSize * 2, totalW + tileSize * 4, totalH + tileSize * 4);
+        ctx.fillRect(-ts * 2, -ts * 2, totalW + ts * 4, totalH + ts * 4);
         ctx.restore();
       };
+      // CSS keyframes: 0→64,32 for layer A; 0→-32,64 for layer B (in CSS px)
       drawLayer(window._gifTexImgA, texTime * 64, texTime * 32, 64, 1.0);
       drawLayer(window._gifTexImgB, texTime * -32, texTime * 64, 48, 0.6);
     } else if (texVal.startsWith('asset-') && window._gifTexImgA) {
       ctx.save();
       ctx.imageSmoothingEnabled = false;
       ctx.globalAlpha = texOp;
-      const pat = ctx.createPattern(window._gifTexImgA, 'repeat');
+      // Scale asset tile to match CSS pixel size
+      const tile = document.createElement('canvas');
+      const ts = window._gifTexImgA.width * S;
+      tile.width = ts; tile.height = ts;
+      const tc = tile.getContext('2d');
+      tc.imageSmoothingEnabled = false;
+      tc.drawImage(window._gifTexImgA, 0, 0, ts, ts);
+      const pat = ctx.createPattern(tile, 'repeat');
       ctx.fillStyle = pat;
       ctx.fillRect(0, 0, totalW, totalH);
       ctx.restore();
@@ -2614,115 +3002,496 @@ function exportPNG(scale, texTime) {
   const lMX = parseInt($('logoMoveX').value) * S;
   const lMY = parseInt($('logoMoveY').value) * S;
 
-  // Center content in frame (or in canvas if no frame)
+  // ---- Render content to scratch canvas for pixel-perfect centering ----
+  // The 2D canvas can't perfectly replicate CSS 3D transforms, so centering
+  // based on text measurements is always off. Instead: render to a transparent
+  // scratch canvas, find the actual pixel bounding box, then stamp centered.
+  const _extra = Math.round(300 * S);
+  const _sc = document.createElement('canvas');
+  _sc.width = totalW + _extra * 2;
+  _sc.height = totalH + _extra * 2;
+  const sctx = _sc.getContext('2d');
+  // Shift coordinate system so (0,0) aligns with the main canvas origin
+  sctx.translate(_extra, _extra);
+
+  // Reference positions (original centering as starting point)
   const offsetX = useFrame ? (totalW - contentW) / 2 : 0;
   const offsetY = useFrame ? (totalH - contentH) / 2 : 0;
   const logoX = offsetX + (contentW - logoW) / 2;
   const baseY = offsetY + pad + pH;
 
-  // Apply logo transform around center of content
-  ctx.save();
-  ctx.translate(totalW / 2 + lMX, (offsetY + pad + pH / 2) + lMY);
-  ctx.scale(lScale, lScale);
-  ctx.translate(-totalW / 2, -(offsetY + pad + pH / 2));
+  // Apply logo transform on scratch
+  const contentBottomY = offsetY + pad + pH + gapVal * S + t1H + t2H;
+  sctx.save();
+  sctx.translate(lMX, lMY);
+  sctx.translate(totalW / 2, contentBottomY);
+  sctx.scale(lScale, lScale);
+  sctx.translate(-totalW / 2, -contentBottomY);
 
   // Helper: canvas clip for segment
-  function clipSegment(ctx, index, total, angleDeg, w, h) {
+  function clipSegment(c, index, total, angleDeg, w, h) {
     if (total <= 1) return;
     const theta = angleDeg * Math.PI / 180;
     const ct = Math.cos(theta);
     const st = Math.sin(theta);
-
     const projs = [0, w * ct, h * st, w * ct + h * st];
     const minP = Math.min(...projs);
     const maxP = Math.max(...projs);
     const range = maxP - minP;
     if (range < 0.01) return;
-
     const p0 = minP + (index / total) * range;
     const p1 = minP + ((index + 1) / total) * range;
     const T = w + h + 500;
-
-    ctx.beginPath();
-    ctx.moveTo(p0 * ct - T * st, p0 * st + T * ct);
-    ctx.lineTo(p0 * ct + T * st, p0 * st - T * ct);
-    ctx.lineTo(p1 * ct + T * st, p1 * st - T * ct);
-    ctx.lineTo(p1 * ct - T * st, p1 * st + T * ct);
-    ctx.closePath();
-    ctx.clip();
+    c.beginPath();
+    c.moveTo(p0 * ct - T * st, p0 * st + T * ct);
+    c.lineTo(p0 * ct + T * st, p0 * st - T * ct);
+    c.lineTo(p1 * ct + T * st, p1 * st - T * ct);
+    c.lineTo(p1 * ct - T * st, p1 * st + T * ct);
+    c.closePath();
+    c.clip();
   }
 
-  // Draw S segments (behind P)
+  // Draw S segments (behind P) — using perspective strip rendering
   const sX = logoX + pW - ovX * S;
+  const sBotY = baseY - ovY * S;
+  const sMargin = Math.ceil(Math.max(sShadB * S, sStrokeW * S, 10) + 10);
+  const sTmpW = Math.ceil(sW + sMargin * 2);
+  const sTmpH = Math.ceil(sH + sMargin * 2);
+  const sTmp = document.createElement('canvas');
+  sTmp.width = sTmpW; sTmp.height = sTmpH;
+  const stCtx = sTmp.getContext('2d');
   for (let i = 0; i < sSegCount; i++) {
-    ctx.save();
-    ctx.translate(sX, baseY);
-    ctx.transform(1, 0, 0, -sScaleY, 0, 0);
-    clipSegment(ctx, i, sSegCount, sAngle, sW, sSize * S);
-    ctx.font = sFontStr;
-    ctx.textBaseline = 'top';
-    if (sShadX || sShadY || sShadB) { ctx.shadowOffsetX = sShadX * S; ctx.shadowOffsetY = sShadY * S; ctx.shadowBlur = sShadB * S; ctx.shadowColor = sShadC; }
-    ctx.fillStyle = sSegColors[i] || '#888';
-    ctx.fillText(sChar, 0, 0);
-    if (sStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = sStrokeW * S; ctx.strokeStyle = sStrokeC; ctx.strokeText(sChar, 0, 0); }
-    ctx.restore();
+    stCtx.save();
+    stCtx.translate(sMargin, sMargin);
+    clipSegment(stCtx, i, sSegCount, sAngle, sW, sSize * S);
+    stCtx.font = sFontStr;
+    stCtx.textBaseline = 'top';
+    if (sShadX || sShadY || sShadB) { stCtx.shadowOffsetX = sShadX * S; stCtx.shadowOffsetY = sShadY * S; stCtx.shadowBlur = sShadB * S; stCtx.shadowColor = sShadC; }
+    stCtx.fillStyle = sSegColors[i] || '#888';
+    stCtx.fillText(sChar, 0, 0);
+    if (sStrokeW) { stCtx.shadowColor = 'transparent'; stCtx.lineWidth = sStrokeW * S; stCtx.strokeStyle = sStrokeC; stCtx.strokeText(sChar, 0, 0); }
+    stCtx.restore();
   }
+  // Render with perspective: origin at bottom-left of character (CSS transform-origin: bottom left)
+  drawPerspective3D(sctx, sTmp,
+    sX - sMargin,            // dstX: temp canvas left edge on scratch
+    sBotY - sH - sMargin,    // dstY: temp canvas top edge on scratch
+    sMargin,                  // originX: left of char in temp canvas
+    sH + sMargin,             // originY: bottom of char in temp canvas
+    sRX, sRY, sRZ, ovZ, perspVal);
 
-  // Draw P segments (in front)
+  // Draw P segments (in front) — using perspective strip rendering
+  const pMargin = Math.ceil(Math.max(pShadB * S, pStrokeW * S, 10) + 10);
+  const pTmpW = Math.ceil(pW + pMargin * 2);
+  const pTmpH = Math.ceil(pH + pMargin * 2);
+  const pTmp = document.createElement('canvas');
+  pTmp.width = pTmpW; pTmp.height = pTmpH;
+  const ptCtx = pTmp.getContext('2d');
   for (let i = 0; i < pSegCount; i++) {
-    ctx.save();
-    ctx.translate(logoX + pW / 2 + pOvX * S, baseY + pOvY * S);
-    ctx.transform(1, 0, pSkew, 1, 0, 0);
-    // Clip in pre-transform space, so measure from -pW/2
-    ctx.translate(-pW / 2, -pH);
-    clipSegment(ctx, i, pSegCount, pAngle, pW, pH);
-    ctx.translate(pW / 2, pH);
-    ctx.font = pFontStr;
-    ctx.textBaseline = 'bottom';
-    ctx.textAlign = 'center';
-    if (pShadX || pShadY || pShadB) { ctx.shadowOffsetX = pShadX * S; ctx.shadowOffsetY = pShadY * S; ctx.shadowBlur = pShadB * S; ctx.shadowColor = pShadC; }
-    ctx.fillStyle = pSegColors[i] || '#888';
-    ctx.fillText(pChar, 0, 0);
-    if (pStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = pStrokeW * S; ctx.strokeStyle = pStrokeC; ctx.strokeText(pChar, 0, 0); }
-    ctx.restore();
+    ptCtx.save();
+    ptCtx.translate(pMargin, pMargin);
+    clipSegment(ptCtx, i, pSegCount, pAngle, pW, pH);
+    ptCtx.font = pFontStr;
+    ptCtx.textBaseline = 'top';
+    if (pShadX || pShadY || pShadB) { ptCtx.shadowOffsetX = pShadX * S; ptCtx.shadowOffsetY = pShadY * S; ptCtx.shadowBlur = pShadB * S; ptCtx.shadowColor = pShadC; }
+    ptCtx.fillStyle = pSegColors[i] || '#888';
+    ptCtx.fillText(pChar, 0, 0);
+    if (pStrokeW) { ptCtx.shadowColor = 'transparent'; ptCtx.lineWidth = pStrokeW * S; ptCtx.strokeStyle = pStrokeC; ptCtx.strokeText(pChar, 0, 0); }
+    ptCtx.restore();
   }
+  // Render with perspective: origin at bottom-center (CSS transform-origin: bottom center)
+  // P group offset by pOvX, pOvY; CSS: translate3d(pOvX, pOvY, pOvZ) then rotateY/X/Z
+  drawPerspective3D(sctx, pTmp,
+    logoX - pMargin + pOvX * S,     // dstX
+    baseY - pH - pMargin + pOvY * S, // dstY
+    pW / 2 + pMargin,                // originX: center of char in temp canvas
+    pH + pMargin,                     // originY: bottom of char in temp canvas
+    pRX, pRY, pRZ, pOvZ, perspVal);
 
-  // Text
+  // Text on scratch
   const textBaseY = baseY + gapVal * S;
-  ctx.textAlign = 'center';
-  if (tShadX || tShadY || tShadB) { ctx.shadowOffsetX = tShadX * S; ctx.shadowOffsetY = tShadY * S; ctx.shadowBlur = tShadB * S; ctx.shadowColor = tShadC; }
+  sctx.textAlign = 'center';
+  if (tShadX || tShadY || tShadB) { sctx.shadowOffsetX = tShadX * S; sctx.shadowOffsetY = tShadY * S; sctx.shadowBlur = tShadB * S; sctx.shadowColor = tShadC; }
   if (line1) {
-    ctx.font = textFontStr;
-    ctx.fillStyle = cText;
-    ctx.textBaseline = 'top';
-    try { ctx.letterSpacing = (letterSp * S) + 'px'; } catch(e) {}
-    ctx.fillText(line1, totalW / 2, textBaseY);
-    if (tStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = tStrokeW * S; ctx.strokeStyle = tStrokeC; ctx.strokeText(line1, totalW / 2, textBaseY); }
+    sctx.font = textFontStr;
+    sctx.fillStyle = cText;
+    sctx.textBaseline = 'top';
+    try { sctx.letterSpacing = (letterSp * S) + 'px'; } catch(e) {}
+    sctx.fillText(line1, totalW / 2, textBaseY);
+    if (tStrokeW) { sctx.shadowColor = 'transparent'; sctx.lineWidth = tStrokeW * S; sctx.strokeStyle = tStrokeC; sctx.strokeText(line1, totalW / 2, textBaseY); }
   }
   if (line2) {
-    ctx.font = text2FontStr;
-    ctx.fillStyle = cText;
-    ctx.globalAlpha = 0.6;
-    ctx.textBaseline = 'top';
-    if (tShadX || tShadY || tShadB) { ctx.shadowOffsetX = tShadX * S; ctx.shadowOffsetY = tShadY * S; ctx.shadowBlur = tShadB * S; ctx.shadowColor = tShadC; }
-    ctx.fillText(line2, totalW / 2, textBaseY + t1H);
-    if (tStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = tStrokeW * S; ctx.strokeStyle = tStrokeC; ctx.strokeText(line2, totalW / 2, textBaseY + t1H); }
-    ctx.globalAlpha = 1;
+    sctx.font = text2FontStr;
+    sctx.fillStyle = cText;
+    sctx.globalAlpha = 0.6;
+    sctx.textBaseline = 'top';
+    if (tShadX || tShadY || tShadB) { sctx.shadowOffsetX = tShadX * S; sctx.shadowOffsetY = tShadY * S; sctx.shadowBlur = tShadB * S; sctx.shadowColor = tShadC; }
+    sctx.fillText(line2, totalW / 2, textBaseY + t1H);
+    if (tStrokeW) { sctx.shadowColor = 'transparent'; sctx.lineWidth = tStrokeW * S; sctx.strokeStyle = tStrokeC; sctx.strokeText(line2, totalW / 2, textBaseY + t1H); }
+    sctx.globalAlpha = 1;
   }
 
-  // Restore logo transform
-  ctx.restore();
+  sctx.restore(); // logo transform
+
+  // ---- Find actual content bounds on scratch canvas ----
+  const _imgData = sctx.getImageData(0, 0, _sc.width, _sc.height);
+  const _pxData = _imgData.data;
+  let _bx0 = _sc.width, _bx1 = 0, _by0 = _sc.height, _by1 = 0;
+  for (let i = 0; i < _pxData.length; i += 4) {
+    if (_pxData[i + 3] > 5) {
+      const j = i >> 2;
+      const x = j % _sc.width;
+      const y = (j - x) / _sc.width;
+      if (x < _bx0) _bx0 = x;
+      if (x > _bx1) _bx1 = x;
+      if (y < _by0) _by0 = y;
+      if (y > _by1) _by1 = y;
+    }
+  }
+  if (_bx0 > _bx1) { _bx0 = _extra; _bx1 = _extra + totalW; _by0 = _extra; _by1 = _extra + totalH; }
+  const _aw = _bx1 - _bx0 + 1;
+  const _ah = _by1 - _by0 + 1;
+
+  // ---- Stamp content pixel-perfect centered onto main canvas ----
+  const _stampX = Math.round((totalW - _aw) / 2);
+  const _stampY = Math.round((totalH - _ah) / 2);
+  ctx.drawImage(_sc, _bx0, _by0, _aw, _ah, _stampX, _stampY, _aw, _ah);
+
+  // Store debug info for popout
+  exportPNG._debugInfo = {
+    bx0: _bx0, bx1: _bx1, by0: _by0, by1: _by1,
+    contentW: _aw, contentH: _ah,
+    stampX: _stampX, stampY: _stampY,
+    extraPad: _extra,
+    frameShape, frameSize, frameBW,
+    totalW, totalH, innerSize
+  };
 
   // Restore frame clip
   if (useFrame) ctx.restore();
 
   // If called with texTime, it's a GIF frame — don't download
   if (texTime !== undefined) return;
+  if (exportPNG._noDownload) { exportPNG._noDownload = false; return; }
 
   const a = document.createElement('a');
   a.download = `logo-${pChar}${sChar}-${scale}x.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
+}
+
+// ---- DOM-based export (captures actual CSS 3D rendering via SVG foreignObject) ----
+let _fontCache = null, _fontKey = null;
+async function getInlineFontCSS() {
+  const fonts = [$('fontSel').value, $('sFontSel').value, $('textFontSel').value];
+  const key = fonts.join('|');
+  if (_fontCache && _fontKey === key) return _fontCache;
+  const used = new Set(fonts.map(f => f.split(',')[0].replace(/'/g, '').trim().toLowerCase()));
+  const importURLs = [];
+  for (const s of document.styleSheets) try {
+    for (const r of s.cssRules) if (r instanceof CSSImportRule && r.href) importURLs.push(r.href);
+  } catch(e) {}
+  let css = '';
+  for (const src of importURLs) {
+    try {
+      const text = await (await fetch(src)).text();
+      for (const m of text.matchAll(/@font-face\s*\{[^}]+\}/g)) {
+        const block = m[0];
+        const fam = block.match(/font-family:\s*['"]?([^'";]+)/);
+        if (!fam || !used.has(fam[1].trim().toLowerCase())) continue;
+        let out = block;
+        for (const u of block.matchAll(/url\(([^)]+)\)/g)) {
+          let href = u[1].replace(/['"]/g, '');
+          if (href.startsWith('data:')) continue;
+          if (!href.startsWith('http')) href = new URL(href, src).href;
+          try {
+            const b = await (await fetch(href)).blob();
+            const d = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(b); });
+            out = out.replace(u[0], `url(${d})`);
+          } catch(e) {}
+        }
+        css += out + '\n';
+      }
+    } catch(e) { console.warn('Font fetch:', src, e); }
+  }
+  _fontKey = key; _fontCache = css;
+  return css;
+}
+
+async function domExport(scale) {
+  const el = $('frameWrap');
+  const rect = el.getBoundingClientRect();
+  const w = Math.round(rect.width), h = Math.round(rect.height);
+  // Only inlined font CSS — no page CSS (avoids external URL refs that taint canvas)
+  const fontCSS = await getInlineFontCSS();
+  // Clone and inline all computed styles (covers everything page CSS would provide)
+  const clone = el.cloneNode(true);
+  !function walk(src, dst) {
+    if (src.nodeType !== 1) return;
+    const cs = getComputedStyle(src);
+    for (const p of cs) {
+      const v = cs.getPropertyValue(p);
+      // Skip properties with external URL references — they taint the canvas
+      if (v.includes('url(') && !/url\(["']?data:/.test(v)) continue;
+      dst.style.setProperty(p, v);
+    }
+    for (let i = 0; i < src.children.length; i++) if (dst.children[i]) walk(src.children[i], dst.children[i]);
+  }(el, clone);
+  // Hide overlays in export
+  const grid = clone.querySelector('#gridOverlay'); if (grid) grid.style.display = 'none';
+  const tex = clone.querySelector('#textureOverlay'); if (tex) tex.style.display = 'none';
+  const dbg = clone.querySelector('#debugOverlay'); if (dbg) dbg.style.display = 'none';
+  // Serialize to XHTML
+  const html = new XMLSerializer().serializeToString(clone);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
+    `<foreignObject width="100%" height="100%">` +
+    `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${w}px;height:${h}px;overflow:hidden">` +
+    `<style><![CDATA[${fontCSS}]]></style>${html}</div></foreignObject></svg>`;
+  const blob = new Blob([svg], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = w * scale; c.height = h * scale;
+      c.getContext('2d').drawImage(img, 0, 0, w * scale, h * scale);
+      URL.revokeObjectURL(url);
+      res(c);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('SVG foreignObject render failed')); };
+    img.src = url;
+  });
+}
+
+// HD Export: server-side Puppeteer screenshot of the CSS preview (pixel-perfect)
+async function hdExport(scale) {
+  const btn = $('exportBtn');
+  if (btn) { btn.textContent = `Exporting ${scale}x...`; btn.disabled = true; }
+  try {
+    const settings = getConfig();
+    const res = await fetch('/__export-logo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings, scale })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const json = await res.json();
+
+    // Download helper: base64 → blob → click
+    function dlBase64(b64, filename) {
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      const blob = new Blob([arr], { type: 'image/png' });
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // Download all 4 variants with small delays between each
+    const variants = ['full', 'icon', 'iconCurved', 'iconScaled'];
+    for (const key of variants) {
+      if (json[key]) {
+        dlBase64(json[key].data, json[key].name);
+        await new Promise(r => setTimeout(r, 400));
+      }
+    }
+  } catch(e) {
+    console.error('HD export failed, falling back to canvas:', e);
+    alert('Export server not running. Start with: npm run dev\nFalling back to canvas export.');
+    exportPNG(scale);
+  }
+  if (btn) { btn.textContent = 'Export @2x'; btn.disabled = false; }
+}
+
+async function domDownload(scale) {
+  const btn = $('domExBtn');
+  if (btn) { btn.textContent = 'Exporting...'; btn.disabled = true; }
+  try {
+    const c = await domExport(scale);
+    const a = document.createElement('a');
+    a.download = `logo-${$('pChar').value}${$('sChar').value}-${scale}x.png`;
+    a.href = c.toDataURL('image/png');
+    a.click();
+  } catch(e) {
+    console.error('DOM export failed, falling back to canvas:', e);
+    exportPNG(scale);
+  }
+  if (btn) { btn.textContent = 'Export @2x'; btn.disabled = false; }
+}
+
+async function domPopout(scale) {
+  const win = window.open('', '_blank');
+  if (!win) { alert('Popup blocked — allow popups for this page'); return; }
+  win.document.write('<html><body style="margin:0;background:#111;color:#fff;font:14px sans-serif;display:flex;align-items:center;justify-content:center;height:100vh">Rendering...</body></html>');
+  try {
+    const c = await domExport(scale);
+    const d = c.toDataURL('image/png');
+    win.document.open();
+    win.document.write(`<!DOCTYPE html><html><head><title>Export ${scale}x</title>` +
+      `<style>*{margin:0}body{background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:100%;cursor:crosshair}</style></head>` +
+      `<body><img src="${d}"></body></html>`);
+    win.document.close();
+    win.resizeTo(Math.min(c.width + 40, screen.width), Math.min(c.height + 80, screen.height));
+  } catch(e) { win.document.body.textContent = 'Export failed: ' + e.message; }
+}
+
+// Shared debug grid drawing — matches the live preview overlay style
+function drawDebugGrid(ctx, tw, th, bx0, by0, cw, ch, label) {
+  ctx.save();
+  // 10% background grid
+  ctx.strokeStyle = 'rgba(0,255,0,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([]);
+  for (let i = 1; i < 10; i++) {
+    const x = Math.round(tw * i / 10);
+    const y = Math.round(th * i / 10);
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, th); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(tw, y); ctx.stroke();
+  }
+  // Quarter lines (brighter)
+  ctx.strokeStyle = 'rgba(0,255,0,0.25)'; ctx.lineWidth = 1;
+  [0.25, 0.75].forEach(f => {
+    ctx.beginPath(); ctx.moveTo(Math.round(tw * f), 0); ctx.lineTo(Math.round(tw * f), th); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, Math.round(th * f)); ctx.lineTo(tw, Math.round(th * f)); ctx.stroke();
+  });
+  // Center cross (bright green)
+  ctx.strokeStyle = 'rgba(0,255,0,0.7)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(tw / 2, 0); ctx.lineTo(tw / 2, th);
+  ctx.moveTo(0, th / 2); ctx.lineTo(tw, th / 2);
+  ctx.stroke();
+  // Green center dot
+  ctx.fillStyle = 'rgba(0,255,0,0.9)';
+  ctx.beginPath(); ctx.arc(tw / 2, th / 2, 4, 0, Math.PI * 2); ctx.fill();
+  // Content bounding box (red dashed)
+  if (cw > 0 && ch > 0) {
+    ctx.strokeStyle = 'rgba(255,0,0,0.5)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.strokeRect(bx0, by0, cw, ch);
+    // Content center dot (red)
+    const ccx = bx0 + cw / 2, ccy = by0 + ch / 2;
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,0,0,0.9)';
+    ctx.beginPath(); ctx.arc(ccx, ccy, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  // Label
+  ctx.setLineDash([]);
+  ctx.font = 'bold 16px monospace'; ctx.fillStyle = '#ff0';
+  ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+  ctx.fillText(label, 8, 8);
+  ctx.restore();
+  const ccx = cw > 0 ? Math.round(bx0 + cw / 2) : tw / 2;
+  const ccy = ch > 0 ? Math.round(by0 + ch / 2) : th / 2;
+  return {
+    canvasW: tw, canvasH: th,
+    bx0, by0, bx1: bx0 + cw - 1, by1: by0 + ch - 1, contentW: cw, contentH: ch,
+    contentCX: ccx, contentCY: ccy,
+    offCX: ccx - Math.round(tw / 2), offCY: ccy - Math.round(th / 2)
+  };
+}
+
+// Debug overlay from pre-computed bounds (for canvas export where bg fills entire canvas)
+function drawDebugOverlayFromInfo(canvas, label, bx0, by0, cw, ch) {
+  return drawDebugGrid(canvas.getContext('2d'), canvas.width, canvas.height, bx0, by0, cw, ch, label);
+}
+
+// Debug overlay with pixel scan (for DOM export / transparent canvases)
+function drawDebugOverlay(canvas, label) {
+  const ctx = canvas.getContext('2d');
+  const tw = canvas.width, th = canvas.height;
+  const imgData = ctx.getImageData(0, 0, tw, th).data;
+  let bx0 = tw, bx1 = 0, by0 = th, by1 = 0;
+  for (let i = 0; i < imgData.length; i += 4) {
+    if (imgData[i + 3] > 5) {
+      const idx = i >> 2;
+      const x = idx % tw, y = (idx - x) / tw;
+      if (x < bx0) bx0 = x; if (x > bx1) bx1 = x;
+      if (y < by0) by0 = y; if (y > by1) by1 = y;
+    }
+  }
+  const hasContent = bx0 <= bx1;
+  const cw = hasContent ? bx1 - bx0 + 1 : 0;
+  const ch = hasContent ? by1 - by0 + 1 : 0;
+  return drawDebugGrid(ctx, tw, th, hasContent ? bx0 : 0, hasContent ? by0 : 0, cw, ch, label);
+}
+
+async function debugPopout(mode) {
+  const win = window.open('', '_blank');
+  if (!win) { alert('Popup blocked'); return; }
+  win.document.write('<html><body style="margin:0;background:#111;color:#fff;font:14px monospace;display:flex;align-items:center;justify-content:center;height:100vh">Rendering ' + mode + '...</body></html>');
+  try {
+    let canvasImg, domImg, canvasInfo, domInfo;
+    if (mode === 'canvas' || mode === 'both') {
+      exportPNG._noDownload = true;
+      exportPNG(2);
+      const cc = document.createElement('canvas');
+      const src = $('exportCanvas');
+      cc.width = src.width; cc.height = src.height;
+      cc.getContext('2d').drawImage(src, 0, 0);
+      // Use scratch canvas debug info (pixel scan on final canvas is useless — background fills it all)
+      const di = exportPNG._debugInfo || {};
+      if (di.stampX !== undefined) {
+        canvasInfo = drawDebugOverlayFromInfo(cc, 'CANVAS', di.stampX, di.stampY, di.contentW, di.contentH);
+      } else {
+        canvasInfo = drawDebugOverlay(cc, 'CANVAS');
+      }
+      canvasImg = cc.toDataURL('image/png');
+    }
+    if (mode === 'dom' || mode === 'both') {
+      try {
+        const dc = await domExport(2);
+        try {
+          domInfo = drawDebugOverlay(dc, 'DOM');
+          domImg = dc.toDataURL('image/png');
+        } catch(taintErr) {
+          // Canvas tainted by foreignObject — draw grid without pixel scan
+          const dctx = dc.getContext('2d');
+          drawDebugGrid(dctx, dc.width, dc.height, 0, 0, 0, 0, 'DOM (tainted)');
+          domInfo = { canvasW: dc.width, canvasH: dc.height, bx0: '?', by0: '?', bx1: '?', by1: '?',
+            contentW: '?', contentH: '?', contentCX: '?', contentCY: '?', offCX: '?', offCY: '?' };
+          // Try blob fallback for tainted canvas
+          try { domImg = dc.toDataURL('image/png'); } catch(e2) {
+            domImg = null; // can't export tainted canvas at all
+          }
+        }
+      } catch(e) {
+        domInfo = null; domImg = null;
+        console.warn('DOM export failed:', e);
+      }
+    }
+    // Build info table
+    function infoHTML(label, info) {
+      if (!info) return '';
+      return `<b>${label}</b>\n` +
+        `Canvas: ${info.canvasW} x ${info.canvasH}\n` +
+        `Content bbox: (${info.bx0},${info.by0}) → (${info.bx1},${info.by1})\n` +
+        `Content size: ${info.contentW} x ${info.contentH}\n` +
+        `Content center: (${info.contentCX}, ${info.contentCY})\n` +
+        `Canvas center: (${info.canvasW/2}, ${info.canvasH/2})\n` +
+        `<span style="color:${Math.abs(info.offCX) > 2 || Math.abs(info.offCY) > 2 ? '#f55' : '#5f5'}">Offset: dx=${info.offCX}, dy=${info.offCY}</span>\n`;
+    }
+    win.document.open();
+    win.document.write(`<!DOCTYPE html><html><head><title>Debug ${mode}</title>
+      <style>*{margin:0}body{background:#111;color:#ccc;font:12px monospace;display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px}
+      .row{display:flex;gap:20px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+      .col{display:flex;flex-direction:column;align-items:center;gap:4px}
+      img{max-width:45vw;border:1px solid #333;cursor:crosshair}
+      pre{background:#1a1a1a;padding:10px;border:1px solid #333;white-space:pre;max-width:90vw}
+      </style></head><body>
+      <div style="font-size:11px;color:#666;margin-bottom:4px">
+        <span style="color:#0f0">GREEN</span> = canvas center &nbsp;
+        <span style="color:#0ff">CYAN</span> = content bbox &nbsp;
+        <span style="color:#f00">RED</span> = content center &nbsp;
+        <span style="color:#ff0">YELLOW</span> = label
+      </div>
+      <div class="row">
+        ${canvasImg ? `<div class="col"><img src="${canvasImg}"><span>Canvas Export</span></div>` : ''}
+        ${domImg ? `<div class="col"><img src="${domImg}"><span>DOM Export</span></div>` : ''}
+      </div>
+      <pre>${infoHTML('CANVAS', canvasInfo)}${canvasInfo && domInfo ? '\n' : ''}${infoHTML('DOM', domInfo)}</pre>
+      </body></html>`);
+    win.document.close();
+  } catch(e) { win.document.body.textContent = 'Debug failed: ' + e.message; console.error(e); }
 }
 
 // Canvas rounded rect helper
@@ -2747,33 +3516,106 @@ function buildGIF(framesData, w, h, delayMs) {
   const ws = s => { wb(s); wb(s >> 8); };
   const wstr = s => { for (let i = 0; i < s.length; i++) wb(s.charCodeAt(i)); };
 
-  // Quantize RGBA pixels to 256-color palette
+  // Quantize RGBA pixels to 256-color palette with Floyd-Steinberg dithering
   function quantize(pixels) {
-    const counts = new Map();
-    for (let i = 0; i < pixels.length; i += 4) {
-      const k = (pixels[i] << 16) | (pixels[i+1] << 8) | pixels[i+2];
-      counts.set(k, (counts.get(k) || 0) + 1);
+    const npx = pixels.length / 4;
+
+    // --- Median-cut palette generation ---
+    // Sample pixels (every 4th for speed) to build palette
+    const sample = [];
+    for (let i = 0; i < pixels.length; i += 16) {
+      sample.push([pixels[i], pixels[i+1], pixels[i+2]]);
     }
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 256);
-    const pal = sorted.map(([c]) => [(c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF]);
+
+    function medianCut(colors, depth) {
+      if (depth === 0 || colors.length <= 1) {
+        if (colors.length === 0) return [[0,0,0]];
+        let rS = 0, gS = 0, bS = 0;
+        for (const c of colors) { rS += c[0]; gS += c[1]; bS += c[2]; }
+        const n = colors.length;
+        return [[Math.round(rS/n), Math.round(gS/n), Math.round(bS/n)]];
+      }
+      // Find channel with greatest range
+      let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
+      for (const c of colors) {
+        if(c[0]<rMin)rMin=c[0]; if(c[0]>rMax)rMax=c[0];
+        if(c[1]<gMin)gMin=c[1]; if(c[1]>gMax)gMax=c[1];
+        if(c[2]<bMin)bMin=c[2]; if(c[2]>bMax)bMax=c[2];
+      }
+      const rR=rMax-rMin, gR=gMax-gMin, bR=bMax-bMin;
+      const ch = rR >= gR && rR >= bR ? 0 : gR >= bR ? 1 : 2;
+      colors.sort((a,b) => a[ch] - b[ch]);
+      const mid = Math.floor(colors.length / 2);
+      return [...medianCut(colors.slice(0, mid), depth-1),
+              ...medianCut(colors.slice(mid), depth-1)];
+    }
+
+    let pal = medianCut(sample, 8); // 2^8 = 256 max
+    pal = pal.slice(0, 256);
     while (pal.length < 256) pal.push([0, 0, 0]);
 
-    // Build lookup
-    const lookup = new Map();
-    sorted.forEach(([c], i) => lookup.set(c, i));
-
-    const idx = new Uint8Array(pixels.length / 4);
-    for (let i = 0; i < pixels.length; i += 4) {
-      const k = (pixels[i] << 16) | (pixels[i+1] << 8) | pixels[i+2];
-      if (lookup.has(k)) { idx[i / 4] = lookup.get(k); continue; }
-      // Nearest color
+    // Build k-d tree for fast nearest-neighbor (flat array approach)
+    function nearest(r, g, b) {
       let best = 0, bestD = Infinity;
-      for (let j = 0; j < sorted.length; j++) {
-        const dr = pixels[i] - pal[j][0], dg = pixels[i+1] - pal[j][1], db = pixels[i+2] - pal[j][2];
-        const d = dr * dr + dg * dg + db * db;
+      for (let j = 0; j < 256; j++) {
+        const dr = r - pal[j][0], dg = g - pal[j][1], db = b - pal[j][2];
+        const d = dr*dr + dg*dg + db*db;
         if (d < bestD) { bestD = d; best = j; }
+        if (d === 0) break;
       }
-      idx[i / 4] = best;
+      return best;
+    }
+
+    // --- Floyd-Steinberg dithering ---
+    // Work on a float copy so error diffusion stays accurate
+    const err = new Float32Array(npx * 3);
+    for (let i = 0; i < npx; i++) {
+      err[i*3]   = pixels[i*4];
+      err[i*3+1] = pixels[i*4+1];
+      err[i*3+2] = pixels[i*4+2];
+    }
+
+    const idx = new Uint8Array(npx);
+    for (let i = 0; i < npx; i++) {
+      const r = Math.max(0, Math.min(255, Math.round(err[i*3])));
+      const g = Math.max(0, Math.min(255, Math.round(err[i*3+1])));
+      const b = Math.max(0, Math.min(255, Math.round(err[i*3+2])));
+
+      const ci = nearest(r, g, b);
+      idx[i] = ci;
+
+      const eR = r - pal[ci][0];
+      const eG = g - pal[ci][1];
+      const eB = b - pal[ci][2];
+
+      const x = i % w, y = Math.floor(i / w);
+      // Diffuse error to neighbors
+      if (x + 1 < w) {
+        const j = i + 1;
+        err[j*3]   += eR * 7/16;
+        err[j*3+1] += eG * 7/16;
+        err[j*3+2] += eB * 7/16;
+      }
+      if (y + 1 < h) {
+        if (x > 0) {
+          const j = i + w - 1;
+          err[j*3]   += eR * 3/16;
+          err[j*3+1] += eG * 3/16;
+          err[j*3+2] += eB * 3/16;
+        }
+        {
+          const j = i + w;
+          err[j*3]   += eR * 5/16;
+          err[j*3+1] += eG * 5/16;
+          err[j*3+2] += eB * 5/16;
+        }
+        if (x + 1 < w) {
+          const j = i + w + 1;
+          err[j*3]   += eR * 1/16;
+          err[j*3+1] += eG * 1/16;
+          err[j*3+2] += eB * 1/16;
+        }
+      }
     }
     return { pal, idx };
   }
@@ -2859,61 +3701,75 @@ function buildGIF(framesData, w, h, delayMs) {
   return new Uint8Array(buf);
 }
 
-// ---- GIF Export ----
+// ---- GIF Export (Screen Capture — pixel-perfect) ----
 async function exportGIF() {
   const btn = $('gifBtn');
-  btn.textContent = 'Encoding...';
+  btn.textContent = 'Share tab...';
   btn.disabled = true;
-
-  // Let UI update
-  await new Promise(r => setTimeout(r, 50));
 
   const texVal = $('bgTexture').value;
   const isPSX = texVal.startsWith('psx-') && psxWaterTextures[texVal + '-a'];
-  const isAsset = texVal.startsWith('asset-') && assetTextures[texVal];
-  const frameCount = isPSX ? 24 : (isAsset ? 1 : 12);
   const speeds = { 'psx-ocean': 6000, 'psx-river': 3000, 'psx-warm': 5000, 'psx-lava': 8000, 'psx-acid': 2500, 'psx-ice': 10000, 'psx-swamp': 7000, 'psx-blood': 6000 };
-  const duration = speeds[texVal] || 4000;
-  const delayMs = Math.round(duration / frameCount);
-
-  // Preload texture images
-  const loadImg = (src) => new Promise((res, rej) => {
-    const img = new Image();
-    img.onload = () => res(img);
-    img.onerror = rej;
-    img.src = src;
-  });
+  // Animated PSX: capture one full cycle; static textures: single frame
+  const duration = isPSX ? (speeds[texVal] || 4000) : 100;
+  const frameCount = isPSX ? 48 : 1;
+  const delayMs = isPSX ? Math.round(duration / frameCount) : 100;
 
   try {
-    if (isPSX) {
-      window._gifTexImgA = await loadImg(psxWaterTextures[texVal + '-a']);
-      window._gifTexImgB = await loadImg(psxWaterTextures[texVal + '-b']);
-    } else if (isAsset) {
-      window._gifTexImgA = await loadImg(assetTextures[texVal]);
-      window._gifTexImgB = null;
-    } else {
-      window._gifTexImgA = null;
-      window._gifTexImgB = null;
-    }
+    // Capture the current tab (same as Screenshot button)
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: 'browser', cursor: 'never' },
+      preferCurrentTab: true,
+      selfBrowserSurface: 'include'
+    });
 
-    const canvas = $('exportCanvas');
-    const ctx = canvas.getContext('2d');
-    const scale = 1;
+    // Wait for share dialog to close and page to settle
+    await new Promise(r => setTimeout(r, 600));
+    btn.textContent = 'Recording...';
+
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    await video.play();
+    await new Promise(r => setTimeout(r, 300));
+
+    // Get frameWrap position and compute crop coords
+    const el = $('frameWrap');
+    const rect = el.getBoundingClientRect();
+    // Use devicePixelRatio for accurate scaling (screen capture is at native resolution)
+    const dpr = window.devicePixelRatio || 1;
+    const cx = Math.round(rect.left * dpr);
+    const cy = Math.round(rect.top * dpr);
+    const cw = Math.round(rect.width * dpr);
+    const ch = Math.round(rect.height * dpr);
+
+    // Temp canvas for cropping video frames
+    const capCanvas = document.createElement('canvas');
+    capCanvas.width = cw;
+    capCanvas.height = ch;
+    const capCtx = capCanvas.getContext('2d');
+
     const framesData = [];
 
     for (let f = 0; f < frameCount; f++) {
       btn.textContent = `Frame ${f + 1}/${frameCount}`;
-      await new Promise(r => setTimeout(r, 10));
 
-      const t = (f / frameCount) * duration / 1000; // seconds elapsed
-      exportPNG(scale, isPSX || isAsset ? t : 0);
-      framesData.push(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
+      // Crop the frameWrap region from the live video
+      capCtx.drawImage(video, cx, cy, cw, ch, 0, 0, cw, ch);
+      framesData.push(capCtx.getImageData(0, 0, cw, ch).data);
+
+      // Wait for next frame interval (skip after last frame)
+      if (f < frameCount - 1) {
+        await new Promise(r => setTimeout(r, delayMs));
+      }
     }
+
+    // Stop screen capture
+    stream.getTracks().forEach(t => t.stop());
 
     btn.textContent = 'Building GIF...';
     await new Promise(r => setTimeout(r, 10));
 
-    const gif = buildGIF(framesData, canvas.width, canvas.height, delayMs);
+    const gif = buildGIF(framesData, cw, ch, delayMs);
     const blob = new Blob([gif], { type: 'image/gif' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2925,7 +3781,7 @@ async function exportGIF() {
     URL.revokeObjectURL(url);
   } catch (e) {
     console.error('GIF export error:', e);
-    alert('GIF export failed: ' + e.message);
+    if (e.name !== 'NotAllowedError') alert('GIF export failed: ' + e.message);
   }
 
   btn.textContent = 'GIF';
@@ -2986,6 +3842,9 @@ function getConfig() {
     logoScale: parseInt($('logoScale').value),
     logoMoveX: parseInt($('logoMoveX').value),
     logoMoveY: parseInt($('logoMoveY').value),
+    textMoveX: parseInt($('textMoveX').value),
+    textMoveY: parseInt($('textMoveY').value),
+    textScale: parseInt($('textScale').value),
     pStrokeW: parseInt($('pStrokeW').value),
     pStrokeC: $('pStrokeC').value,
     pShadX: parseInt($('pShadX').value),
@@ -3034,7 +3893,7 @@ render();
 
 // Re-render after fonts load (PlayStation font is async from CDNFonts)
 document.fonts.ready.then(() => render());
-window.addEventListener('load', () => { render(); setTimeout(() => { const el = document.querySelector('#pStrokeW'); if(el) el.closest('.section-body').scrollIntoView({behavior:'smooth'}); }, 500); });
+window.addEventListener('load', () => render());
 </script>
 </body>
 </html>
