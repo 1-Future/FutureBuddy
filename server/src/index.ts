@@ -21,6 +21,7 @@ import { nudgeRoutes } from "./routes/nudge.js";
 import { toolsRoutes } from "./routes/tools.js";
 import { autotubeRoutes } from "./routes/autotube.js";
 import { summarizeRoutes } from "./routes/summarize.js";
+import { ideasRoutes } from "./routes/ideas.js";
 import { wsHandler } from "./routes/ws.js";
 import { toolRegistry } from "./modules/it-department/tool-registry.js";
 import { packagesOrchestrator } from "./modules/it-department/packages/index.js";
@@ -81,6 +82,7 @@ await app.register(nudgeRoutes, { prefix: "/api/nudges" });
 await app.register(toolsRoutes, { prefix: "/api/tools" });
 await app.register(autotubeRoutes, { prefix: "/api/autotube" });
 await app.register(summarizeRoutes, { prefix: "/api/summarize" });
+await app.register(ideasRoutes, { prefix: "/api/ideas" });
 
 // WebSocket
 await app.register(wsHandler, { prefix: WS_PATH });

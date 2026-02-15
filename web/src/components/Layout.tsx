@@ -13,6 +13,7 @@ import {
   Bookmark,
   Cpu,
   Video,
+  Lightbulb,
   Settings,
   Menu,
   X,
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { to: "/sessions", icon: ScrollText, label: "Sessions" },
   { to: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
   { to: "/models", icon: Cpu, label: "AI Models" },
+  { to: "/ideas", icon: Lightbulb, label: "Ideas" },
   { to: "/autotube", icon: Video, label: "AutoTube" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];

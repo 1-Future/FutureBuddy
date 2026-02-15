@@ -1,5 +1,4 @@
-import { useCallback } from 'react';
-import { uid } from '../utils/uid';
+import { useCallback, useRef } from 'react';
 import { useChatStore } from '../stores/chat.store';
 import { streamChat } from '../services/sse';
 import { getConversation } from '../services/api';
@@ -21,6 +20,8 @@ export function useChat() {
     clearStream,
   } = useChatStore();
 
+  const abortRef = useRef<{ abort: () => void } | null>(null);
+
   const sendMessage = useCallback(
     (text: string, images?: string[]) => {
       // Add optimistic user message
@@ -33,12 +34,13 @@ export function useChat() {
       addMessage(userMsg);
       setStreaming(true);
 
-      // Stream via SSE
-      streamChat(text, conversationId, {
+      // Stream via SSE (XHR-based)
+      const handle = streamChat(text, conversationId, {
         onDelta: (delta) => {
           appendToken(delta);
         },
         onDone: (newConversationId, actions?: Action[]) => {
+          abortRef.current = null;
           setConversationId(newConversationId);
           const content = useChatStore.getState().streamingContent;
           const assistantMsg: ChatMessage = {
@@ -49,16 +51,21 @@ export function useChat() {
           finishStream(assistantMsg, actions);
         },
         onError: (error) => {
+          abortRef.current = null;
           console.error('[SSE] Error:', error);
           clearStream();
         },
       });
+      abortRef.current = handle;
     },
     [conversationId, addMessage, setStreaming, appendToken, setConversationId, finishStream, clearStream],
   );
 
   const cancelStream = useCallback(() => {
-    // SSE doesn't have a clean cancel mechanism; just clear state
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     clearStream();
   }, [clearStream]);
 

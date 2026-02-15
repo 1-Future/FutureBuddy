@@ -2,14 +2,28 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Send, Plus, MessageSquare } from "lucide-react";
+import { Send, Plus, MessageSquare, Columns } from "lucide-react";
 import {
   streamMessage,
   getConversations,
   getConversation,
+  translateText,
   type ChatMessage,
   type Conversation,
 } from "../services/api.js";
+import { useTextSelection } from "../hooks/useTextSelection.js";
+import { SelectionMenu } from "../components/SelectionMenu.js";
+import { DefineTooltip } from "../components/DefineTooltip.js";
+import { ExplainPanel } from "../components/ExplainPanel.js";
+import { ResearchPanel } from "../components/ResearchPanel.js";
+import { IdeaModal } from "../components/IdeaModal.js";
+
+type ActiveOverlay =
+  | null
+  | { type: "define"; text: string; rect: DOMRect }
+  | { type: "explain"; text: string }
+  | { type: "research"; text: string }
+  | { type: "idea"; text: string };
 
 export function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -17,8 +31,14 @@ export function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [streamingContent, setStreamingContent] = useState("");
+  const [activeOverlay, setActiveOverlay] = useState<ActiveOverlay>(null);
+  const [buddyView, setBuddyView] = useState(false);
+  const [translations, setTranslations] = useState<Map<number, string>>(new Map());
   const messagesEnd = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+
+  const { selectedText, selectionRect, clearSelection } = useTextSelection(messagesRef);
 
   const { data: conversations, refetch: refetchConversations } = useQuery({
     queryKey: ["conversations"],
@@ -34,6 +54,7 @@ export function ChatPage() {
     setConversationId(id);
     setMessages(data.messages);
     setStreamingContent("");
+    setTranslations(new Map());
   }, []);
 
   const startNew = useCallback(() => {
@@ -41,6 +62,7 @@ export function ChatPage() {
     setMessages([]);
     setStreamingContent("");
     setInput("");
+    setTranslations(new Map());
   }, []);
 
   const handleInput = useCallback(
@@ -51,6 +73,23 @@ export function ChatPage() {
     },
     [],
   );
+
+  // Translate an assistant message for buddy view
+  const translateMessage = useCallback((msgIndex: number, content: string) => {
+    let accumulated = "";
+    translateText(
+      content,
+      (delta) => {
+        accumulated += delta;
+        setTranslations((prev) => new Map(prev).set(msgIndex, accumulated));
+      },
+      () => {
+        // done
+      },
+    ).catch(() => {
+      setTranslations((prev) => new Map(prev).set(msgIndex, "(Translation failed)"));
+    });
+  }, []);
 
   const send = useCallback(async () => {
     const text = input.trim();
@@ -80,16 +119,25 @@ export function ChatPage() {
         },
         (data) => {
           setConversationId(data.conversationId);
-          setMessages((prev) => [
-            ...prev,
-            {
-              role: "assistant",
-              content: accumulated,
-              timestamp: new Date().toISOString(),
-            },
-          ]);
+          const newMsgIndex = messages.length + 1; // +1 because user msg was already appended
+          setMessages((prev) => {
+            const updated = [
+              ...prev,
+              {
+                role: "assistant" as const,
+                content: accumulated,
+                timestamp: new Date().toISOString(),
+              },
+            ];
+            return updated;
+          });
           setStreamingContent("");
           refetchConversations();
+
+          // Auto-translate for buddy view
+          if (buddyView && accumulated) {
+            translateMessage(newMsgIndex, accumulated);
+          }
         },
       );
     } catch {
@@ -105,7 +153,7 @@ export function ChatPage() {
     } finally {
       setLoading(false);
     }
-  }, [input, loading, conversationId, refetchConversations]);
+  }, [input, loading, conversationId, refetchConversations, messages.length, buddyView, translateMessage]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -116,6 +164,39 @@ export function ChatPage() {
     },
     [send],
   );
+
+  // Selection menu handlers
+  const handleDefine = useCallback(() => {
+    if (selectedText && selectionRect) {
+      setActiveOverlay({ type: "define", text: selectedText, rect: selectionRect });
+      clearSelection();
+    }
+  }, [selectedText, selectionRect, clearSelection]);
+
+  const handleExplain = useCallback(() => {
+    if (selectedText) {
+      setActiveOverlay({ type: "explain", text: selectedText });
+      clearSelection();
+    }
+  }, [selectedText, clearSelection]);
+
+  const handleResearch = useCallback(() => {
+    if (selectedText) {
+      setActiveOverlay({ type: "research", text: selectedText });
+      clearSelection();
+    }
+  }, [selectedText, clearSelection]);
+
+  const handleIdea = useCallback(() => {
+    if (selectedText) {
+      setActiveOverlay({ type: "idea", text: selectedText });
+      clearSelection();
+    }
+  }, [selectedText, clearSelection]);
+
+  const closeOverlay = useCallback(() => {
+    setActiveOverlay(null);
+  }, []);
 
   return (
     <div className="flex h-full">
@@ -158,49 +239,103 @@ export function ChatPage() {
 
       {/* Chat area */}
       <div className="flex flex-1 flex-col">
-        {/* Messages */}
-        <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
-          {messages.length === 0 && !streamingContent && (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-[var(--color-text-dim)]">
-              <MessageSquare size={48} strokeWidth={1} />
-              <h2 className="text-xl font-semibold text-[var(--color-text)]">
-                Hey there
-              </h2>
-              <p className="text-sm">
-                I&apos;m FutureBuddy. Ask me anything — I remember everything.
-              </p>
+        {/* Buddy view toggle */}
+        <div className="flex items-center justify-end border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5">
+          <button
+            onClick={() => setBuddyView(!buddyView)}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs transition-colors ${
+              buddyView
+                ? "bg-[var(--color-accent)]/15 text-[var(--color-accent)]"
+                : "text-[var(--color-text-dim)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+            }`}
+            title="Toggle Buddy View — plain English translations"
+          >
+            <Columns size={14} />
+            Buddy View
+          </button>
+        </div>
+
+        {/* Messages area */}
+        <div ref={messagesRef} className="flex flex-1 overflow-hidden">
+          {/* Left column: Technical messages */}
+          <div className={`flex flex-1 flex-col gap-3 overflow-y-auto p-4 ${buddyView ? "border-r border-[var(--color-border)]" : ""}`}>
+            {buddyView && (
+              <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-dim)]">
+                Technical
+              </div>
+            )}
+
+            {messages.length === 0 && !streamingContent && (
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 text-[var(--color-text-dim)]">
+                <MessageSquare size={48} strokeWidth={1} />
+                <h2 className="text-xl font-semibold text-[var(--color-text)]">
+                  Hey there
+                </h2>
+                <p className="text-sm">
+                  I&apos;m FutureBuddy. Ask me anything — I remember everything.
+                </p>
+              </div>
+            )}
+
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
+                  msg.role === "user"
+                    ? "self-end rounded-br-sm bg-[var(--color-user-bubble)]"
+                    : msg.role === "system"
+                      ? "self-center text-center text-xs italic text-[var(--color-text-dim)]"
+                      : "self-start rounded-bl-sm border border-[var(--color-border)] bg-[var(--color-surface)]"
+                }`}
+              >
+                {msg.content}
+              </div>
+            ))}
+
+            {streamingContent && (
+              <div className="max-w-[85%] self-start whitespace-pre-wrap break-words rounded-xl rounded-bl-sm border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm leading-relaxed">
+                {streamingContent}
+                <span className="inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]" />
+              </div>
+            )}
+
+            {loading && !streamingContent && (
+              <div className="self-start text-sm text-[var(--color-text-dim)]">
+                Thinking...
+              </div>
+            )}
+
+            <div ref={messagesEnd} />
+          </div>
+
+          {/* Right column: Plain English (buddy view) */}
+          {buddyView && (
+            <div className="flex w-1/2 flex-col gap-3 overflow-y-auto bg-[var(--color-surface)] p-4">
+              <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-dim)]">
+                Plain English
+              </div>
+
+              {messages.map((msg, i) => {
+                if (msg.role !== "assistant") return null;
+                const translation = translations.get(i);
+                return (
+                  <div
+                    key={i}
+                    className="self-start whitespace-pre-wrap break-words rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm leading-relaxed"
+                  >
+                    {translation || (
+                      <button
+                        onClick={() => translateMessage(i, msg.content)}
+                        className="text-xs text-[var(--color-accent)] hover:underline"
+                      >
+                        Translate to plain English
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
-
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "self-end rounded-br-sm bg-[var(--color-user-bubble)]"
-                  : msg.role === "system"
-                    ? "self-center text-center text-xs italic text-[var(--color-text-dim)]"
-                    : "self-start rounded-bl-sm border border-[var(--color-border)] bg-[var(--color-surface)]"
-              }`}
-            >
-              {msg.content}
-            </div>
-          ))}
-
-          {streamingContent && (
-            <div className="max-w-[85%] self-start whitespace-pre-wrap break-words rounded-xl rounded-bl-sm border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm leading-relaxed">
-              {streamingContent}
-              <span className="inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]" />
-            </div>
-          )}
-
-          {loading && !streamingContent && (
-            <div className="self-start text-sm text-[var(--color-text-dim)]">
-              Thinking...
-            </div>
-          )}
-
-          <div ref={messagesEnd} />
         </div>
 
         {/* Input */}
@@ -227,6 +362,44 @@ export function ChatPage() {
           </div>
         </div>
       </div>
+
+      {/* Selection menu */}
+      {selectedText && selectionRect && !activeOverlay && (
+        <SelectionMenu
+          selectionRect={selectionRect}
+          onDefine={handleDefine}
+          onExplain={handleExplain}
+          onResearch={conversationId ? handleResearch : undefined}
+          onIdea={conversationId ? handleIdea : undefined}
+          onDismiss={clearSelection}
+        />
+      )}
+
+      {/* Overlays */}
+      {activeOverlay?.type === "define" && (
+        <DefineTooltip
+          text={activeOverlay.text}
+          selectionRect={activeOverlay.rect}
+          onClose={closeOverlay}
+        />
+      )}
+      {activeOverlay?.type === "explain" && (
+        <ExplainPanel text={activeOverlay.text} onClose={closeOverlay} />
+      )}
+      {activeOverlay?.type === "research" && conversationId && (
+        <ResearchPanel
+          text={activeOverlay.text}
+          parentConversationId={conversationId}
+          onClose={closeOverlay}
+        />
+      )}
+      {activeOverlay?.type === "idea" && (
+        <IdeaModal
+          selectedText={activeOverlay.text}
+          conversationId={conversationId}
+          onClose={closeOverlay}
+        />
+      )}
     </div>
   );
 }

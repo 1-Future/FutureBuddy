@@ -11,6 +11,9 @@ const TYPE_GUIDANCE: Record<ContentType, string> = {
   pdf: "Identify the document's purpose, main findings or content, and any conclusions or recommendations.",
 };
 
+// Cap extracted text to avoid blowing up LLM context windows
+const MAX_SUMMARIZE_CHARS = 30_000;
+
 export function buildSummarizePrompt(
   text: string,
   type: ContentType,
@@ -19,6 +22,11 @@ export function buildSummarizePrompt(
 ): string {
   const wordTarget = SUMMARY_LENGTHS[length].words;
   const typeHint = TYPE_GUIDANCE[type];
+
+  const trimmedText =
+    text.length > MAX_SUMMARIZE_CHARS
+      ? text.slice(0, MAX_SUMMARIZE_CHARS) + "\n\n[Content truncated...]"
+      : text;
 
   return `Summarize the following ${type} content in plain English.
 
@@ -31,7 +39,7 @@ Guidelines:
 - Do NOT include any preamble like "Here is a summary" — just start with the content
 
 Content:
-${text}`;
+${trimmedText}`;
 }
 
 export function buildUrlContextPrompt(extracted: ExtractedContent): string {

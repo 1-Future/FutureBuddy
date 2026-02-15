@@ -440,6 +440,25 @@
     transform: scale(1.15);
     z-index: 1;
   }
+
+  /* Drag-and-drop feedback for palette slots */
+  #paletteResult > div[draggable] { cursor: grab; }
+  #paletteResult > div[draggable]:active { cursor: grabbing; }
+  #paletteResult > div.drag-over {
+    border-color: #fff !important;
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+  }
+  #paletteResult > div.dragging { opacity: 0.4; }
+
+  /* Color picker row below shifted result */
+  .palette-pickers { display: flex; gap: 4px; margin-top: 4px; }
+  .palette-pickers input[type="color"] {
+    flex: 1; height: 20px;
+    border: 1px solid #2a2a2a;
+    background: none; padding: 0; cursor: pointer;
+  }
+  .palette-pickers input::-webkit-color-swatch-wrapper { padding: 1px; }
+  .palette-pickers input::-webkit-color-swatch { border: none; }
 </style>
 </head>
 <body>
@@ -470,10 +489,16 @@
       </div>
       <div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px;margin:6px 0 4px;">Shifted Result <span style="color:#333;text-transform:none;">(right-click for alternatives)</span></div>
       <div style="display:flex;gap:4px;" id="paletteResult">
-        <div style="flex:1;height:28px;background:#df0024;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResP" data-slot="0"></div>
-        <div style="flex:1;height:28px;background:#f3c300;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS0" data-slot="1"></div>
-        <div style="flex:1;height:28px;background:#00ac9f;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS1" data-slot="2"></div>
-        <div style="flex:1;height:28px;background:#2e6db4;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS2" data-slot="3"></div>
+        <div style="flex:1;height:28px;background:#df0024;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResP" data-slot="0" draggable="true"></div>
+        <div style="flex:1;height:28px;background:#f3c300;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS0" data-slot="1" draggable="true"></div>
+        <div style="flex:1;height:28px;background:#00ac9f;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS1" data-slot="2" draggable="true"></div>
+        <div style="flex:1;height:28px;background:#2e6db4;border:1px solid #333;cursor:pointer;transition:border-color 0.15s;" id="palResS2" data-slot="3" draggable="true"></div>
+      </div>
+      <div class="palette-pickers">
+        <input type="color" id="palPick0" value="#df0024" title="Pick color for P" />
+        <input type="color" id="palPick1" value="#f3c300" title="Pick color for S1" />
+        <input type="color" id="palPick2" value="#00ac9f" title="Pick color for S2" />
+        <input type="color" id="palPick3" value="#2e6db4" title="Pick color for S3" />
       </div>
       <div style="font-size:9px;color:#333;margin-top:3px;" id="variantLabel"></div>
       <div style="margin-top:6px">
@@ -1007,6 +1032,104 @@
         <label>Gap <span class="range-val" id="rvGap">19</span></label>
         <input type="range" id="gap" min="0" max="80" value="19" />
       </div>
+    </div>
+  </div>
+
+  <!-- Effects -->
+  <div>
+    <div class="section-title" onclick="toggleSection(this)">Effects</div>
+    <div class="section-body">
+
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Upright Letter</div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Stroke <span class="range-val" id="rvPStrokeW">0</span></label>
+          <input type="range" id="pStrokeW" min="0" max="20" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="pStrokeC" value="#000000" title="Stroke color" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Shadow X <span class="range-val" id="rvPShadX">0</span></label>
+          <input type="range" id="pShadX" min="-20" max="20" value="0" />
+        </div>
+        <div class="field">
+          <label>Y <span class="range-val" id="rvPShadY">0</span></label>
+          <input type="range" id="pShadY" min="-20" max="20" value="0" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Blur <span class="range-val" id="rvPShadB">0</span></label>
+          <input type="range" id="pShadB" min="0" max="40" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="pShadC" value="#000000" title="Shadow color" />
+        </div>
+      </div>
+
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Flat Letter</div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Stroke <span class="range-val" id="rvSStrokeW">0</span></label>
+          <input type="range" id="sStrokeW" min="0" max="20" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="sStrokeC" value="#000000" title="Stroke color" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Shadow X <span class="range-val" id="rvSShadX">0</span></label>
+          <input type="range" id="sShadX" min="-20" max="20" value="0" />
+        </div>
+        <div class="field">
+          <label>Y <span class="range-val" id="rvSShadY">0</span></label>
+          <input type="range" id="sShadY" min="-20" max="20" value="0" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Blur <span class="range-val" id="rvSShadB">0</span></label>
+          <input type="range" id="sShadB" min="0" max="40" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="sShadC" value="#000000" title="Shadow color" />
+        </div>
+      </div>
+
+      <div style="font-size:9px;color:#48CAE4;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Text Below</div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Stroke <span class="range-val" id="rvTStrokeW">0</span></label>
+          <input type="range" id="tStrokeW" min="0" max="10" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="tStrokeC" value="#000000" title="Stroke color" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Shadow X <span class="range-val" id="rvTShadX">0</span></label>
+          <input type="range" id="tShadX" min="-20" max="20" value="0" />
+        </div>
+        <div class="field">
+          <label>Y <span class="range-val" id="rvTShadY">0</span></label>
+          <input type="range" id="tShadY" min="-20" max="20" value="0" />
+        </div>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label>Blur <span class="range-val" id="rvTShadB">0</span></label>
+          <input type="range" id="tShadB" min="0" max="40" value="0" />
+        </div>
+        <div class="color-row" style="flex:0 0 auto;margin:0;">
+          <input type="color" id="tShadC" value="#000000" title="Shadow color" />
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1701,6 +1824,8 @@ function renderPaletteSwatches() {
     el.style.background = color;
     el.title = color + (slotOverride[i] ? ' (custom)' : '');
     el.style.borderColor = slotOverride[i] ? '#FFFF00' : '#333';
+    // Sync color picker
+    $('palPick' + i).value = color;
   }
   const active = slotOverride.map((v, i) => v ? SLOT_NAMES[i] + ':' + v : '').filter(Boolean);
   $('variantLabel').textContent = active.length ? active.join('  ') : '';
@@ -1710,6 +1835,49 @@ function renderPaletteSwatches() {
 SLOT_ELS.forEach((id, i) => {
   $(id).addEventListener('contextmenu', (e) => openColorCtx(e, i));
 });
+
+// Drag-and-drop reordering for palette slots
+let dragSlot = -1;
+SLOT_ELS.forEach((id, i) => {
+  const el = $(id);
+  el.addEventListener('dragstart', (e) => {
+    dragSlot = i;
+    el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    dragSlot = -1;
+  });
+  el.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave', () => {
+    el.classList.remove('drag-over');
+  });
+  el.addEventListener('drop', (e) => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    if (dragSlot === -1 || dragSlot === i) return;
+    // Get effective colors for both slots (override or base)
+    const colorA = getFinalColor(dragSlot);
+    const colorB = getFinalColor(i);
+    // Swap by setting overrides
+    slotOverride[dragSlot] = colorB;
+    slotOverride[i] = colorA;
+    renderPaletteSwatches();
+  });
+});
+
+// Color picker inputs
+for (let i = 0; i < 4; i++) {
+  $('palPick' + i).addEventListener('input', (e) => {
+    slotOverride[i] = e.target.value;
+    renderPaletteSwatches();
+  });
+}
 
 function applyPalette() {
   const colors = [0,1,2,3].map(i => getFinalColor(i));
@@ -1851,33 +2019,17 @@ function resetToPS() {
   $('frameBorderColor').value = '#aeff00'; $('frameBG').value = '#ffffff'; $('frameBGOpacity').value = 100;
   $('frameRadius').value = 40;
   $('logoScale').value = 100; $('logoMoveX').value = 0; $('logoMoveY').value = 0;
+  $('pStrokeW').value = 0; $('pStrokeC').value = '#000000'; $('pShadX').value = 0; $('pShadY').value = 0; $('pShadB').value = 0; $('pShadC').value = '#000000';
+  $('sStrokeW').value = 0; $('sStrokeC').value = '#000000'; $('sShadX').value = 0; $('sShadY').value = 0; $('sShadB').value = 0; $('sShadC').value = '#000000';
+  $('tStrokeW').value = 0; $('tStrokeC').value = '#000000'; $('tShadX').value = 0; $('tShadY').value = 0; $('tShadB').value = 0; $('tShadC').value = '#000000';
   toggleCustomAngle('p'); toggleCustomAngle('s');
   buildSegColors('p'); buildSegColors('s');
   render();
 }
 
 function resetToFB() {
-  $('pChar').value = 'F'; $('sChar').value = 'B';
-  $('fontSel').value = "'PlayStation', sans-serif";
-  $('sFontSel').value = "'PlayStation', sans-serif";
-  $('textFontSel').value = "'Orbitron', sans-serif";
-  $('pSegs').value = '3'; $('sSegs').value = '3';
-  $('pDir').value = '0'; $('sDir').value = '0';
-  pSegColors = ['#2563EB', '#1d4ed8', '#60a5fa', '#3b82f6', '#2563EB', '#1e40af'];
-  sSegColors = ['#F59E0B', '#8B5CF6', '#2563EB', '#F59E0B', '#8B5CF6', '#2563EB'];
-  $('cBG').value = '#000000'; $('cText').value = '#CCCCCC';
-  $('pRotY').value = -15; $('pRotZ').value = 0; $('pRotX').value = 0;
-  $('sRotX').value = 72; $('sRotY').value = 0; $('sRotZ').value = 0;
-  $('pOffsetX').value = 0; $('pOffsetY').value = 0; $('pOffsetZ').value = 0;
-  $('overlapX').value = 60; $('overlapY').value = 0; $('overlapZ').value = 0;
-  $('pSize').value = 240; $('sSize').value = 240;
-  $('scenePerspective').value = 900; $('eyeHeight').value = 40;
-  $('line1').value = 'FutureBuddy'; $('line2').value = '';
-  $('textSize').value = 36; $('letterSp').value = 6; $('gap').value = 20;
-  $('logoScale').value = 100; $('logoMoveX').value = 0; $('logoMoveY').value = 0;
-  toggleCustomAngle('p'); toggleCustomAngle('s');
-  buildSegColors('p'); buildSegColors('s');
-  render();
+  const c = {"pChar":"F","sChar":"B","font":"'Lobster', sans-serif","sFont":"'Cinzel Decorative', serif","textFont":"'PlayStation', sans-serif","pSize":307,"sSize":400,"pSegs":1,"sSegs":3,"pColors":["#00b7ff"],"sColors":["#00ffa2","#ff00ea","#fbff00"],"pDir":"0","sDir":"0","pCustomAngle":0,"sCustomAngle":0,"pRotY":-34,"pRotZ":1,"pRotX":0,"pOffsetX":40,"pOffsetY":31,"pOffsetZ":100,"sRotX":78,"sRotY":-1,"sRotZ":-27,"overlapX":14,"overlapY":-43,"overlapZ":-3,"perspective":2000,"eyeHeight":10,"bgColor":"#000000","textColor":"#00b7ff","line1":"FutureBuddy","line2":"","textSize":72,"letterSpacing":-1,"gap":19,"frameShape":"square","frameSize":400,"framePad":30,"frameBorder":0,"frameBorderColor":"#aeff00","frameBG":"#000000","frameBGOpacity":100,"frameRadius":40,"bgTexture":"none","texOpacity":40,"logoScale":116,"logoMoveX":-100,"logoMoveY":0};
+  applyConfig(c);
 }
 
 function resetToPS1() {
@@ -1940,6 +2092,25 @@ function applyConfig(c) {
   else $('logoMoveX').value = 0;
   if (c.logoMoveY != null) $('logoMoveY').value = c.logoMoveY;
   else $('logoMoveY').value = 0;
+  // Effects
+  $('pStrokeW').value = c.pStrokeW || 0;
+  $('pStrokeC').value = c.pStrokeC || '#000000';
+  $('pShadX').value = c.pShadX || 0;
+  $('pShadY').value = c.pShadY || 0;
+  $('pShadB').value = c.pShadB || 0;
+  $('pShadC').value = c.pShadC || '#000000';
+  $('sStrokeW').value = c.sStrokeW || 0;
+  $('sStrokeC').value = c.sStrokeC || '#000000';
+  $('sShadX').value = c.sShadX || 0;
+  $('sShadY').value = c.sShadY || 0;
+  $('sShadB').value = c.sShadB || 0;
+  $('sShadC').value = c.sShadC || '#000000';
+  $('tStrokeW').value = c.tStrokeW || 0;
+  $('tStrokeC').value = c.tStrokeC || '#000000';
+  $('tShadX').value = c.tShadX || 0;
+  $('tShadY').value = c.tShadY || 0;
+  $('tShadB').value = c.tShadB || 0;
+  $('tShadC').value = c.tShadC || '#000000';
   toggleCustomAngle('p'); toggleCustomAngle('s');
   buildSegColors('p'); buildSegColors('s');
   render();
@@ -1989,6 +2160,34 @@ function render() {
   const sSegCount = parseInt($('sSegs').value);
   const pAngle = getAngle('p');
   const sAngle = getAngle('s');
+
+  // Effects
+  const pStrokeW = parseInt($('pStrokeW').value);
+  const pStrokeC = $('pStrokeC').value;
+  const pShadX = parseInt($('pShadX').value);
+  const pShadY = parseInt($('pShadY').value);
+  const pShadB = parseInt($('pShadB').value);
+  const pShadC = $('pShadC').value;
+  const sStrokeW = parseInt($('sStrokeW').value);
+  const sStrokeC = $('sStrokeC').value;
+  const sShadX = parseInt($('sShadX').value);
+  const sShadY = parseInt($('sShadY').value);
+  const sShadB = parseInt($('sShadB').value);
+  const sShadC = $('sShadC').value;
+  const tStrokeW = parseInt($('tStrokeW').value);
+  const tStrokeC = $('tStrokeC').value;
+  const tShadX = parseInt($('tShadX').value);
+  const tShadY = parseInt($('tShadY').value);
+  const tShadB = parseInt($('tShadB').value);
+  const tShadC = $('tShadC').value;
+
+  // Update range labels
+  $('rvPStrokeW').textContent = pStrokeW;
+  $('rvPShadX').textContent = pShadX; $('rvPShadY').textContent = pShadY; $('rvPShadB').textContent = pShadB;
+  $('rvSStrokeW').textContent = sStrokeW;
+  $('rvSShadX').textContent = sShadX; $('rvSShadY').textContent = sShadY; $('rvSShadB').textContent = sShadB;
+  $('rvTStrokeW').textContent = tStrokeW;
+  $('rvTShadX').textContent = tShadX; $('rvTShadY').textContent = tShadY; $('rvTShadB').textContent = tShadB;
 
   // Update range labels
   $('rvPSize').textContent = pSize;
@@ -2089,6 +2288,7 @@ function render() {
   pGroup.style.transform = `translate3d(${pOvX}px, ${pOvY}px, ${pOvZ}px) rotateY(${pRY}deg) rotateX(${pRX}deg) rotateZ(${pRZ}deg)`;
   pGroup.style.transformOrigin = 'bottom center';
 
+  const pShadow = (pShadX || pShadY || pShadB) ? `${pShadX}px ${pShadY}px ${pShadB}px ${pShadC}` : '';
   for (let i = 0; i < pSegCount; i++) {
     const seg = document.createElement('div');
     seg.className = 'letter-segment';
@@ -2099,6 +2299,8 @@ function render() {
     seg.style.clipPath = getSegmentClipPath(i, pSegCount, pAngle);
     seg.style.width = pM.w + 'px';
     seg.style.height = pM.h + 'px';
+    if (pStrokeW) { seg.style.webkitTextStroke = pStrokeW + 'px ' + pStrokeC; seg.style.paintOrder = 'stroke fill'; }
+    if (pShadow) seg.style.textShadow = pShadow;
     pGroup.appendChild(seg);
   }
 
@@ -2112,6 +2314,7 @@ function render() {
   sGroup.style.transform = `rotateX(${sRX}deg) rotateY(${sRY}deg) rotateZ(${sRZ}deg) translateZ(${ovZ}px)`;
   sGroup.style.transformOrigin = 'bottom left';
 
+  const sShadow = (sShadX || sShadY || sShadB) ? `${sShadX}px ${sShadY}px ${sShadB}px ${sShadC}` : '';
   for (let i = 0; i < sSegCount; i++) {
     const seg = document.createElement('div');
     seg.className = 'letter-segment';
@@ -2122,11 +2325,14 @@ function render() {
     seg.style.clipPath = getSegmentClipPath(i, sSegCount, sAngle);
     seg.style.width = sM.w + 'px';
     seg.style.height = sM.h + 'px';
+    if (sStrokeW) { seg.style.webkitTextStroke = sStrokeW + 'px ' + sStrokeC; seg.style.paintOrder = 'stroke fill'; }
+    if (sShadow) seg.style.textShadow = sShadow;
     sGroup.appendChild(seg);
   }
 
   // Text
   const textFont = $('textFontSel').value;
+  const tShadow = (tShadX || tShadY || tShadB) ? `${tShadX}px ${tShadY}px ${tShadB}px ${tShadC}` : '';
   const logoText = $('logoText');
   logoText.style.marginTop = gapVal + 'px';
   const t1 = $('textLine1');
@@ -2135,6 +2341,9 @@ function render() {
   t1.style.fontSize = textSize + 'px';
   t1.style.color = cText;
   t1.style.letterSpacing = letterSp + 'px';
+  t1.style.webkitTextStroke = tStrokeW ? tStrokeW + 'px ' + tStrokeC : '';
+  t1.style.paintOrder = tStrokeW ? 'stroke fill' : '';
+  t1.style.textShadow = tShadow;
   const t2 = $('textLine2');
   t2.textContent = $('line2').value;
   t2.style.fontFamily = textFont;
@@ -2142,6 +2351,9 @@ function render() {
   t2.style.color = cText;
   t2.style.letterSpacing = (letterSp * 0.6) + 'px';
   t2.style.display = $('line2').value ? 'block' : 'none';
+  t2.style.webkitTextStroke = tStrokeW ? tStrokeW + 'px ' + tStrokeC : '';
+  t2.style.paintOrder = tStrokeW ? 'stroke fill' : '';
+  t2.style.textShadow = tShadow;
 
   // Frame
   renderFrame();
@@ -2248,6 +2460,26 @@ function exportPNG(scale, texTime) {
   const sSegCount = parseInt($('sSegs').value);
   const pAngle = getAngle('p');
   const sAngle = getAngle('s');
+
+  // Effects
+  const pStrokeW = parseInt($('pStrokeW').value);
+  const pStrokeC = $('pStrokeC').value;
+  const pShadX = parseInt($('pShadX').value);
+  const pShadY = parseInt($('pShadY').value);
+  const pShadB = parseInt($('pShadB').value);
+  const pShadC = $('pShadC').value;
+  const sStrokeW = parseInt($('sStrokeW').value);
+  const sStrokeC = $('sStrokeC').value;
+  const sShadX = parseInt($('sShadX').value);
+  const sShadY = parseInt($('sShadY').value);
+  const sShadB = parseInt($('sShadB').value);
+  const sShadC = $('sShadC').value;
+  const tStrokeW = parseInt($('tStrokeW').value);
+  const tStrokeC = $('tStrokeC').value;
+  const tShadX = parseInt($('tShadX').value);
+  const tShadY = parseInt($('tShadY').value);
+  const tShadB = parseInt($('tShadB').value);
+  const tShadC = $('tShadC').value;
 
   const canvas = $('exportCanvas');
   const ctx = canvas.getContext('2d');
@@ -2428,9 +2660,11 @@ function exportPNG(scale, texTime) {
     ctx.transform(1, 0, 0, -sScaleY, 0, 0);
     clipSegment(ctx, i, sSegCount, sAngle, sW, sSize * S);
     ctx.font = sFontStr;
-    ctx.fillStyle = sSegColors[i] || '#888';
     ctx.textBaseline = 'top';
+    if (sShadX || sShadY || sShadB) { ctx.shadowOffsetX = sShadX * S; ctx.shadowOffsetY = sShadY * S; ctx.shadowBlur = sShadB * S; ctx.shadowColor = sShadC; }
+    ctx.fillStyle = sSegColors[i] || '#888';
     ctx.fillText(sChar, 0, 0);
+    if (sStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = sStrokeW * S; ctx.strokeStyle = sStrokeC; ctx.strokeText(sChar, 0, 0); }
     ctx.restore();
   }
 
@@ -2444,29 +2678,35 @@ function exportPNG(scale, texTime) {
     clipSegment(ctx, i, pSegCount, pAngle, pW, pH);
     ctx.translate(pW / 2, pH);
     ctx.font = pFontStr;
-    ctx.fillStyle = pSegColors[i] || '#888';
     ctx.textBaseline = 'bottom';
     ctx.textAlign = 'center';
+    if (pShadX || pShadY || pShadB) { ctx.shadowOffsetX = pShadX * S; ctx.shadowOffsetY = pShadY * S; ctx.shadowBlur = pShadB * S; ctx.shadowColor = pShadC; }
+    ctx.fillStyle = pSegColors[i] || '#888';
     ctx.fillText(pChar, 0, 0);
+    if (pStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = pStrokeW * S; ctx.strokeStyle = pStrokeC; ctx.strokeText(pChar, 0, 0); }
     ctx.restore();
   }
 
   // Text
   const textBaseY = baseY + gapVal * S;
   ctx.textAlign = 'center';
+  if (tShadX || tShadY || tShadB) { ctx.shadowOffsetX = tShadX * S; ctx.shadowOffsetY = tShadY * S; ctx.shadowBlur = tShadB * S; ctx.shadowColor = tShadC; }
   if (line1) {
     ctx.font = textFontStr;
     ctx.fillStyle = cText;
     ctx.textBaseline = 'top';
     try { ctx.letterSpacing = (letterSp * S) + 'px'; } catch(e) {}
     ctx.fillText(line1, totalW / 2, textBaseY);
+    if (tStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = tStrokeW * S; ctx.strokeStyle = tStrokeC; ctx.strokeText(line1, totalW / 2, textBaseY); }
   }
   if (line2) {
     ctx.font = text2FontStr;
     ctx.fillStyle = cText;
     ctx.globalAlpha = 0.6;
     ctx.textBaseline = 'top';
+    if (tShadX || tShadY || tShadB) { ctx.shadowOffsetX = tShadX * S; ctx.shadowOffsetY = tShadY * S; ctx.shadowBlur = tShadB * S; ctx.shadowColor = tShadC; }
     ctx.fillText(line2, totalW / 2, textBaseY + t1H);
+    if (tStrokeW) { ctx.shadowColor = 'transparent'; ctx.lineWidth = tStrokeW * S; ctx.strokeStyle = tStrokeC; ctx.strokeText(line2, totalW / 2, textBaseY + t1H); }
     ctx.globalAlpha = 1;
   }
 
@@ -2746,6 +2986,24 @@ function getConfig() {
     logoScale: parseInt($('logoScale').value),
     logoMoveX: parseInt($('logoMoveX').value),
     logoMoveY: parseInt($('logoMoveY').value),
+    pStrokeW: parseInt($('pStrokeW').value),
+    pStrokeC: $('pStrokeC').value,
+    pShadX: parseInt($('pShadX').value),
+    pShadY: parseInt($('pShadY').value),
+    pShadB: parseInt($('pShadB').value),
+    pShadC: $('pShadC').value,
+    sStrokeW: parseInt($('sStrokeW').value),
+    sStrokeC: $('sStrokeC').value,
+    sShadX: parseInt($('sShadX').value),
+    sShadY: parseInt($('sShadY').value),
+    sShadB: parseInt($('sShadB').value),
+    sShadC: $('sShadC').value,
+    tStrokeW: parseInt($('tStrokeW').value),
+    tStrokeC: $('tStrokeC').value,
+    tShadX: parseInt($('tShadX').value),
+    tShadY: parseInt($('tShadY').value),
+    tShadB: parseInt($('tShadB').value),
+    tShadC: $('tShadC').value,
   };
 }
 
@@ -2776,7 +3034,7 @@ render();
 
 // Re-render after fonts load (PlayStation font is async from CDNFonts)
 document.fonts.ready.then(() => render());
-window.addEventListener('load', () => render());
+window.addEventListener('load', () => { render(); document.querySelector('#pStrokeW').closest('.section-body').scrollIntoView({behavior:'smooth'}); });
 </script>
 </body>
 </html>

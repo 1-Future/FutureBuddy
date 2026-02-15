@@ -2,8 +2,8 @@
 
 /**
  * YouTube transcript extraction — pure HTTP, no API key, no yt-dlp.
- * Fetches the watch page, parses ytInitialPlayerResponse for caption tracks,
- * downloads captions, and combines into plain text.
+ * Uses the Android innertube player API for reliable caption URLs,
+ * and the watch page HTML for metadata.
  */
 
 export interface YouTubeMetadata {
@@ -19,6 +19,8 @@ const VIDEO_ID_PATTERNS = [
   /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
   /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
 ];
+
+const INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
 
 export function extractVideoId(url: string): string | null {
   for (const pattern of VIDEO_ID_PATTERNS) {
@@ -47,20 +49,8 @@ export async function extractYouTubeMetadata(videoId: string): Promise<YouTubeMe
 }
 
 export async function extractYouTubeTranscript(videoId: string): Promise<string> {
-  const html = await fetchWatchPage(videoId);
-
-  // Find caption tracks in ytInitialPlayerResponse
-  const playerResponseMatch = html.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/s);
-  if (!playerResponseMatch) {
-    throw new Error("Could not find player response — video may be unavailable");
-  }
-
-  let playerResponse: any;
-  try {
-    playerResponse = JSON.parse(playerResponseMatch[1]);
-  } catch {
-    throw new Error("Failed to parse player response JSON");
-  }
+  // Use Android innertube player API — returns caption URLs that actually work
+  const playerResponse = await fetchPlayerResponse(videoId);
 
   const captionTracks =
     playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
@@ -71,6 +61,7 @@ export async function extractYouTubeTranscript(videoId: string): Promise<string>
 
   // Prefer English, fall back to first available track
   const track =
+    captionTracks.find((t: any) => t.languageCode === "en" && t.kind !== "asr") ??
     captionTracks.find((t: any) => t.languageCode === "en") ??
     captionTracks.find((t: any) => t.languageCode?.startsWith("en")) ??
     captionTracks[0];
@@ -80,39 +71,45 @@ export async function extractYouTubeTranscript(videoId: string): Promise<string>
     throw new Error("Caption track has no URL");
   }
 
-  // Fetch captions (default format is XML timedtext)
-  const captionResponse = await fetch(captionUrl);
+  // Fetch captions XML
+  const captionResponse = await fetch(captionUrl, {
+    headers: {
+      "User-Agent": "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip",
+    },
+  });
+
   if (!captionResponse.ok) {
     throw new Error(`Failed to fetch captions: ${captionResponse.status}`);
   }
 
   const captionText = await captionResponse.text();
 
-  // Try JSON3 format first (append &fmt=json3 to URL)
-  if (captionUrl.includes("fmt=json3") || captionText.startsWith("{")) {
+  if (!captionText || captionText.length === 0) {
+    throw new Error("Caption response was empty");
+  }
+
+  // JSON format
+  if (captionText.trimStart().startsWith("{")) {
     return parseJsonCaptions(captionText);
   }
 
+  // XML format (handles both <text> and <p> tag styles)
   return parseXmlCaptions(captionText);
 }
 
 export function parseXmlCaptions(xml: string): string {
   const segments: string[] = [];
-  const textRegex = /<text[^>]*>(.*?)<\/text>/gs;
+
+  // Match both <text ...>content</text> and <p ...>content</p> formats
+  const textRegex = /<(?:text|p)[^>]*>(.*?)<\/(?:text|p)>/gs;
   let match: RegExpExecArray | null;
 
   while ((match = textRegex.exec(xml)) !== null) {
-    const text = match[1]
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&apos;/g, "'")
+    const text = decodeXmlEntities(match[1])
       .replace(/<[^>]+>/g, "") // strip any nested tags
       .trim();
 
-    if (text) segments.push(text);
+    if (text && !isOnlyMusicSymbols(text)) segments.push(text);
   }
 
   return segments.join(" ");
@@ -140,6 +137,37 @@ export function parseJsonCaptions(json: string): string {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
+async function fetchPlayerResponse(videoId: string): Promise<any> {
+  const response = await fetch(
+    `https://www.youtube.com/youtubei/v1/player?key=${INNERTUBE_API_KEY}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip",
+      },
+      body: JSON.stringify({
+        context: {
+          client: {
+            clientName: "ANDROID",
+            clientVersion: "19.09.37",
+            androidSdkVersion: 30,
+            hl: "en",
+          },
+        },
+        videoId,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`Innertube player API error: ${response.status} ${body.slice(0, 200)}`);
+  }
+
+  return response.json();
+}
+
 async function fetchWatchPage(videoId: string): Promise<string> {
   const url = `https://www.youtube.com/watch?v=${videoId}`;
   const response = await fetch(url, {
@@ -160,6 +188,21 @@ async function fetchWatchPage(videoId: string): Promise<string> {
 function extractFromHtml(html: string, regex: RegExp): string | null {
   const match = html.match(regex);
   return match ? match[1] : null;
+}
+
+function decodeXmlEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
+function isOnlyMusicSymbols(text: string): boolean {
+  // Filter out lines that are only music symbols like [♪♪♪] or ♪ ... ♪
+  return /^[\s♪♫\[\]()]*$/.test(text);
 }
 
 function unescapeJson(str: string): string {

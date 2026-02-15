@@ -137,6 +137,25 @@ export async function initDatabase(dbPath: string): Promise<Database> {
       executed_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS ideas (
+      id TEXT PRIMARY KEY,
+      text TEXT NOT NULL,
+      selected_text TEXT NOT NULL DEFAULT '',
+      source_conversation_id TEXT REFERENCES conversations(id),
+      source_message_content TEXT,
+      status TEXT NOT NULL DEFAULT 'spark'
+        CHECK (status IN ('spark','planning','building','shipped','shelved')),
+      notes TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS idea_tags (
+      idea_id TEXT NOT NULL REFERENCES ideas(id) ON DELETE CASCADE,
+      tag TEXT NOT NULL COLLATE NOCASE,
+      PRIMARY KEY (idea_id, tag)
+    );
+
     CREATE TABLE IF NOT EXISTS summaries (
       id TEXT PRIMARY KEY,
       url_hash TEXT NOT NULL,
@@ -242,6 +261,33 @@ export async function initDatabase(dbPath: string): Promise<Database> {
     db.run("CREATE INDEX idx_summaries_expires_at ON summaries(expires_at)");
   } catch {
     // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_ideas_status ON ideas(status)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_ideas_source_conversation ON ideas(source_conversation_id)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_idea_tags_tag ON idea_tags(tag)");
+  } catch {
+    // Index already exists
+  }
+
+  // Add research thread columns to conversations (idempotent)
+  try {
+    db.run("ALTER TABLE conversations ADD COLUMN parent_conversation_id TEXT REFERENCES conversations(id)");
+  } catch {
+    // Column already exists
+  }
+  try {
+    db.run("ALTER TABLE conversations ADD COLUMN research_text TEXT");
+  } catch {
+    // Column already exists
   }
 
   return db;

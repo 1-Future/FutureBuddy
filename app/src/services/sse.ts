@@ -1,4 +1,5 @@
 // SSE client for streaming chat responses from POST /api/chat/stream
+// Uses XMLHttpRequest because React Native's fetch doesn't support ReadableStream
 
 import { useConnectionStore } from '../stores/connection.store';
 import type { ChatStreamEvent } from '../types/api';
@@ -10,11 +11,11 @@ interface SSECallbacks {
   onError: (error: string) => void;
 }
 
-export async function streamChat(
+export function streamChat(
   message: string,
   conversationId: string | null,
   callbacks: SSECallbacks,
-): Promise<void> {
+): { abort: () => void } {
   const baseUrl = useConnectionStore.getState().serverUrl.replace(/\/+$/, '');
   const url = `${baseUrl}/api/chat/stream`;
 
@@ -23,63 +24,67 @@ export async function streamChat(
     conversationId: conversationId ?? undefined,
   });
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-    });
+  const xhr = new XMLHttpRequest();
+  let lastIndex = 0;
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => response.statusText);
-      callbacks.onError(`${response.status}: ${text}`);
-      return;
-    }
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Accept', 'text/event-stream');
 
-    if (!response.body) {
-      callbacks.onError('No response body');
-      return;
-    }
+  xhr.onprogress = () => {
+    const text = xhr.responseText;
+    if (!text || text.length <= lastIndex) return;
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+    const newData = text.slice(lastIndex);
+    lastIndex = text.length;
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    const lines = newData.split('\n');
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const jsonStr = line.slice(6).trim();
+      if (!jsonStr) continue;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
+      try {
+        const event: ChatStreamEvent = JSON.parse(jsonStr);
 
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const jsonStr = line.slice(6).trim();
-        if (!jsonStr) continue;
-
-        try {
-          const event: ChatStreamEvent = JSON.parse(jsonStr);
-
-          if ('error' in event) {
-            callbacks.onError(event.error);
-            return;
-          }
-
-          if ('delta' in event && !('done' in event)) {
-            callbacks.onDelta(event.delta);
-          }
-
-          if ('done' in event && event.done) {
-            callbacks.onDone(event.conversationId, event.actions);
-            return;
-          }
-        } catch {
-          // Skip malformed SSE data
+        if ('error' in event) {
+          callbacks.onError(event.error);
+          return;
         }
+
+        if ('delta' in event && !('done' in event)) {
+          callbacks.onDelta(event.delta);
+        }
+
+        if ('done' in event && event.done) {
+          callbacks.onDone(event.conversationId, event.actions);
+          return;
+        }
+      } catch {
+        // Skip malformed SSE data
       }
     }
-  } catch (err) {
-    callbacks.onError(err instanceof Error ? err.message : 'SSE connection failed');
-  }
+  };
+
+  xhr.onerror = () => {
+    callbacks.onError('SSE connection failed');
+  };
+
+  xhr.ontimeout = () => {
+    callbacks.onError('SSE request timed out');
+  };
+
+  xhr.onloadend = () => {
+    // If we get here without a done event, check for errors
+    if (xhr.status !== 200 && xhr.status !== 0) {
+      callbacks.onError(`${xhr.status}: ${xhr.statusText}`);
+    }
+  };
+
+  xhr.timeout = 120000; // 2 minute timeout for long AI responses
+  xhr.send(body);
+
+  return {
+    abort: () => xhr.abort(),
+  };
 }

@@ -17,6 +17,7 @@ import { SettingsPage } from "./pages/Settings.js";
 import { BookmarksPage } from "./pages/Bookmarks.js";
 import { ModelsPage } from "./pages/Models.js";
 import { AutoTubePage } from "./pages/AutoTube.js";
+import { IdeasPage } from "./pages/Ideas.js";
 import "./styles.css";
 
 const queryClient = new QueryClient({
@@ -45,6 +46,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="sessions" element={<SessionsPage />} />
             <Route path="bookmarks" element={<BookmarksPage />} />
             <Route path="models" element={<ModelsPage />} />
+            <Route path="ideas" element={<IdeasPage />} />
             <Route path="autotube" element={<AutoTubePage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

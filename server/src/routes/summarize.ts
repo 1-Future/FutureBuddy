@@ -36,10 +36,14 @@ export const summarizeRoutes: FastifyPluginAsync = async (app) => {
       const result = await summarize(url, length, db, config.ai);
       return result;
     } catch (err: any) {
-      return {
-        error: "summarize_failed",
-        message: err.message || "Failed to summarize the URL",
-      };
+      let detail = err.message || "Failed to summarize the URL";
+      if (err.cause) {
+        detail += ` (cause: ${err.cause?.message || err.cause})`;
+        if (err.cause?.errors) {
+          detail += ` [${err.cause.errors.map((e: any) => `${e.message} (${e.code})`).join(", ")}]`;
+        }
+      }
+      return { error: "summarize_failed", message: detail };
     }
   });
 

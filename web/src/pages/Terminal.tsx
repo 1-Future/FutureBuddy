@@ -4,6 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Plus, Trash2, Terminal as TerminalIcon } from "lucide-react";
 import { createTerminal, getTerminalSessions, killTerminal } from "../services/api.js";
 import { ws } from "../services/websocket.js";
+import { useTextSelection } from "../hooks/useTextSelection.js";
+import { SelectionMenu } from "../components/SelectionMenu.js";
+import { DefineTooltip } from "../components/DefineTooltip.js";
+import { ExplainPanel } from "../components/ExplainPanel.js";
 
 interface Session {
   id: string;
@@ -11,12 +15,21 @@ interface Session {
   createdAt: string;
 }
 
+type ActiveOverlay =
+  | null
+  | { type: "define"; text: string; rect: DOMRect }
+  | { type: "explain"; text: string };
+
 export function TerminalPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [output, setOutput] = useState<Map<string, string>>(new Map());
   const [inputValue, setInputValue] = useState("");
+  const [activeOverlay, setActiveOverlay] = useState<ActiveOverlay>(null);
   const outputRef = useRef<HTMLPreElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
+
+  const { selectedText, selectionRect, clearSelection } = useTextSelection(terminalRef);
 
   // Connect WebSocket and load sessions
   useEffect(() => {
@@ -85,6 +98,24 @@ export function TerminalPage() {
     [handleSend],
   );
 
+  const handleDefine = useCallback(() => {
+    if (selectedText && selectionRect) {
+      setActiveOverlay({ type: "define", text: selectedText, rect: selectionRect });
+      clearSelection();
+    }
+  }, [selectedText, selectionRect, clearSelection]);
+
+  const handleExplain = useCallback(() => {
+    if (selectedText) {
+      setActiveOverlay({ type: "explain", text: selectedText });
+      clearSelection();
+    }
+  }, [selectedText, clearSelection]);
+
+  const closeOverlay = useCallback(() => {
+    setActiveOverlay(null);
+  }, []);
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -132,7 +163,7 @@ export function TerminalPage() {
       )}
 
       {/* Terminal output */}
-      <div className="flex-1 overflow-hidden bg-black p-0">
+      <div ref={terminalRef} className="flex-1 overflow-hidden bg-black p-0">
         {activeSession ? (
           <pre
             ref={outputRef}
@@ -164,6 +195,28 @@ export function TerminalPage() {
             />
           </div>
         </div>
+      )}
+
+      {/* Selection menu — Define + Explain only (no conversation context) */}
+      {selectedText && selectionRect && !activeOverlay && (
+        <SelectionMenu
+          selectionRect={selectionRect}
+          onDefine={handleDefine}
+          onExplain={handleExplain}
+          onDismiss={clearSelection}
+        />
+      )}
+
+      {/* Overlays */}
+      {activeOverlay?.type === "define" && (
+        <DefineTooltip
+          text={activeOverlay.text}
+          selectionRect={activeOverlay.rect}
+          onClose={closeOverlay}
+        />
+      )}
+      {activeOverlay?.type === "explain" && (
+        <ExplainPanel text={activeOverlay.text} onClose={closeOverlay} />
       )}
     </div>
   );

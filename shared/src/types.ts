@@ -357,6 +357,28 @@ export interface ExtractedContent {
   };
 }
 
+// ── Ideas ─────────────────────────────────────────────────────────
+
+export type IdeaStatus = "spark" | "planning" | "building" | "shipped" | "shelved";
+
+export interface Idea {
+  id: string;
+  text: string;
+  selectedText: string;
+  sourceConversationId?: string;
+  sourceMessageContent?: string;
+  status: IdeaStatus;
+  notes?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IdeasSummary {
+  total: number;
+  byStatus: Record<string, number>;
+}
+
 // ── Server Config ───────────────────────────────────────────────────
 
 export interface ServerConfig {

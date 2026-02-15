@@ -29,6 +29,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
+  "overrides": {
+    "react": "19.1.0"
+  },
   "engines": {
     "node": ">=20.0.0"
   },

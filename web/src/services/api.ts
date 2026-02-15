@@ -538,6 +538,171 @@ export async function deleteAutoTubeProject(id: string): Promise<void> {
   await del(`/autotube/${id}`);
 }
 
+// ── Context Menu: Define / Explain / Research / Translate ───────────
+
+export async function defineText(text: string, context?: string): Promise<string> {
+  const data = await post<{ definition: string }>("/chat/define", { text, context });
+  return data.definition;
+}
+
+export async function explainText(
+  text: string,
+  context: string | undefined,
+  onChunk: (delta: string) => void,
+  onDone: () => void,
+): Promise<void> {
+  const res = await fetch(`${BASE}/chat/explain`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, context }),
+  });
+
+  if (!res.ok) throw new Error(`Explain error: ${res.status}`);
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      try {
+        const data = JSON.parse(line.slice(6));
+        if (data.error) throw new Error(data.error);
+        if (data.done) onDone();
+        else if (data.delta) onChunk(data.delta);
+      } catch (err) {
+        if (err instanceof Error && err.message !== "Unexpected end of JSON input") throw err;
+      }
+    }
+  }
+}
+
+export async function createResearchThread(
+  text: string,
+  parentConversationId?: string,
+): Promise<{ conversationId: string; title: string }> {
+  return post("/chat/research", { text, parentConversationId });
+}
+
+export async function getResearchThreads(
+  conversationId: string,
+): Promise<{ id: string; title: string; research_text: string }[]> {
+  const data = await get<{ threads: { id: string; title: string; research_text: string }[] }>(
+    `/chat/${conversationId}/research`,
+  );
+  return data.threads;
+}
+
+export async function translateText(
+  text: string,
+  onChunk: (delta: string) => void,
+  onDone: () => void,
+): Promise<void> {
+  const res = await fetch(`${BASE}/chat/translate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!res.ok) throw new Error(`Translate error: ${res.status}`);
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      try {
+        const data = JSON.parse(line.slice(6));
+        if (data.error) throw new Error(data.error);
+        if (data.done) onDone();
+        else if (data.delta) onChunk(data.delta);
+      } catch (err) {
+        if (err instanceof Error && err.message !== "Unexpected end of JSON input") throw err;
+      }
+    }
+  }
+}
+
+// ── Ideas ──────────────────────────────────────────────────────────
+
+export interface IdeaItem {
+  id: string;
+  text: string;
+  selectedText: string;
+  sourceConversationId?: string;
+  sourceMessageContent?: string;
+  status: string;
+  notes?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IdeaSummary {
+  total: number;
+  byStatus: Record<string, number>;
+}
+
+export async function getIdeas(params?: {
+  query?: string;
+  status?: string;
+  tag?: string;
+}): Promise<IdeaItem[]> {
+  const sp = new URLSearchParams();
+  if (params?.query) sp.set("query", params.query);
+  if (params?.status) sp.set("status", params.status);
+  if (params?.tag) sp.set("tag", params.tag);
+  const qs = sp.toString();
+  const data = await get<{ ideas: IdeaItem[] }>(`/ideas${qs ? `?${qs}` : ""}`);
+  return data.ideas;
+}
+
+export async function getIdeasSummaryApi(): Promise<IdeaSummary> {
+  return get("/ideas/summary");
+}
+
+export async function createIdeaApi(data: {
+  text: string;
+  selectedText?: string;
+  sourceConversationId?: string;
+  sourceMessageContent?: string;
+  tags?: string[];
+}): Promise<IdeaItem> {
+  return post("/ideas", data);
+}
+
+export async function updateIdeaApi(
+  id: string,
+  data: { text?: string; status?: string; notes?: string },
+): Promise<IdeaItem> {
+  return patch(`/ideas/${id}`, data);
+}
+
+export async function deleteIdeaApi(id: string): Promise<void> {
+  return del(`/ideas/${id}`);
+}
+
 // Re-export types for convenience
 export type {
   ChatMessage,
