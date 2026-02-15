@@ -19,6 +19,7 @@ export interface UpdateIdeaData {
   text?: string;
   status?: IdeaStatus;
   notes?: string;
+  tags?: string[];
 }
 
 function rowToIdea(row: any): Idea {
@@ -141,12 +142,19 @@ export function updateIdea(db: Database, id: string, updates: UpdateIdeaData): I
     }
   }
 
-  if (fields.length === 0) return getIdea(db, id);
+  if (fields.length === 0 && !updates.tags) return getIdea(db, id);
 
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
+  if (fields.length > 0) {
+    fields.push("updated_at = datetime('now')");
+    values.push(id);
+    execute(db, `UPDATE ideas SET ${fields.join(", ")} WHERE id = ?`, values);
+  }
 
-  execute(db, `UPDATE ideas SET ${fields.join(", ")} WHERE id = ?`, values);
+  if (updates.tags) {
+    execute(db, "DELETE FROM idea_tags WHERE idea_id = ?", [id]);
+    addIdeaTags(db, id, updates.tags);
+  }
+
   return getIdea(db, id);
 }
 

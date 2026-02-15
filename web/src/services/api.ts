@@ -694,7 +694,7 @@ export async function createIdeaApi(data: {
 
 export async function updateIdeaApi(
   id: string,
-  data: { text?: string; status?: string; notes?: string },
+  data: { text?: string; status?: string; notes?: string; tags?: string[] },
 ): Promise<IdeaItem> {
   return patch(`/ideas/${id}`, data);
 }

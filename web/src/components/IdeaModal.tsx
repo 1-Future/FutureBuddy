@@ -5,7 +5,7 @@ import { X, Check } from "lucide-react";
 import { createIdeaApi } from "../services/api.js";
 
 interface IdeaModalProps {
-  selectedText: string;
+  selectedText?: string;
   conversationId?: string;
   onClose: () => void;
 }
@@ -39,7 +39,7 @@ export function IdeaModal({ selectedText, conversationId, onClose }: IdeaModalPr
     try {
       await createIdeaApi({
         text: text.trim(),
-        selectedText,
+        selectedText: selectedText || "",
         sourceConversationId: conversationId,
         tags: tags
           .split(",")
@@ -73,12 +73,14 @@ export function IdeaModal({ selectedText, conversationId, onClose }: IdeaModalPr
         </div>
 
         {/* Selected text preview */}
-        <div className="mb-3 rounded-lg bg-[var(--color-bg)] px-3 py-2">
-          <p className="text-xs text-[var(--color-text-dim)]">Selected text:</p>
-          <p className="mt-0.5 text-xs text-[var(--color-text)]">
-            &ldquo;{selectedText.length > 120 ? selectedText.slice(0, 120) + "..." : selectedText}&rdquo;
-          </p>
-        </div>
+        {selectedText && (
+          <div className="mb-3 rounded-lg bg-[var(--color-bg)] px-3 py-2">
+            <p className="text-xs text-[var(--color-text-dim)]">Selected text:</p>
+            <p className="mt-0.5 text-xs text-[var(--color-text)]">
+              &ldquo;{selectedText.length > 120 ? selectedText.slice(0, 120) + "..." : selectedText}&rdquo;
+            </p>
+          </div>
+        )}
 
         {/* Idea text */}
         <textarea
