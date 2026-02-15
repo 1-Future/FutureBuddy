@@ -11,6 +11,8 @@ import {
   Brain,
   ScrollText,
   Bookmark,
+  Cpu,
+  Video,
   Settings,
   Menu,
   X,
@@ -29,6 +31,8 @@ const NAV_ITEMS = [
   { to: "/memory", icon: Brain, label: "Memory" },
   { to: "/sessions", icon: ScrollText, label: "Sessions" },
   { to: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
+  { to: "/models", icon: Cpu, label: "AI Models" },
+  { to: "/autotube", icon: Video, label: "AutoTube" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
