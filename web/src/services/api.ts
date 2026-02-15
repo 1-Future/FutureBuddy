@@ -490,6 +490,45 @@ export async function resolveNudge(id: string, status: string): Promise<void> {
   await post(`/nudges/${id}/resolve`, { status });
 }
 
+// ── AutoTube ──────────────────────────────────────────────────────────
+
+export interface AutoTubeProject {
+  id: string;
+  session_id: string;
+  title: string | null;
+  description: string | null;
+  script: string | null;
+  status: "draft" | "scripted" | "approved" | "rendering" | "published";
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getAutoTubeProjects(): Promise<AutoTubeProject[]> {
+  const data = await get<{ projects: AutoTubeProject[] }>("/autotube");
+  return data.projects;
+}
+
+export async function createAutoTubeProject(
+  sessionPath: string,
+): Promise<{ id: string; sessionId: string; summary: string }> {
+  return post("/autotube/create", { sessionPath });
+}
+
+export async function generateAutoTubeScript(
+  id: string,
+  sessionPath: string,
+): Promise<any> {
+  return post("/autotube/script", { id, sessionPath });
+}
+
+export async function approveAutoTubeProject(id: string): Promise<void> {
+  await post(`/autotube/${id}/approve`, {});
+}
+
+export async function deleteAutoTubeProject(id: string): Promise<void> {
+  await del(`/autotube/${id}`);
+}
+
 // Re-export types for convenience
 export type {
   ChatMessage,
