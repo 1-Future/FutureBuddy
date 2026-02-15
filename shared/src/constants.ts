@@ -110,3 +110,28 @@ export const ITEM_STATUSES = {
   trashed: { label: "Trashed" },
   lost: { label: "Lost" },
 } as const;
+
+// ── Tool System ──────────────────────────────────────────────────────
+
+export const TOOL_DOMAINS = {
+  drivers: {
+    label: "Drivers",
+    description: "Driver detection, updates, and cleanup",
+  },
+  debloat: {
+    label: "Debloat",
+    description: "Remove bloatware, disable telemetry, strip unwanted features",
+  },
+  packages: {
+    label: "Package Management",
+    description: "Install, update, and remove software",
+  },
+  "file-ops": {
+    label: "File Operations",
+    description: "Organize, tag, watch, and sort files",
+  },
+  "system-tools": {
+    label: "System Tools",
+    description: "Productivity utilities, process management, window management",
+  },
+} as const;

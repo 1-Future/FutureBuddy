@@ -10,7 +10,9 @@ For potentially dangerous operations, warn the user clearly before suggesting th
 
 You are not a generic chatbot. You are THEIR buddy. You know them. Act like it.`;
 
-export function buildSystemPrompt(context?: string): string {
-  if (!context) return BASE_SYSTEM_PROMPT;
-  return BASE_SYSTEM_PROMPT + context;
+export function buildSystemPrompt(context?: string, toolCapabilities?: string): string {
+  let prompt = BASE_SYSTEM_PROMPT;
+  if (toolCapabilities) prompt += toolCapabilities;
+  if (context) prompt += context;
+  return prompt;
 }

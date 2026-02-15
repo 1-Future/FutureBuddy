@@ -52,7 +52,7 @@ export const wsHandler: FastifyPluginAsync = async (app) => {
                   [actionId],
                 );
               } else {
-                const result = await executeAction(action);
+                const result = await executeAction(action, db);
                 execute(
                   db,
                   "UPDATE actions SET status = ?, result = ?, error = ?, resolved_at = datetime('now') WHERE id = ?",

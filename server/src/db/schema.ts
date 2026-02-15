@@ -108,6 +108,34 @@ export async function initDatabase(dbPath: string): Promise<Database> {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS tools (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      domain TEXT NOT NULL,
+      installed INTEGER NOT NULL DEFAULT 0,
+      version TEXT,
+      path TEXT,
+      install_method TEXT,
+      last_checked TEXT DEFAULT (datetime('now')),
+      capabilities TEXT DEFAULT '[]',
+      install_command TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS tool_operations_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      action_id TEXT REFERENCES actions(id),
+      tool_id TEXT NOT NULL,
+      domain TEXT NOT NULL,
+      operation_id TEXT NOT NULL,
+      params TEXT,
+      success INTEGER NOT NULL,
+      output TEXT,
+      error TEXT,
+      duration INTEGER NOT NULL,
+      executed_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   // Create indexes (IF NOT EXISTS is implied by catching errors)
@@ -168,6 +196,26 @@ export async function initDatabase(dbPath: string): Promise<Database> {
   }
   try {
     db.run("CREATE INDEX idx_memories_importance ON memories(importance)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_tools_domain ON tools(domain)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_tools_installed ON tools(installed)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_tool_ops_log_tool ON tool_operations_log(tool_id)");
+  } catch {
+    // Index already exists
+  }
+  try {
+    db.run("CREATE INDEX idx_tool_ops_log_domain ON tool_operations_log(domain)");
   } catch {
     // Index already exists
   }

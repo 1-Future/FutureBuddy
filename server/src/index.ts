@@ -18,7 +18,15 @@ import { docsRoutes } from "./routes/docs.js";
 import { bookmarksRoutes } from "./routes/bookmarks.js";
 import { modelsRoutes } from "./routes/models.js";
 import { nudgeRoutes } from "./routes/nudge.js";
+import { toolsRoutes } from "./routes/tools.js";
+import { autotubeRoutes } from "./routes/autotube.js";
 import { wsHandler } from "./routes/ws.js";
+import { toolRegistry } from "./modules/it-department/tool-registry.js";
+import { packagesOrchestrator } from "./modules/it-department/packages/index.js";
+import { driversOrchestrator } from "./modules/it-department/drivers/index.js";
+import { debloatOrchestrator } from "./modules/it-department/debloat/index.js";
+import { fileOpsOrchestrator } from "./modules/it-department/file-ops/index.js";
+import { systemToolsOrchestrator } from "./modules/it-department/system-tools/index.js";
 
 const config = loadConfig();
 
@@ -66,6 +74,8 @@ await app.register(docsRoutes, { prefix: "/api/docs" });
 await app.register(bookmarksRoutes, { prefix: "/api/bookmarks" });
 await app.register(modelsRoutes, { prefix: "/api/models" });
 await app.register(nudgeRoutes, { prefix: "/api/nudges" });
+await app.register(toolsRoutes, { prefix: "/api/tools" });
+await app.register(autotubeRoutes, { prefix: "/api/autotube" });
 
 // WebSocket
 await app.register(wsHandler, { prefix: WS_PATH });
@@ -80,6 +90,31 @@ const shutdown = async () => {
 
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
+
+// Register domain orchestrators
+toolRegistry.registerDomain(packagesOrchestrator);
+toolRegistry.registerDomain(driversOrchestrator);
+toolRegistry.registerDomain(debloatOrchestrator);
+toolRegistry.registerDomain(fileOpsOrchestrator);
+toolRegistry.registerDomain(systemToolsOrchestrator);
+
+// Scan for installed tools at startup
+const db = await getDb(config.dbPath);
+try {
+  // Load cached tool data first (fast)
+  toolRegistry.loadFromDb(db);
+  // Then scan in background for fresh data
+  toolRegistry.scanTools(db).then((tools) => {
+    const installed = tools.filter((t) => t.installed);
+    if (installed.length > 0) {
+      console.log(`  Tools: ${installed.length} detected (${installed.map((t) => t.name).join(", ")})`);
+    }
+  }).catch(() => {
+    // Tool scan is best-effort
+  });
+} catch {
+  // Tool loading is best-effort
+}
 
 try {
   await app.listen({ port: config.port, host: config.host });

@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { Database } from "sql.js";
-import type { Action, ActionTier } from "@futurebuddy/shared";
+import type { Action, ActionTier, ToolOperationRequest } from "@futurebuddy/shared";
 import { execute } from "../../db/index.js";
 
 // Patterns that indicate an IT action in AI responses
@@ -11,6 +11,9 @@ const ACTION_PATTERNS = [
   { regex: /```cmd\n([\s\S]*?)```/g, module: "cmd", tier: "yellow" as ActionTier },
   { regex: /```bash\n([\s\S]*?)```/g, module: "shell", tier: "yellow" as ActionTier },
 ];
+
+// Pattern for structured tool operations
+const TOOL_ACTION_PATTERN = /```futurebuddy-action\n([\s\S]*?)```/g;
 
 // Commands that are always safe (green tier)
 const GREEN_PATTERNS = [
@@ -59,6 +62,22 @@ export function classifyTier(command: string): ActionTier {
   return "yellow";
 }
 
+export function parseToolAction(json: string): ToolOperationRequest | null {
+  try {
+    const parsed = JSON.parse(json);
+    if (!parsed.domain || !parsed.intent) return null;
+    return {
+      domain: parsed.domain,
+      intent: parsed.intent,
+      params: parsed.params || {},
+      tier: parsed.tier || "yellow",
+      description: parsed.description || `Tool operation: ${parsed.domain}/${parsed.intent}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function classifyAndExtractActions(
   aiResponse: string,
   conversationId: string,
@@ -66,6 +85,45 @@ export function classifyAndExtractActions(
 ): Action[] {
   const actions: Action[] = [];
 
+  // Extract futurebuddy-action blocks (structured tool operations)
+  TOOL_ACTION_PATTERN.lastIndex = 0;
+  let toolMatch;
+  while ((toolMatch = TOOL_ACTION_PATTERN.exec(aiResponse)) !== null) {
+    const json = toolMatch[1].trim();
+    if (!json) continue;
+
+    const toolOp = parseToolAction(json);
+    if (!toolOp) continue;
+
+    const action: Action = {
+      id: randomUUID(),
+      tier: toolOp.tier,
+      description: toolOp.description,
+      command: json,
+      module: "tool-operation",
+      status: toolOp.tier === "green" ? "approved" : "pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    execute(
+      db,
+      "INSERT INTO actions (id, conversation_id, tier, description, command, module, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        action.id,
+        conversationId,
+        action.tier,
+        action.description,
+        action.command,
+        action.module,
+        action.status,
+        action.createdAt,
+      ],
+    );
+
+    actions.push(action);
+  }
+
+  // Extract shell code blocks (existing behavior)
   for (const pattern of ACTION_PATTERNS) {
     let match;
     pattern.regex.lastIndex = 0;

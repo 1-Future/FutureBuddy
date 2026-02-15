@@ -8,6 +8,7 @@ import { loadConfig } from "../config.js";
 import { getAIProvider } from "../modules/ai/router.js";
 import { buildSystemPrompt } from "../modules/ai/system-prompt.js";
 import { classifyAndExtractActions } from "../modules/it-department/action-classifier.js";
+import { toolRegistry } from "../modules/it-department/tool-registry.js";
 import { buildContext } from "../modules/memory/context.js";
 import { extractMemories } from "../modules/memory/extraction.js";
 
@@ -51,10 +52,13 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
       // Context building failed — continue without it
     }
 
+    // Build tool capabilities summary
+    const toolCapabilities = toolRegistry.buildToolCapabilitiesSummary();
+
     // Inject system prompt with context as the first message
     const systemMessage: ChatMessage = {
       role: "system",
-      content: buildSystemPrompt(context),
+      content: buildSystemPrompt(context, toolCapabilities),
       timestamp: new Date().toISOString(),
     };
     const messagesWithContext = [systemMessage, ...history];
@@ -132,10 +136,13 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
       // Context building failed — continue without it
     }
 
+    // Build tool capabilities summary
+    const toolCapabilities = toolRegistry.buildToolCapabilitiesSummary();
+
     // Inject system prompt with context as the first message
     const systemMessage: ChatMessage = {
       role: "system",
-      content: buildSystemPrompt(context),
+      content: buildSystemPrompt(context, toolCapabilities),
       timestamp: new Date().toISOString(),
     };
     const messagesWithContext = [systemMessage, ...history];

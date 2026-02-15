@@ -273,6 +273,57 @@ export interface InventorySummary {
   byLocation: Record<string, number>;
 }
 
+// ── Tool System ────────────────────────────────────────────────────
+
+export type ToolDomain = "drivers" | "debloat" | "packages" | "file-ops" | "system-tools";
+
+export interface ToolInfo {
+  id: string;
+  name: string;
+  description: string;
+  domain: ToolDomain;
+  installed: boolean;
+  version?: string;
+  path?: string;
+  installMethod?: string;
+  lastChecked?: string;
+  capabilities: string[];
+  installCommand?: string;
+}
+
+export interface ToolOperationInfo {
+  id: string;
+  toolId: string;
+  domain: ToolDomain;
+  name: string;
+  description: string;
+  tier: ActionTier;
+  params: ToolParamDef[];
+}
+
+export interface ToolParamDef {
+  name: string;
+  description: string;
+  required: boolean;
+  default?: string;
+}
+
+export interface ToolOperationRequest {
+  domain: ToolDomain;
+  intent: string;
+  params: Record<string, string>;
+  tier: ActionTier;
+  description: string;
+}
+
+export interface ToolOperationResult {
+  success: boolean;
+  toolId: string;
+  output?: string;
+  error?: string;
+  duration: number;
+}
+
 // ── Server Config ───────────────────────────────────────────────────
 
 export interface ServerConfig {

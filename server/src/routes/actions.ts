@@ -64,7 +64,7 @@ export const actionsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       // Execute the action
-      const result = await executeAction(action);
+      const result = await executeAction(action, db);
 
       execute(
         db,
