@@ -61,7 +61,8 @@
           "photosPermission": "FutureBuddy needs photo library access for attachments.",
           "cameraPermission": "FutureBuddy needs camera access for attachments."
         }
-      ]
+      ],
+      "./plugins/withTapService"
     ]
   }
 }

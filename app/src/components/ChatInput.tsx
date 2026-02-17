@@ -6,6 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system/legacy';
 import { colors } from '../theme/tokens';
+import { useGridCommands } from '../hooks/useGridCommands';
 
 interface ChatInputProps {
   onSend: (text: string, images?: string[]) => void;
@@ -23,6 +24,7 @@ export default function ChatInput({ onSend, onCancel, isStreaming, serverUrl }: 
   const recordingRef = useRef<Audio.Recording | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const animTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { handleVoiceText } = useGridCommands();
 
   // Pulse animation when recording
   useEffect(() => {
@@ -60,13 +62,21 @@ export default function ChatInput({ onSend, onCancel, isStreaming, serverUrl }: 
     }, 20);
   }, []);
 
-  function handleSend() {
+  async function handleSend() {
     const trimmed = text.trim();
     if (!trimmed) return;
     if (animTimerRef.current) {
       clearInterval(animTimerRef.current);
       animTimerRef.current = null;
     }
+
+    // Check if it's a grid command before sending to chat
+    const consumed = await handleVoiceText(trimmed);
+    if (consumed) {
+      setText('');
+      return;
+    }
+
     onSend(trimmed, images.length > 0 ? images : undefined);
     setText('');
     setImages([]);
