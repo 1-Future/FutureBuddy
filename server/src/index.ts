@@ -22,6 +22,9 @@ import { toolsRoutes } from "./routes/tools.js";
 import { autotubeRoutes } from "./routes/autotube.js";
 import { summarizeRoutes } from "./routes/summarize.js";
 import { ideasRoutes } from "./routes/ideas.js";
+import { mindmapRoutes } from "./routes/mindmaps.js";
+import { dashboardRoutes } from "./routes/dashboard.js";
+import { bootscapeRoutes } from "./routes/bootscape.js";
 import { wsHandler } from "./routes/ws.js";
 import { toolRegistry } from "./modules/it-department/tool-registry.js";
 import { packagesOrchestrator } from "./modules/it-department/packages/index.js";
@@ -83,6 +86,9 @@ await app.register(toolsRoutes, { prefix: "/api/tools" });
 await app.register(autotubeRoutes, { prefix: "/api/autotube" });
 await app.register(summarizeRoutes, { prefix: "/api/summarize" });
 await app.register(ideasRoutes, { prefix: "/api/ideas" });
+await app.register(mindmapRoutes, { prefix: "/api/mindmaps" });
+await app.register(dashboardRoutes, { prefix: "/api/dashboard" });
+await app.register(bootscapeRoutes, { prefix: "/bootscape" });
 
 // WebSocket
 await app.register(wsHandler, { prefix: WS_PATH });
