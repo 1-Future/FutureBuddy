@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Posture Correction Guide</title>
+  <style>
+    @page {
+      size: 8.5in 11in;
+      margin: 0.45in 0.5in;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 11px;
+      color: #000;
+      line-height: 1.45;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    @media screen {
+      body {
+        padding: 28px 36px;
+        max-width: 960px;
+        margin: 0 auto;
+        font-size: 12px;
+      }
+    }
+
+    h1 {
+      font-size: 19px;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-bottom: 3px solid #000;
+      padding-bottom: 7px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 14px;
+      font-size: 10px;
+    }
+
+    .situation-box {
+      border-left: 4px solid #000;
+      padding: 7px 11px;
+      margin-bottom: 10px;
+      font-size: 10.5px;
+    }
+
+    .situation-box strong {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    h2 {
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 3px;
+      margin-bottom: 9px;
+      margin-top: 16px;
+    }
+
+    h3 {
+      font-size: 11px;
+      margin-bottom: 3px;
+      margin-top: 0;
+    }
+
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .exercise-card {
+      border: 1px solid #000;
+      padding: 7px 9px;
+      break-inside: avoid;
+    }
+
+    .exercise-card h3 {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #000;
+      padding-bottom: 3px;
+      margin-bottom: 5px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 8px;
+      background: #000;
+      color: #fff;
+      padding: 1px 5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag.stretch { background: #444; }
+    .tag.exercise { background: #000; }
+    .tag.priority { background: #000; }
+    .tag.passive { background: #000; }
+
+    ul {
+      padding-left: 13px;
+      margin-top: 3px;
+    }
+
+    ul li {
+      margin-bottom: 2px;
+      font-size: 10.5px;
+    }
+
+    .cue-box {
+      border: 1px dashed #000;
+      padding: 4px 7px;
+      margin-top: 5px;
+      font-style: italic;
+      font-size: 9.5px;
+    }
+
+    .warning {
+      border-left: 3px solid #000;
+      padding: 4px 8px;
+      margin-top: 5px;
+      font-size: 9.5px;
+    }
+
+    .routine-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 7px;
+      font-size: 10px;
+    }
+
+    .routine-table th {
+      background: #000;
+      color: #fff;
+      padding: 4px 7px;
+      text-align: left;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 9px;
+    }
+
+    .routine-table td {
+      padding: 4px 7px;
+      border: 1px solid #000;
+      vertical-align: top;
+    }
+
+    .routine-table tr:nth-child(even) td {
+      background: #ebebeb;
+    }
+
+    .phase-box {
+      border: 1px solid #000;
+      padding: 7px 9px;
+      margin-bottom: 7px;
+      break-inside: avoid;
+    }
+
+    .phase-box h3 {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .phase-num {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      width: 17px;
+      height: 17px;
+      text-align: center;
+      line-height: 17px;
+      font-size: 9px;
+      margin-right: 5px;
+    }
+
+    .note {
+      font-size: 9.5px;
+      color: #333;
+      margin-top: 3px;
+    }
+
+    .chest-note {
+      border: 2px solid #000;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      font-size: 10.5px;
+    }
+
+    .chest-note strong {
+      display: block;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      border-top: 1px solid #000;
+      padding-top: 6px;
+      font-size: 8.5px;
+      text-align: center;
+    }
+
+    .big-cue {
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      border: 2px solid #000;
+      padding: 7px;
+      margin: 10px 0;
+      letter-spacing: 1px;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 3px solid #000;
+      margin: 16px 0 10px 0;
+      break-before: page;
+    }
+
+    .section-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .avoid-box {
+      border: 2px solid #000;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      font-size: 10.5px;
+    }
+
+    .avoid-box strong {
+      display: block;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+
+    .passive-box {
+      border: 1px dashed #000;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      font-size: 10.5px;
+    }
+
+    .passive-box strong {
+      display: block;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Posture Correction Guide</h1>
+  <div class="subtitle">Forward Head Posture · Nerd Hump · Rounded Shoulders — Full Correction Protocol</div>
+
+  <div class="situation-box">
+    <strong>Your Situation</strong>
+    You have a pronounced forward head posture (nerd hump at C7), rounded upper back (thoracic kyphosis), and significant chest muscle development that is pulling your shoulders forward. The pecs are overdeveloped relative to the posterior chain. All pressing movements (bench, pushups) are paused until posture is corrected. Focus is entirely on opening the front and strengthening the back.
+  </div>
+
+  <div class="chest-note">
+    <strong>⚠ Note on Overdeveloped Chest</strong>
+    Heavy pectoral muscle pulls the shoulders into internal rotation and forward rounding. This is one of the strongest drivers of nerd hump in people who lift. Chest stretching is therefore your highest priority — more important than it would be for the average person. Stretch the chest daily, ideally before every session.
+  </div>
+
+  <div class="big-cue">"HEAD BACK, NOT CHIN DOWN"</div>
+
+  <!-- STRETCHES -->
+  <h2>Stretches — Do Daily (ideally morning + evening)</h2>
+
+  <div class="exercise-grid">
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #1</span>
+      <h3>Chin Tuck (Head Retraction)</h3>
+      <span class="tag stretch">Stretch + Activation</span>
+      <ul>
+        <li>Sit or stand tall, or lie flat on your back (easiest to learn lying down)</li>
+        <li>Imagine making a double chin — slide your head <strong>straight back</strong> horizontally</li>
+        <li>Chin stays level, do not drop it to your chest</li>
+        <li>Hold 5–10 seconds, release, repeat</li>
+        <li><strong>10 reps, 2x per day</strong></li>
+      </ul>
+      <div class="cue-box">Feel it at: base of skull. If you feel it in lower neck only, you're dropping your chin too much.</div>
+      <div class="note">Tip: Try looking up slightly first, then bring head level — this naturally sequences the retraction correctly and prevents chin-drop compensation.</div>
+    </div>
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #2</span>
+      <h3>Doorway Chest Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Stand in a doorway, place forearms on the frame at 90 degrees</li>
+        <li>Step one foot forward and lean your body through the doorway</li>
+        <li>Feel the stretch across your chest and front of shoulders</li>
+        <li>Keep chin tucked — don't let head jut forward</li>
+        <li>Hold 30–45 seconds, 2–3 sets</li>
+      </ul>
+      <div class="cue-box">Given your chest muscle mass, this will be intense. That's correct. This is your most important stretch.</div>
+      <div class="note">Variation: Try arm at different heights (high, mid, low) to hit different parts of the pec.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Thoracic Extension over Foam Roller</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Place foam roller horizontally across your mid/upper back (not lower back)</li>
+        <li>Support your head with hands, let your back drape over the roller</li>
+        <li>Let gravity slowly extend your thoracic spine over 30–60 seconds</li>
+        <li>Shift the roller to hit different segments (T4–T8 range)</li>
+        <li>Breathe deeply — inhale expands ribs and deepens the stretch</li>
+      </ul>
+      <div class="cue-box">No foam roller? Use the back of a sturdy chair. Place it just below your shoulder blades and lean back over it.</div>
+      <div class="warning">Do not roll on the lower back or neck. Mid and upper back only.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Neck / SCM Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Sit tall, tuck chin slightly</li>
+        <li>Tilt your right ear toward your right shoulder</li>
+        <li>Place right hand gently on left side of head for a mild increase</li>
+        <li>Hold 30 seconds each side, 2 sets</li>
+      </ul>
+      <div class="cue-box">Feel it: along the side of the neck, the ropy SCM muscle. This is what gets tight when you tuck your chin.</div>
+      <div class="note">Massage the SCM with your fingers before doing chin tucks to make them easier.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Cat-Cow</h3>
+      <span class="tag stretch">Mobility</span>
+      <ul>
+        <li>On hands and knees, wrists under shoulders, knees under hips</li>
+        <li><strong>Cow:</strong> Inhale, drop belly, lift chest and tailbone (extension)</li>
+        <li><strong>Cat:</strong> Exhale, round entire spine toward ceiling, tuck chin and tailbone</li>
+        <li>Move slowly through the full range, feel every segment</li>
+        <li>10 slow reps as a warm-up or to calm spasms</li>
+      </ul>
+      <div class="cue-box">This calms down the thoracic spasms you feel when extending. Do it whenever the mid-back feels locked or crampy.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Pec Minor Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Stand facing a wall, place your palm flat on the wall at shoulder height</li>
+        <li>Slowly rotate your body away from the wall</li>
+        <li>Feel a deep stretch in the front of the shoulder / upper chest (deeper than doorway stretch)</li>
+        <li>Hold 30 seconds each side</li>
+      </ul>
+      <div class="cue-box">Pec minor is the deeper muscle that pulls the shoulder blade forward and down. In heavy benchers it is almost always extremely tight. This stretch targets it specifically.</div>
+    </div>
+
+  </div>
+
+  <!-- EXERCISES -->
+  <h2>Strengthening Exercises — 3–4x Per Week</h2>
+
+  <div class="exercise-grid">
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #1</span>
+      <h3>Face Pulls</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Cable machine or resistance band anchored at face height</li>
+        <li>Pull toward your face, elbows flaring out and up at 45 degrees</li>
+        <li>At full contraction: hands beside ears, thumbs pointing behind you</li>
+        <li>Squeeze the rear delts and external rotators for 1–2 seconds</li>
+        <li>Controlled return. <strong>3 sets of 15–20 reps</strong></li>
+      </ul>
+      <div class="cue-box">This is the most important exercise for your situation. It directly counteracts the internal rotation caused by heavy chest development. Do it every single session.</div>
+      <div class="warning">Use light weight. This is not a strength exercise — it's a corrective. Ego loading defeats the purpose.</div>
+    </div>
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #2</span>
+      <h3>Band Pull-Aparts</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Hold resistance band at shoulder height with both hands, arms straight</li>
+        <li>Pull band apart by squeezing shoulder blades together</li>
+        <li>Keep arms straight throughout — do not bend elbows</li>
+        <li>Hold the end position 1–2 seconds</li>
+        <li><strong>3 sets of 20–25 reps</strong> — can be done daily</li>
+      </ul>
+      <div class="cue-box">Simple and can be done anywhere. Hits rear delts, rhomboids, and lower traps — the entire posterior shoulder complex that is weak relative to your chest.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Wall Angels</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Stand with back flat against a wall, feet 6 inches from base</li>
+        <li>Press lower back, upper back, and head into the wall</li>
+        <li>Start with arms at 90 degrees (goalpost position) against the wall</li>
+        <li>Slowly slide arms up overhead, keeping everything in contact with wall</li>
+        <li>Slide back down. <strong>3 sets of 10 reps</strong></li>
+      </ul>
+      <div class="cue-box">If you can't keep your lower back or arms touching the wall the whole time, that's exactly where your restriction is. Don't force it — work to the edge of contact.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Dead Hangs</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Hang from a pull-up bar with a relaxed grip, feet off the floor</li>
+        <li>Let your body fully decompress — don't engage anything</li>
+        <li>Breathe slowly and deeply</li>
+        <li>Start with 20–30 seconds, build to 60+ seconds</li>
+        <li><strong>2–3 sets after your workout</strong></li>
+      </ul>
+      <div class="cue-box">Decompresses the entire spine including the cervical region. Reverses the compressive load of sitting all day. Also builds grip endurance.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Rows (Any Variation)</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Seated cable row, dumbbell row, or barbell row</li>
+        <li><strong>Form is everything:</strong> retract shoulder blades first, then pull elbows back</li>
+        <li>Do not round forward to initiate the rep</li>
+        <li>Full stretch at the start — feel the shoulder blade protract</li>
+        <li><strong>3–4 sets of 10–12 reps</strong></li>
+      </ul>
+      <div class="cue-box">Think: "squeeze something between my shoulder blades" at the top of every rep. If you can't feel that, reduce the weight.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Reverse Flyes</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Dumbbells, cables, or band — bent over at 45 degrees</li>
+        <li>Arms slightly bent, raise them out to the sides and back</li>
+        <li>Lead with the elbows, not the hands</li>
+        <li>Squeeze rear delts at the top, hold 1 second</li>
+        <li><strong>3 sets of 15 reps, very light weight</strong></li>
+      </ul>
+      <div class="cue-box">Direct antagonist to your overdeveloped pec flye pattern. Keep the weight light enough that you can feel the rear delt working, not traps taking over.</div>
+    </div>
+
+  </div>
+
+  <!-- LOWER BODY DIVIDER -->
+  <hr class="section-divider">
+  <div class="section-label">Part Two — Lower Body</div>
+  <div class="big-cue">"PELVIS NEUTRAL — TUCK THE TAIL, BRACE THE ABS"</div>
+
+  <div class="situation-box">
+    <strong>Lower Body Situation</strong>
+    You have anterior pelvic tilt — the pelvis tips forward, causing the lower back to over-arch and the belly to push out. Root causes: chronically tight hip flexors (from sitting), tight quads, weak glutes, and weak lower abs. When you straighten your upper body the lower back compensates by arching because the pelvis has no neutral foundation. The inversion table and dead hangs you're already doing are directly addressing lumbar decompression. This section adds the stretches and exercises that fix the underlying tilt.
+  </div>
+
+  <div class="passive-box">
+    <strong>Passive / Lazy Methods — Keep Doing These</strong>
+    <ul>
+      <li><strong>Inversion table:</strong> Tighten abs and glutes while inverted — this is a posterior pelvic tilt under traction. Exactly right. 3–5 min sessions.</li>
+      <li><strong>Dead hang with pelvic tuck:</strong> At the bottom of the hang, gently posteriorly tilt the pelvis (tuck tailbone). Decompresses lumbar while training the correct pelvic position.</li>
+      <li><strong>Lying flat on a hard floor:</strong> Hard surface forces the lumbar to flatten. 10 minutes of just lying there resets the spine. Do it after the inversion table.</li>
+      <li><strong>Couch stretch:</strong> Set it up, then just stay there while watching something. Gravity does all the work on the hip flexor.</li>
+    </ul>
+  </div>
+
+  <div class="avoid-box">
+    <strong>⚠ Movements Excluded for 6 Months — Lower Body</strong>
+    <ul>
+      <li><strong>Heavy back squats</strong> — loads the spine through an anteriorly tilted pelvis, compresses exactly the wrong way. Bodyweight only until pelvis is neutral.</li>
+      <li><strong>Leg press</strong> — extreme hip flexion under load, directly reinforces the tilt and tightens hip flexors further.</li>
+      <li><strong>Sit-ups and crunches</strong> — hip flexor dominant, pull the pelvis further into anterior tilt. Replace with dead bug and McGill curl-up.</li>
+      <li><strong>Cycling for long sessions</strong> — sustained hip flexion with lumbar rounding. Occasional short rides are fine, long training sessions are not.</li>
+      <li><strong>Hip flexor dominant machines</strong> (leg raises with hip flexor, seated knee raises) — the hip flexors are already too dominant. Don't train them more.</li>
+      <li><strong>Running with current posture</strong> — until glutes are firing properly, running reinforces the compensatory gait pattern. Walk instead for now.</li>
+    </ul>
+  </div>
+
+  <!-- LOWER BODY STRETCHES -->
+  <h2>Lower Body Stretches — Do Daily</h2>
+
+  <div class="exercise-grid">
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #1</span>
+      <h3>Couch Stretch (Hip Flexor)</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Kneel facing away from a couch or wall</li>
+        <li>Place one shin up against the couch behind you, other foot flat on floor in front</li>
+        <li>Stay upright — do not lean forward</li>
+        <li>Squeeze the glute of the back leg to deepen the stretch</li>
+        <li>Hold 2 minutes each side — yes, 2 full minutes</li>
+      </ul>
+      <div class="cue-box">This is the most important lower body stretch. The psoas and rectus femoris are the primary drivers of anterior pelvic tilt. You will feel this deep in the front of the hip — that's exactly right. Do it while watching TV.</div>
+    </div>
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #2</span>
+      <h3>90/90 Hip Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Sit on the floor, both legs bent at 90 degrees — one in front, one to the side</li>
+        <li>Front leg: hip externally rotated. Back leg: hip internally rotated</li>
+        <li>Sit tall, hinge forward over the front shin keeping a flat back</li>
+        <li>Hold 1–2 minutes then switch sides</li>
+      </ul>
+      <div class="cue-box">Hits hip internal and external rotation which is often restricted alongside APT. Most people find one side dramatically tighter — that's important information about asymmetry.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Supine Figure-4 Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Lie on your back, knees bent, feet flat on floor</li>
+        <li>Cross one ankle over the opposite knee (figure-4 shape)</li>
+        <li>Either hold the position, or pull the bottom leg toward your chest</li>
+        <li>Hold 45–60 seconds each side</li>
+      </ul>
+      <div class="cue-box">Stretches the piriformis and glute med — muscles that get tight and inhibited alongside weak glute max. When these are tight they suppress glute activation, making APT worse.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Kneeling Quad / Rectus Femoris Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Kneel on one knee, other foot forward</li>
+        <li>Reach back and grab the ankle of the kneeling leg</li>
+        <li>Pull heel toward glute, keep torso upright</li>
+        <li>Posteriorly tilt the pelvis (tuck tailbone) to feel the stretch higher up</li>
+        <li>Hold 30–45 seconds each side</li>
+      </ul>
+      <div class="cue-box">The pelvic tuck at the end is critical — without it you only stretch the quad, not the rectus femoris which crosses the hip and directly causes APT.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Posterior Pelvic Tilt Drill</h3>
+      <span class="tag stretch">Awareness + Mobility</span>
+      <ul>
+        <li>Lie on your back, knees bent, feet flat</li>
+        <li>Flatten your lower back into the floor by tilting the pelvis back</li>
+        <li>Think: "pull your belly button toward spine and tuck tailbone toward knees"</li>
+        <li>Hold 5 seconds, release, repeat 10–15 times</li>
+      </ul>
+      <div class="cue-box">This is the foundational movement awareness drill. You are teaching your pelvis what neutral feels like. Many people with APT have never consciously felt their pelvis move. Do this every morning.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Standing Hip Flexor Stretch</h3>
+      <span class="tag stretch">Stretch</span>
+      <ul>
+        <li>Stand in a split stance, back leg straight</li>
+        <li>Shift hips forward until you feel a stretch in the front of the back hip</li>
+        <li>Squeeze the glute of the back leg — this deepens the stretch significantly</li>
+        <li>Keep torso upright, do not lean forward</li>
+        <li>Hold 30–45 seconds each side</li>
+      </ul>
+      <div class="cue-box">The "squeeze the back glute" cue is non-negotiable. It posteriorly tilts the pelvis on that side which is exactly what stretches the psoas. Without it you get half the benefit.</div>
+    </div>
+
+  </div>
+
+  <!-- LOWER BODY EXERCISES -->
+  <h2>Lower Body Corrective Exercises — 3–4x Per Week</h2>
+
+  <div class="exercise-grid">
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #1</span>
+      <h3>Glute Bridge</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Lie on back, knees bent, feet flat on floor hip-width apart</li>
+        <li>Flatten lower back to floor first (posterior pelvic tilt)</li>
+        <li>Drive through heels, squeeze glutes, lift hips until body is a straight line</li>
+        <li>Hold top position 2 seconds — really squeeze</li>
+        <li>Lower slowly. <strong>3 sets of 15–20 reps</strong></li>
+      </ul>
+      <div class="cue-box">The most important lower body corrective. Directly activates the glutes which are neurologically inhibited by tight hip flexors. If you can't feel your glutes working, you're not squeezing hard enough.</div>
+      <div class="note">Progress to: single leg glute bridge once you can do 20 reps easily.</div>
+    </div>
+
+    <div class="exercise-card">
+      <span class="tag priority">Priority #2</span>
+      <h3>Dead Bug</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Lie on back, arms straight up toward ceiling, knees bent at 90 degrees in the air</li>
+        <li>Flatten lower back firmly into the floor — maintain this throughout</li>
+        <li>Slowly lower one arm overhead and the opposite leg toward the floor simultaneously</li>
+        <li>Return to start, switch sides. <strong>3 sets of 8–10 each side</strong></li>
+      </ul>
+      <div class="cue-box">Core anti-extension without any hip flexor involvement. This is the crunch replacement. If your lower back lifts off the floor at any point, reduce range of motion — that's the whole exercise.</div>
+      <div class="warning">Do not let the lower back arch away from the floor. Ever. That is the one rule.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Bird Dog</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>On hands and knees, neutral spine (not arched, not rounded)</li>
+        <li>Brace core, extend one arm forward and opposite leg back simultaneously</li>
+        <li>Hold 3–5 seconds — body forms a straight line, no rotation</li>
+        <li>Return slowly, switch sides. <strong>3 sets of 10 each side</strong></li>
+      </ul>
+      <div class="cue-box">Trains the posterior chain (glutes, hamstrings, lower back) and core stability together. Also reinforces neutral spine awareness — you will feel immediately if you arch or rotate.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Clamshells</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Lie on your side, hips stacked, knees bent at 45 degrees</li>
+        <li>Keep feet together, rotate top knee up like a clamshell opening</li>
+        <li>Stop before your pelvis rotates back — that's your range</li>
+        <li>Hold 1 second at top, lower slowly</li>
+        <li><strong>3 sets of 20 each side</strong> — add band around knees to progress</li>
+      </ul>
+      <div class="cue-box">Targets glute medius — the side glute that stabilizes the pelvis during walking. Weak glute med is a major contributor to APT and lower back pain. This is unglamorous but critical.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Lateral Band Walks</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Resistance band around ankles or just above knees</li>
+        <li>Slight squat position, neutral spine, chest up</li>
+        <li>Step sideways maintaining tension in the band at all times</li>
+        <li>Do not let knees cave inward</li>
+        <li><strong>3 sets of 15 steps each direction</strong></li>
+      </ul>
+      <div class="cue-box">Glute med activation in a functional position. Combine with clamshells on the same day for a complete glute med session.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Romanian Deadlift (Light)</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Dumbbells in hand, stand tall with neutral spine</li>
+        <li>Hinge at the hips — push them back, keep back flat (not rounded)</li>
+        <li>Lower weights along legs until you feel hamstring stretch</li>
+        <li>Drive hips forward to return, squeeze glutes at the top</li>
+        <li><strong>3 sets of 12 reps — keep weight light, focus on form</strong></li>
+      </ul>
+      <div class="cue-box">Strengthens glutes and hamstrings through the hip hinge pattern — directly corrects the weak posterior chain that allows APT. "Proud chest, push hips back" is the cue. Any lower back rounding means weight is too heavy.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>McGill Curl-Up</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Lie on back, one leg flat, one knee bent, foot flat</li>
+        <li>Place hands under the natural curve of your lower back (do not flatten it)</li>
+        <li>Brace core, lift head and shoulders slightly off floor — not a full crunch</li>
+        <li>Hold 8–10 seconds, lower, repeat. <strong>3 sets of 5</strong></li>
+      </ul>
+      <div class="cue-box">The only "crunch-like" movement permitted. Designed by spine researcher Dr. Stuart McGill specifically to train the rectus abdominis without hip flexor recruitment. This is your sit-up replacement.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>Single Leg Glute Bridge</h3>
+      <span class="tag exercise">Exercise</span>
+      <ul>
+        <li>Same setup as glute bridge but one leg extended straight</li>
+        <li>Drive through the planted heel, squeeze the working glute</li>
+        <li>Hips stay level — do not let the non-working side drop</li>
+        <li>Hold top 2 seconds. <strong>3 sets of 10–12 each side</strong></li>
+      </ul>
+      <div class="cue-box">Exposes and fixes left-right glute imbalances that contribute to uneven pelvic tilt. Most people find one side dramatically weaker. Work the weak side first every set.</div>
+    </div>
+
+  </div>
+
+  <!-- DAILY ROUTINE -->
+  <h2>Daily Routine</h2>
+
+  <div class="two-col">
+    <div>
+      <div class="phase-box">
+        <h3><span class="phase-num">1</span>Morning (10–15 min)</h3>
+        <ul>
+          <li>Posterior pelvic tilt drill — 15 reps (still in bed)</li>
+          <li>Chin tucks lying down — 10 reps</li>
+          <li>Supine figure-4 stretch — 45 sec each side</li>
+          <li>Cat-cow — 10 slow reps</li>
+          <li>Doorway chest stretch — 2x 30 sec</li>
+          <li>Pec minor wall stretch — 30 sec each side</li>
+        </ul>
+        <p class="note">Do this before you look at your phone. The pelvic tilt drill first sets the foundation for everything above it.</p>
+      </div>
+
+      <div class="phase-box">
+        <h3><span class="phase-num">2</span>At Desk / Throughout Day</h3>
+        <ul>
+          <li>Chin tucks every hour — 10 reps (set a timer)</li>
+          <li>Towel or lumbar roll behind lower back while seated</li>
+          <li>Monitor at eye level — adjust if not already</li>
+          <li>Stand up and extend briefly every 30–45 min</li>
+          <li>Couch stretch — 2 min each side when you get up (do it at lunch)</li>
+        </ul>
+        <p class="note">The lumbar roll changes the pelvic position at the foundation. Combine with the couch stretch once a day and you're addressing APT passively.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="phase-box">
+        <h3><span class="phase-num">3</span>Gym Days (add to workout)</h3>
+        <p class="note" style="margin-bottom:6px;"><strong>Upper:</strong></p>
+        <ul>
+          <li>Foam roller thoracic extension — 2 min warmup</li>
+          <li>Face pulls — 3x15–20 (every session, no exceptions)</li>
+          <li>Band pull-aparts — 3x20</li>
+          <li>Rows — 3–4x10–12</li>
+          <li>Reverse flyes — 3x15</li>
+          <li>Wall angels — 3x10</li>
+          <li>Dead hangs with pelvic tuck — 2–3x30–60 sec (end of session)</li>
+        </ul>
+        <p class="note" style="margin-top:8px; margin-bottom:6px;"><strong>Lower (alternate days or same day):</strong></p>
+        <ul>
+          <li>Glute bridges — 3x20</li>
+          <li>Dead bug — 3x8 each side</li>
+          <li>Bird dog — 3x10 each side</li>
+          <li>Clamshells — 3x20 each side</li>
+          <li>Romanian deadlift — 3x12</li>
+          <li>McGill curl-up — 3x5 holds</li>
+        </ul>
+      </div>
+
+      <div class="phase-box">
+        <h3><span class="phase-num">4</span>Evening (5–8 min)</h3>
+        <ul>
+          <li>Inversion table — 3–5 min (abs and glutes engaged)</li>
+          <li>Couch stretch — 2 min each side</li>
+          <li>Thoracic extension — foam roller or chair, 2 min</li>
+          <li>SCM neck stretch — 30 sec each side</li>
+          <li>Chin tucks — 10 reps</li>
+        </ul>
+        <p class="note">End with lying flat on a hard floor for 5–10 min. Let the whole spine decompress and reset.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY SCHEDULE -->
+  <h2>Weekly Training Schedule</h2>
+
+  <table class="routine-table">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Focus</th>
+        <th>Key Movements</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Mon</strong></td>
+        <td>Pull (Upper)</td>
+        <td>Face pulls, Rows, Reverse flyes, Band pull-aparts</td>
+        <td>Heavy rows. Light correctives.</td>
+      </tr>
+      <tr>
+        <td><strong>Tue</strong></td>
+        <td>Lower Corrective</td>
+        <td>Glute bridges, Dead bug, Bird dog, Clamshells, Lateral band walks</td>
+        <td>Foam roller thoracic warmup. Couch stretch before and after.</td>
+      </tr>
+      <tr>
+        <td><strong>Wed</strong></td>
+        <td>Rest / Walk</td>
+        <td>Morning routine, Chin tucks, Couch stretch, Chest stretches</td>
+        <td>Active recovery. Walk for 20–30 min — gentle glute activation.</td>
+      </tr>
+      <tr>
+        <td><strong>Thu</strong></td>
+        <td>Pull (Upper)</td>
+        <td>Face pulls, Wall angels, Rows variation, Dead hangs with pelvic tuck</td>
+        <td>Second upper pull session. Add McGill curl-up and single leg bridges.</td>
+      </tr>
+      <tr>
+        <td><strong>Fri</strong></td>
+        <td>Lower Corrective</td>
+        <td>Romanian deadlift, Single leg glute bridge, Bird dog, Dead bug, Lateral band walks</td>
+        <td>Heavier RDL day. Focus on glute squeeze at the top of every rep.</td>
+      </tr>
+      <tr>
+        <td><strong>Sat</strong></td>
+        <td>Full Body Corrective</td>
+        <td>Face pulls, Band pull-aparts, Clamshells, Glute bridges, Dead hangs, Inversion table</td>
+        <td>Light day. All correctives, no heavy loading. Thoracic roller + couch stretch.</td>
+      </tr>
+      <tr>
+        <td><strong>Sun</strong></td>
+        <td>Full Rest</td>
+        <td>Morning stretch routine only</td>
+        <td>Let tissue recover and adapt</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- TIMELINE -->
+  <h2>What to Expect — Timeline</h2>
+
+  <div class="two-col">
+    <div class="phase-box">
+      <h3>Weeks 1–2</h3>
+      <ul>
+        <li>Everything feels hard and unfamiliar</li>
+        <li>Mid-back spasms when extending are normal</li>
+        <li>Chin tucks feel restricted and effortful</li>
+        <li>You will forget to maintain posture constantly</li>
+      </ul>
+      <p class="note">Just build the habits. Don't judge progress yet.</p>
+    </div>
+
+    <div class="phase-box">
+      <h3>Weeks 3–4</h3>
+      <ul>
+        <li>Chin tucks noticeably easier, more range available</li>
+        <li>Thoracic extension less painful, more fluid</li>
+        <li>Chest tightness beginning to reduce</li>
+        <li>Starting to notice when you slump</li>
+      </ul>
+      <p class="note">This is when most people quit. Don't.</p>
+    </div>
+
+    <div class="phase-box">
+      <h3>Month 2</h3>
+      <ul>
+        <li>Posture starting to feel more natural</li>
+        <li>Old slump position beginning to feel uncomfortable</li>
+        <li>Visible reduction in forward head position</li>
+        <li>Rear delts and mid-back noticeably stronger</li>
+      </ul>
+    </div>
+
+    <div class="phase-box">
+      <h3>Month 3+</h3>
+      <ul>
+        <li>New posture is your default — minimal conscious effort</li>
+        <li>Chest restriction significantly reduced</li>
+        <li>Can consider reintroducing bench with corrected shoulder position</li>
+        <li>Bench will actually feel better — proper scapular positioning = safer lift</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WARNINGS -->
+  <h2>Stop and See a Doctor If</h2>
+  <div class="warning" style="margin-top: 10px; font-size: 12px;">
+    <ul>
+      <li>You feel <strong>dizziness or visual disturbance</strong> during chin tucks or neck extension (possible vertebral artery involvement)</li>
+      <li>You feel <strong>tingling, numbness, or shooting pain</strong> down the arm or into the hand (nerve compression)</li>
+      <li>Sharp pain in the spine during extension (not muscle soreness — sharp joint pain)</li>
+      <li>Symptoms that get significantly worse rather than better over 2–3 weeks</li>
+    </ul>
+    <p style="margin-top: 6px;">Tight and uncomfortable during movement = normal. Neurological symptoms = stop and get assessed.</p>
+  </div>
+
+  <!-- KEY REMINDERS -->
+  <h2>Key Reminders</h2>
+  <div class="two-col">
+    <ul style="padding-left: 18px;">
+      <li>No bench, pushups, leg press, squats, sit-ups, or cycling for 6 months</li>
+      <li>"Head back, not chin down" — upper body cue</li>
+      <li>"Tuck the tail, brace the abs" — lower body cue</li>
+      <li>Chin tucks hourly at the desk — set a phone alarm</li>
+      <li>Monitor at eye level — fix this today if not done</li>
+      <li>Quality chin tuck beats maximum range chin tuck</li>
+      <li>Massage SCM before chin tucks to make them easier</li>
+    </ul>
+    <ul style="padding-left: 18px;">
+      <li>Face pulls every single gym session — upper body non-negotiable</li>
+      <li>Glute bridges every single gym session — lower body non-negotiable</li>
+      <li>Towel roll behind lower back while seated changes everything</li>
+      <li>Couch stretch once a day minimum — laziest highest-ROI lower body habit</li>
+      <li>Inversion table with abs+glutes engaged, not just passive hanging</li>
+      <li>Lie flat on the floor after inversion — let everything settle</li>
+      <li>The spasms and tightness are the problem making itself known — working through it is the point</li>
+    </ul>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <h2>Troubleshooting — Real Scenarios</h2>
+
+  <div class="exercise-grid">
+
+    <div class="exercise-card">
+      <h3>I'm exhausted from sitting properly</h3>
+      <p style="font-size:10.5px; margin-bottom:5px;">Your postural muscles are genuinely fatigued — they've never had to hold you up before. This is expected and will get easier.</p>
+      <p style="font-size:10.5px; margin-bottom:4px;"><strong>Do this right now:</strong></p>
+      <ul>
+        <li>Stop forcing it — fatigue leads to worse compensation patterns, not better posture</li>
+        <li>Get on the floor: lie flat on your back, knees bent, feet flat, arms at sides — this is constructive rest position. Stay 5–10 min</li>
+        <li>Let the floor do the work — your spine decompresses passively, lumbar flattens naturally</li>
+        <li>Do NOT lie down with your head on a thick pillow — that just repeats the forward head position</li>
+        <li>After rest, return to sitting — but take a micro-break every 20–30 min instead of grinding for hours</li>
+      </ul>
+      <div class="cue-box">Short bursts of correct posture followed by floor rest are more effective than forcing it for hours. You're building endurance — treat it like a muscle.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>How to lie on the floor</h3>
+      <p style="font-size:10.5px; margin-bottom:5px;">The floor is one of your best tools. Hard surface + gravity = passive spinal reset.</p>
+      <p style="font-size:10.5px; margin-bottom:4px;"><strong>Constructive Rest Position (best):</strong></p>
+      <ul>
+        <li>On your back, knees bent, feet flat hip-width apart</li>
+        <li>Arms at your sides or hands resting on belly</li>
+        <li>Small rolled towel under the neck if the floor feels too hard on the back of the head — keep it thin</li>
+        <li>Let your lower back soften into the floor — don't force it, just breathe and let it release</li>
+        <li>10–15 minutes is ideal. Can do longer.</li>
+      </ul>
+      <p style="font-size:10.5px; margin-top:5px; margin-bottom:4px;"><strong>Full flat (for decompression after inversion):</strong></p>
+      <ul>
+        <li>Legs fully extended, completely flat</li>
+        <li>Arms at sides, palms up (opens the chest passively)</li>
+        <li>5–10 min — let the whole spine settle</li>
+      </ul>
+      <div class="cue-box">Palms facing up rotates the shoulders into external rotation and gently opens the chest. Free passive chest stretch every time you lie down.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>How to sleep — I revert to bad position</h3>
+      <p style="font-size:10.5px; margin-bottom:5px;">You cannot consciously control sleep position all night. The goal is to set up your body so the default position is as neutral as possible.</p>
+      <p style="font-size:10.5px; margin-bottom:4px;"><strong>Best: On your back</strong></p>
+      <ul>
+        <li>Pillow under knees — this is the key. It flattens the lumbar and removes the anterior pelvic tilt load</li>
+        <li>Thin pillow under head — just enough to keep the head neutral, not propped forward</li>
+        <li>Arms at sides, palms up if comfortable — passive chest opener all night</li>
+      </ul>
+      <p style="font-size:10.5px; margin-top:5px; margin-bottom:4px;"><strong>If you must side sleep:</strong></p>
+      <ul>
+        <li><strong>Pillow between knees</strong> — non-negotiable. Keeps pelvis neutral and stops the spine from twisting</li>
+        <li>Pillow thick enough that your head stays level — ear directly over shoulder, not dropping toward the mattress</li>
+        <li>Slightly tuck the chin — don't let the head push forward on the pillow</li>
+        <li>Avoid curling the knees up tight to the chest (fetal) — it pulls the spine into flexion all night</li>
+      </ul>
+      <p style="font-size:10.5px; margin-top:5px; margin-bottom:4px;"><strong>Never: On your stomach</strong></p>
+      <ul>
+        <li>Neck rotated fully to one side for hours = SCM and suboccipital damage. Stop entirely.</li>
+      </ul>
+      <div class="cue-box">The pillow between knees is the single most impactful sleep change for APT. The pillow under knees is the most impactful for back sleeping. Both are free fixes tonight.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>How to walk correctly</h3>
+      <p style="font-size:10.5px; margin-bottom:5px;">Most people with forward head + APT walk in a shuffle — no hip extension, glutes never fire, head forward. Walking correctly is actually corrective exercise disguised as movement.</p>
+      <p style="font-size:10.5px; margin-bottom:4px;"><strong>The cues:</strong></p>
+      <ul>
+        <li><strong>Head:</strong> Eyes forward on the horizon, not at the ground. Chin slightly tucked. Imagine a string pulling the crown of your head upward.</li>
+        <li><strong>Shoulders:</strong> Back and down — not hunched up near ears, not forced back militarily. Just relaxed and low.</li>
+        <li><strong>Chest:</strong> Open. Think "proud chest" — not flared ribs, just not collapsed.</li>
+        <li><strong>Stride:</strong> Let the back leg fully extend behind you. This is the key — most people cut the stride short, which means the glute never fires at push-off.</li>
+        <li><strong>Glute squeeze:</strong> At the moment your back foot pushes off the ground, squeeze that glute. This is the exact movement pattern that rehabs APT. Every step is a rep.</li>
+        <li><strong>Arms:</strong> Swing naturally from the shoulder, opposite to each leg. Don't hold them stiff.</li>
+        <li><strong>Belly:</strong> Light brace — don't let the gut fall forward or the lower back arch on each step.</li>
+      </ul>
+      <div class="cue-box">Tall spine + eyes forward + full stride + glute squeeze at push-off. You don't have to think about all of it at once — just pick one cue per walk and rotate them.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>My mid-back is spasming badly</h3>
+      <ul>
+        <li>Stop all extension work for that session — do not push through a spasm</li>
+        <li>Cat-cow slowly for 2–3 minutes — alternating movement calms spasms faster than stretching</li>
+        <li>Apply heat to the area for 15–20 min (heating pad, hot shower) — loosens the tissue</li>
+        <li>Constructive rest position on the floor — let it decompress passively</li>
+        <li>Resume extension work the next day at reduced intensity</li>
+        <li>Spasms are most common in weeks 1–2 and reduce significantly as the thoracic spine mobilizes</li>
+      </ul>
+      <div class="cue-box">Spasm = the muscles are uncoordinated in a range they don't know. It is not injury. It resolves with repeated movement over days, not rest alone.</div>
+    </div>
+
+    <div class="exercise-card">
+      <h3>My neck is killing me after chin tucks</h3>
+      <ul>
+        <li>Reduce range — stop at the first sign of tightness, don't push to maximum</li>
+        <li>Massage the SCM (sides of neck) for 30–60 seconds before doing any chin tucks</li>
+        <li>Try lying down version instead of sitting — much easier on the neck</li>
+        <li>Reduce to 5 reps instead of 10 and work back up over a week</li>
+        <li>Apply heat to the neck before the session if it helps loosen things up</li>
+        <li>The tightness is the SCM being stretched — it will reduce as it lengthens over days</li>
+      </ul>
+      <div class="warning">If pain is sharp, radiates to the shoulder or arm, or causes dizziness — stop and see a doctor. Tightness and ache = normal. Radiating or neurological = not normal.</div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Posture Correction Protocol — Full Body · Upper + Lower · Forward Head / Nerd Hump / Anterior Pelvic Tilt — Print and keep accessible
+  </div>
+
+</body>
+</html>
