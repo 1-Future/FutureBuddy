@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pose Tracker — MediaPipe</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      color: #fff;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    video {
+      position: absolute;
+      transform: scaleX(-1);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    canvas {
+      position: absolute;
+      transform: scaleX(-1);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #status {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 10;
+      max-width: 350px;
+    }
+    #status .loading { color: #f0c040; }
+    #status .ready { color: #4ade80; }
+    #status .error { color: #f87171; }
+    #angles {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.8);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 10;
+      min-width: 220px;
+    }
+    #angles h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #999;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+    }
+    .angle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+      font-size: 13px;
+    }
+    .angle-row .label { color: #ccc; }
+    .angle-row .value { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .angle-row .value.good { color: #4ade80; }
+    .angle-row .value.warn { color: #facc15; }
+    .angle-row .value.bad { color: #f87171; }
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #666;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    #controls {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+    #controls button {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #controls button:hover { background: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <div id="status">
+      <span class="loading" id="statusText">Loading MediaPipe Pose...</span>
+    </div>
+
+    <div id="angles">
+      <h3>Posture Angles</h3>
+      <div class="section-label">Upper Body</div>
+      <div class="angle-row"><span class="label">Head Forward</span><span class="value" id="a-head">--</span></div>
+      <div class="angle-row"><span class="label">Neck Angle</span><span class="value" id="a-neck">--</span></div>
+      <div class="angle-row"><span class="label">L Shoulder</span><span class="value" id="a-lshoulder">--</span></div>
+      <div class="angle-row"><span class="label">R Shoulder</span><span class="value" id="a-rshoulder">--</span></div>
+      <div class="angle-row"><span class="label">Shoulder Level</span><span class="value" id="a-shoulderlevel">--</span></div>
+      <div class="section-label">Lower Body</div>
+      <div class="angle-row"><span class="label">Hip Tilt</span><span class="value" id="a-hiptilt">--</span></div>
+      <div class="angle-row"><span class="label">L Hip</span><span class="value" id="a-lhip">--</span></div>
+      <div class="angle-row"><span class="label">R Hip</span><span class="value" id="a-rhip">--</span></div>
+      <div class="angle-row"><span class="label">L Knee</span><span class="value" id="a-lknee">--</span></div>
+      <div class="angle-row"><span class="label">R Knee</span><span class="value" id="a-rknee">--</span></div>
+    </div>
+
+    <div id="controls">
+      <button onclick="toggleSkeleton()">Toggle Skeleton</button>
+      <button onclick="toggleAnglesPanel()">Toggle Angles</button>
+      <button onclick="toggleVideo()">Toggle Camera</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // --- MediaPipe Vision + Drawing ---
+    import { PoseLandmarker, FilesetResolver, DrawingUtils } from
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs";
+
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const statusText = document.getElementById("statusText");
+
+    let poseLandmarker;
+    let showSkeleton = true;
+    let showAngles = true;
+    let showVideo = true;
+    let lastFrameTime = -1;
+
+    // Expose toggles to global scope for buttons
+    window.toggleSkeleton = () => { showSkeleton = !showSkeleton; };
+    window.toggleAnglesPanel = () => {
+      showAngles = !showAngles;
+      document.getElementById("angles").style.display = showAngles ? "block" : "none";
+    };
+    window.toggleVideo = () => {
+      showVideo = !showVideo;
+      video.style.opacity = showVideo ? 1 : 0;
+    };
+
+    // --- Angle Math ---
+    function angle3D(a, b, c) {
+      const ba = { x: a.x - b.x, y: a.y - b.y, z: (a.z||0) - (b.z||0) };
+      const bc = { x: c.x - b.x, y: c.y - b.y, z: (c.z||0) - (b.z||0) };
+      const dot = ba.x*bc.x + ba.y*bc.y + ba.z*bc.z;
+      const magBA = Math.sqrt(ba.x**2 + ba.y**2 + ba.z**2);
+      const magBC = Math.sqrt(bc.x**2 + bc.y**2 + bc.z**2);
+      if (magBA === 0 || magBC === 0) return 0;
+      return Math.acos(Math.min(1, Math.max(-1, dot / (magBA * magBC)))) * (180 / Math.PI);
+    }
+
+    function classify(value, goodRange, warnRange) {
+      if (value >= goodRange[0] && value <= goodRange[1]) return "good";
+      if (value >= warnRange[0] && value <= warnRange[1]) return "warn";
+      return "bad";
+    }
+
+    function setAngle(id, value, cls) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      el.className = "value " + cls;
+    }
+
+    // MediaPipe landmark indices
+    const L = {
+      nose: 0, leftEar: 7, rightEar: 8,
+      leftShoulder: 11, rightShoulder: 12,
+      leftElbow: 13, rightElbow: 14,
+      leftWrist: 15, rightWrist: 16,
+      leftHip: 23, rightHip: 24,
+      leftKnee: 25, rightKnee: 26,
+      leftAnkle: 27, rightAnkle: 28
+    };
+
+    function computeAngles(landmarks) {
+      const lm = landmarks;
+
+      // Head forward: angle between ear-shoulder line and vertical
+      // Approximate: nose vs midpoint of shoulders — horizontal offset
+      const midShoulder = {
+        x: (lm[L.leftShoulder].x + lm[L.rightShoulder].x) / 2,
+        y: (lm[L.leftShoulder].y + lm[L.rightShoulder].y) / 2,
+        z: ((lm[L.leftShoulder].z||0) + (lm[L.rightShoulder].z||0)) / 2
+      };
+      const midEar = {
+        x: (lm[L.leftEar].x + lm[L.rightEar].x) / 2,
+        y: (lm[L.leftEar].y + lm[L.rightEar].y) / 2,
+        z: ((lm[L.leftEar].z||0) + (lm[L.rightEar].z||0)) / 2
+      };
+      const midHip = {
+        x: (lm[L.leftHip].x + lm[L.rightHip].x) / 2,
+        y: (lm[L.leftHip].y + lm[L.rightHip].y) / 2,
+        z: ((lm[L.leftHip].z||0) + (lm[L.rightHip].z||0)) / 2
+      };
+
+      // Neck angle: ear -> shoulder -> hip
+      const neckAngle = angle3D(midEar, midShoulder, midHip);
+
+      // Head forward offset in degrees (ear vs shoulder horizontal)
+      const headForwardDx = midEar.x - midShoulder.x;
+      const headForwardDy = midEar.y - midShoulder.y;
+      const headForwardAngle = Math.abs(Math.atan2(headForwardDx, -headForwardDy) * (180/Math.PI));
+
+      // Shoulder angles: elbow-shoulder-hip
+      const lShoulderAngle = angle3D(lm[L.leftElbow], lm[L.leftShoulder], lm[L.leftHip]);
+      const rShoulderAngle = angle3D(lm[L.rightElbow], lm[L.rightShoulder], lm[L.rightHip]);
+
+      // Shoulder level asymmetry
+      const shoulderDiff = Math.abs(lm[L.leftShoulder].y - lm[L.rightShoulder].y) * 100;
+
+      // Hip tilt: difference in hip Y positions (anterior/lateral)
+      const hipTiltDiff = Math.abs(lm[L.leftHip].y - lm[L.rightHip].y) * 100;
+
+      // Hip angles: shoulder-hip-knee
+      const lHipAngle = angle3D(lm[L.leftShoulder], lm[L.leftHip], lm[L.leftKnee]);
+      const rHipAngle = angle3D(lm[L.rightShoulder], lm[L.rightHip], lm[L.rightKnee]);
+
+      // Knee angles: hip-knee-ankle
+      const lKneeAngle = angle3D(lm[L.leftHip], lm[L.leftKnee], lm[L.leftAnkle]);
+      const rKneeAngle = angle3D(lm[L.rightHip], lm[L.rightKnee], lm[L.rightAnkle]);
+
+      // Update UI
+      setAngle("a-head", headForwardAngle.toFixed(1) + "\u00B0",
+        classify(headForwardAngle, [0, 8], [8, 15]));
+
+      setAngle("a-neck", neckAngle.toFixed(1) + "\u00B0",
+        classify(neckAngle, [155, 180], [140, 155]));
+
+      setAngle("a-lshoulder", lShoulderAngle.toFixed(1) + "\u00B0", "good");
+      setAngle("a-rshoulder", rShoulderAngle.toFixed(1) + "\u00B0", "good");
+
+      setAngle("a-shoulderlevel", shoulderDiff.toFixed(1),
+        classify(shoulderDiff, [0, 2], [2, 5]));
+
+      setAngle("a-hiptilt", hipTiltDiff.toFixed(1),
+        classify(hipTiltDiff, [0, 2], [2, 5]));
+
+      setAngle("a-lhip", lHipAngle.toFixed(1) + "\u00B0", "good");
+      setAngle("a-rhip", rHipAngle.toFixed(1) + "\u00B0", "good");
+
+      setAngle("a-lknee", lKneeAngle.toFixed(1) + "\u00B0", "good");
+      setAngle("a-rknee", rKneeAngle.toFixed(1) + "\u00B0", "good");
+    }
+
+    // --- Skeleton drawing ---
+    const POSE_CONNECTIONS = [
+      [0,1],[1,2],[2,3],[3,7],[0,4],[4,5],[5,6],[6,8],
+      [9,10],[11,12],[11,13],[13,15],[12,14],[14,16],
+      [15,17],[15,19],[15,21],[16,18],[16,20],[16,22],
+      [11,23],[12,24],[23,24],[23,25],[24,26],[25,27],[26,28],
+      [27,29],[27,31],[28,30],[28,32]
+    ];
+
+    function drawSkeleton(landmarks) {
+      // Draw connections
+      ctx.lineWidth = 3;
+      for (const [i, j] of POSE_CONNECTIONS) {
+        const a = landmarks[i];
+        const b = landmarks[j];
+        if (a.visibility < 0.5 || b.visibility < 0.5) continue;
+
+        ctx.strokeStyle = "rgba(0, 220, 255, 0.7)";
+        ctx.beginPath();
+        ctx.moveTo(a.x * canvas.width, a.y * canvas.height);
+        ctx.lineTo(b.x * canvas.width, b.y * canvas.height);
+        ctx.stroke();
+      }
+
+      // Draw landmarks
+      for (let i = 0; i < landmarks.length; i++) {
+        const lm = landmarks[i];
+        if (lm.visibility < 0.5) continue;
+
+        const x = lm.x * canvas.width;
+        const y = lm.y * canvas.height;
+        const r = [11,12,13,14,15,16,23,24,25,26,27,28].includes(i) ? 6 : 3;
+
+        ctx.fillStyle = [11,12,23,24].includes(i) ? "#4ade80" : "#00dcff";
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    // --- Main loop ---
+    function onFrame() {
+      if (!poseLandmarker || video.readyState < 2) {
+        requestAnimationFrame(onFrame);
+        return;
+      }
+
+      const now = performance.now();
+      if (now === lastFrameTime) {
+        requestAnimationFrame(onFrame);
+        return;
+      }
+      lastFrameTime = now;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const results = poseLandmarker.detectForVideo(video, now);
+
+      if (results.landmarks && results.landmarks.length > 0) {
+        const landmarks = results.landmarks[0];
+        if (showSkeleton) drawSkeleton(landmarks);
+        if (showAngles) computeAngles(landmarks);
+      }
+
+      requestAnimationFrame(onFrame);
+    }
+
+    // --- Init ---
+    async function init() {
+      try {
+        statusText.textContent = "Loading MediaPipe model...";
+
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm"
+        );
+
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/latest/pose_landmarker_heavy.task",
+            delegate: "GPU"
+          },
+          runningMode: "VIDEO",
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.5,
+          minPosePresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        statusText.textContent = "Starting camera...";
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }
+        });
+        video.srcObject = stream;
+        await video.play();
+
+        statusText.textContent = "Tracking";
+        statusText.className = "ready";
+
+        // Fade out status after 2s
+        setTimeout(() => {
+          document.getElementById("status").style.opacity = "0.3";
+        }, 2000);
+
+        requestAnimationFrame(onFrame);
+
+      } catch (err) {
+        statusText.textContent = "Error: " + err.message;
+        statusText.className = "error";
+        console.error(err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
