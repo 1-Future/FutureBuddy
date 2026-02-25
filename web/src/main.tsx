@@ -41,12 +41,6 @@ async function renderApp() {
   const { ModelsPage } = await import("./pages/Models.js");
   const { AutoTubePage } = await import("./pages/AutoTube.js");
   const { IdeasPage } = await import("./pages/Ideas.js");
-  const { DashboardPage } = await import("./pages/Dashboard.js");
-  const { MindMapViewerPage } = await import("./pages/MindMapViewer.js");
-  const { DemoChecklist } = await import("./demo/DemoChecklist.js");
-  const { DemoProvider } = await import("./demo/DemoProvider.js");
-  const { DemoOverlay } = await import("./demo/DemoOverlay.js");
-  const { DemoControls } = await import("./demo/DemoControls.js");
 
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -61,31 +55,24 @@ async function renderApp() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <DemoProvider>
-            <Routes>
-              <Route path="landing" element={<LandingPage />} />
-              <Route path="mindmap/:id" element={<MindMapViewerPage />} />
-              <Route element={<Layout />}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="chat" element={<ChatPage />} />
-                <Route path="terminal" element={<TerminalPage />} />
-                <Route path="files" element={<FilesPage />} />
-                <Route path="actions" element={<ActionsPage />} />
-                <Route path="inventory" element={<InventoryPage />} />
-                <Route path="memory" element={<MemoryPage />} />
-                <Route path="sessions" element={<SessionsPage />} />
-                <Route path="bookmarks" element={<BookmarksPage />} />
-                <Route path="models" element={<ModelsPage />} />
-                <Route path="ideas" element={<IdeasPage />} />
-                <Route path="autotube" element={<AutoTubePage />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="demo" element={<DemoChecklist />} />
-              </Route>
-            </Routes>
-            <DemoOverlay />
-            <DemoControls />
-          </DemoProvider>
+          <Routes>
+            <Route path="landing" element={<LandingPage />} />
+            <Route element={<Layout />}>
+              <Route index element={<Navigate to="/chat" replace />} />
+              <Route path="chat" element={<ChatPage />} />
+              <Route path="terminal" element={<TerminalPage />} />
+              <Route path="files" element={<FilesPage />} />
+              <Route path="actions" element={<ActionsPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="memory" element={<MemoryPage />} />
+              <Route path="sessions" element={<SessionsPage />} />
+              <Route path="bookmarks" element={<BookmarksPage />} />
+              <Route path="models" element={<ModelsPage />} />
+              <Route path="ideas" element={<IdeasPage />} />
+              <Route path="autotube" element={<AutoTubePage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
         </BrowserRouter>
       </QueryClientProvider>
     </StrictMode>,
