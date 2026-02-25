@@ -99,38 +99,8 @@ const FEATURES = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]">
-      {/* Navigation */}
-      <nav className="fixed top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-8">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="FutureBuddy" className="h-9 w-9" />
-            <span className="text-lg font-semibold">FutureBuddy</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
-            >
-              <Github size={18} />
-              <span className="hidden sm:inline">GitHub</span>
-            </a>
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
-            >
-              <Download size={16} />
-              Get It Free
-            </a>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+      <section className="relative overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-28">
         {/* Background glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-accent)]/5 blur-[120px]" />
