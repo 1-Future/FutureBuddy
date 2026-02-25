@@ -1,6 +1,5 @@
 // Copyright 2025 #1 Future — Apache 2.0 License
 
-import { Link } from "react-router-dom";
 import {
   MessageSquare,
   Shield,
@@ -18,7 +17,10 @@ import {
   Github,
   ChevronRight,
   ArrowRight,
+  Download,
 } from "lucide-react";
+
+const GITHUB_URL = "https://github.com/1-Future/FutureBuddy";
 
 const FEATURES = [
   {
@@ -108,7 +110,7 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/PromptedProjects/FutureBuddy"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
@@ -116,12 +118,15 @@ export function LandingPage() {
               <Github size={18} />
               <span className="hidden sm:inline">GitHub</span>
             </a>
-            <Link
-              to="/chat"
-              className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
             >
-              Open App
-            </Link>
+              <Download size={16} />
+              Get It Free
+            </a>
           </div>
         </div>
       </nav>
@@ -158,8 +163,10 @@ export function LandingPage() {
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/chat"
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-7 py-3.5 text-base font-semibold text-white transition-all hover:bg-[var(--color-accent-hover)] hover:shadow-lg hover:shadow-[var(--color-accent)]/20"
             >
               Get Started
@@ -167,9 +174,9 @@ export function LandingPage() {
                 size={18}
                 className="transition-transform group-hover:translate-x-0.5"
               />
-            </Link>
+            </a>
             <a
-              href="https://github.com/PromptedProjects/FutureBuddy"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-7 py-3.5 text-base font-semibold text-[var(--color-text)] transition-all hover:border-[var(--color-text-dim)] hover:bg-[var(--color-surface-hover)]"
@@ -272,7 +279,7 @@ export function LandingPage() {
           {/* GitHub stars placeholder */}
           <div className="mt-8 flex items-center justify-center gap-4">
             <a
-              href="https://github.com/PromptedProjects/FutureBuddy"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3 transition-all hover:border-[var(--color-text-dim)] hover:bg-[var(--color-surface-hover)]"
@@ -300,7 +307,7 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-6">
             <a
-              href="https://github.com/PromptedProjects/FutureBuddy"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
@@ -309,7 +316,7 @@ export function LandingPage() {
               GitHub
             </a>
             <a
-              href="https://github.com/PromptedProjects/FutureBuddy#readme"
+              href={`${GITHUB_URL}#readme`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
