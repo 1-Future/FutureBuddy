@@ -103,9 +103,7 @@ export function LandingPage() {
       <nav className="fixed top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-accent)] text-sm font-bold text-white">
-              FB
-            </div>
+            <img src="/logo.png" alt="FutureBuddy" className="h-9 w-9 rounded-lg" />
             <span className="text-lg font-semibold">FutureBuddy</span>
           </div>
           <div className="flex items-center gap-4">
@@ -139,6 +137,9 @@ export function LandingPage() {
         </div>
 
         <div className="relative mx-auto max-w-4xl px-6 text-center">
+          {/* Logo */}
+          <img src="/logo.png" alt="FutureBuddy" className="mx-auto mb-8 h-28 w-28 rounded-2xl sm:h-36 sm:w-36" />
+
           {/* Badge */}
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 text-sm text-[var(--color-text-dim)]">
             <span className="h-2 w-2 rounded-full bg-[var(--color-green)]" />
@@ -298,9 +299,7 @@ export function LandingPage() {
       <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--color-accent)] text-xs font-bold text-white">
-              FB
-            </div>
+            <img src="/logo.png" alt="FutureBuddy" className="h-7 w-7 rounded-md" />
             <span className="text-sm text-[var(--color-text-dim)]">
               FutureBuddy by #1 Future — Apache 2.0 License
             </span>
