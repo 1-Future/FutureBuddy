@@ -1,5 +1,5 @@
 # FutureBuddy — docker compose up and you're live
-# https://github.com/PromptedProjects/FutureBuddy
+# https://github.com/1-Future/FutureBuddy
 
 services:
   # Web frontend — Vite + React served via Nginx

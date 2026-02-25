@@ -3,55 +3,93 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Layout } from "./components/Layout.js";
 import { LandingPage } from "./pages/public/Landing.js";
-import { ChatPage } from "./pages/Chat.js";
-import { TerminalPage } from "./pages/Terminal.js";
-import { FilesPage } from "./pages/Files.js";
-import { ActionsPage } from "./pages/Actions.js";
-import { InventoryPage } from "./pages/Inventory.js";
-import { MemoryPage } from "./pages/Memory.js";
-import { SessionsPage } from "./pages/Sessions.js";
-import { SettingsPage } from "./pages/Settings.js";
-import { BookmarksPage } from "./pages/Bookmarks.js";
-import { ModelsPage } from "./pages/Models.js";
-import { AutoTubePage } from "./pages/AutoTube.js";
-import { IdeasPage } from "./pages/Ideas.js";
 import "./styles.css";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: 1,
-    },
-  },
-});
+const isShowcase = !import.meta.env.VITE_APP_MODE;
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="landing" element={<LandingPage />} />
-          <Route element={<Layout />}>
-            <Route index element={<Navigate to="/chat" replace />} />
-            <Route path="chat" element={<ChatPage />} />
-            <Route path="terminal" element={<TerminalPage />} />
-            <Route path="files" element={<FilesPage />} />
-            <Route path="actions" element={<ActionsPage />} />
-            <Route path="inventory" element={<InventoryPage />} />
-            <Route path="memory" element={<MemoryPage />} />
-            <Route path="sessions" element={<SessionsPage />} />
-            <Route path="bookmarks" element={<BookmarksPage />} />
-            <Route path="models" element={<ModelsPage />} />
-            <Route path="ideas" element={<IdeasPage />} />
-            <Route path="autotube" element={<AutoTubePage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </StrictMode>,
-);
+// Showcase mode: static site on futurebuddy.ai — landing page only.
+// App mode (VITE_APP_MODE=app): full app with backend routes.
+async function renderApp() {
+  if (isShowcase) {
+    createRoot(document.getElementById("root")!).render(
+      <StrictMode>
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<LandingPage />} />
+            <Route path="landing" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </StrictMode>,
+    );
+    return;
+  }
+
+  // Lazy-load the full app bundle only when running with a backend
+  const { QueryClient, QueryClientProvider } = await import("@tanstack/react-query");
+  const { Layout } = await import("./components/Layout.js");
+  const { ChatPage } = await import("./pages/Chat.js");
+  const { TerminalPage } = await import("./pages/Terminal.js");
+  const { FilesPage } = await import("./pages/Files.js");
+  const { ActionsPage } = await import("./pages/Actions.js");
+  const { InventoryPage } = await import("./pages/Inventory.js");
+  const { MemoryPage } = await import("./pages/Memory.js");
+  const { SessionsPage } = await import("./pages/Sessions.js");
+  const { SettingsPage } = await import("./pages/Settings.js");
+  const { BookmarksPage } = await import("./pages/Bookmarks.js");
+  const { ModelsPage } = await import("./pages/Models.js");
+  const { AutoTubePage } = await import("./pages/AutoTube.js");
+  const { IdeasPage } = await import("./pages/Ideas.js");
+  const { DashboardPage } = await import("./pages/Dashboard.js");
+  const { MindMapViewerPage } = await import("./pages/MindMapViewer.js");
+  const { DemoChecklist } = await import("./demo/DemoChecklist.js");
+  const { DemoProvider } = await import("./demo/DemoProvider.js");
+  const { DemoOverlay } = await import("./demo/DemoOverlay.js");
+  const { DemoControls } = await import("./demo/DemoControls.js");
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 30_000,
+        retry: 1,
+      },
+    },
+  });
+
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <DemoProvider>
+            <Routes>
+              <Route path="landing" element={<LandingPage />} />
+              <Route path="mindmap/:id" element={<MindMapViewerPage />} />
+              <Route element={<Layout />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="chat" element={<ChatPage />} />
+                <Route path="terminal" element={<TerminalPage />} />
+                <Route path="files" element={<FilesPage />} />
+                <Route path="actions" element={<ActionsPage />} />
+                <Route path="inventory" element={<InventoryPage />} />
+                <Route path="memory" element={<MemoryPage />} />
+                <Route path="sessions" element={<SessionsPage />} />
+                <Route path="bookmarks" element={<BookmarksPage />} />
+                <Route path="models" element={<ModelsPage />} />
+                <Route path="ideas" element={<IdeasPage />} />
+                <Route path="autotube" element={<AutoTubePage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="demo" element={<DemoChecklist />} />
+              </Route>
+            </Routes>
+            <DemoOverlay />
+            <DemoControls />
+          </DemoProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+}
+
+renderApp();
