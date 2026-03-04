@@ -30,7 +30,7 @@ AI deep-dives on revolutionary implementation approaches. Not just how do other 
 Refined master plan incorporating everything from the research. Architecture decisions locked in. Technology choices made. Nothing vague left to figure out during execution.
 
 ### Step 7 - Task List to GitHub
-Master task list published as a GitHub Issue. Human-readable. Robot-resumable. Progress is visible to anyone - not trapped in a conversation that disappears.
+Master task list published as a GitHub Issue. Human-readable. Robot-resumable. Progress is visible to anyone - not trapped in a conversation that disappears. Make the tasklists optimized for ai coding, this flow assumes the humans doesn't code.
 
 ### Step 8 - Execute
 Work the task list. The AI picks up context from the GitHub Issue. The human can see exactly where things stand at any point and redirect as needed.
