@@ -2,14 +2,16 @@
 
 **AI-Native Development Process** by #1 Future
 
-FutureFlow is how we build at #1 Future. A repeatable, human-AI collaborative development methodology built around one truth: the best software starts with real frustration, not theoretical use cases.
+FutureFlow is how we build. A repeatable, human-AI collaborative development methodology built around one truth: the best software starts with real frustration, not theoretical use cases.
+
+It applies to everything we ship — standalone tools, modules, full products. If it has a repo, it runs through FutureFlow.
 
 ---
 
 ## The Process
 
 ### Step 0 - Inspire
-Using software you like, you hit a pain point that should not exist. That friction is the seed. Every feature in FutureBuddy started here - not from a roadmap, but from something that was annoying.
+Using software you like, you hit a pain point that should not exist. That friction is the seed. Not from a roadmap, but from something that was annoying.
 
 ### Step 1 - Present
 Describe the idea raw. No polish, no pitch deck. Just the thing you want to exist and why.
@@ -24,7 +26,7 @@ AI researches the landscape: existing GitHub projects, prior art, tools, what ha
 Walk through the current workflow of the thing you are building. Surface friction in real time. Pain points discovered through use are real. Pain points assumed upfront are guesses.
 
 ### Step 5 - Research
-AI deep-dives on revolutionary implementation approaches. Not just how do other tools do this - but what would this look like if it were genuinely great in 2026.
+AI deep-dives on revolutionary implementation approaches. Not just how do other tools do this - but what would this look like if it were genuinely great.
 
 ### Step 6 - Plan
 Refined master plan incorporating everything from the research. Architecture decisions locked in. Technology choices made. Nothing vague left to figure out during execution.
@@ -76,9 +78,11 @@ Every feature or product built with FutureFlow gets a user manual. Not an aftert
 
 FutureFlow is a development process designed for humans and AI to build software together. It is not a project management tool, not a ticket system, and not a methodology that requires certification. It is a repeatable sequence of conversations and actions that produces real software from real frustration.
 
+It works for any project — monorepo modules, standalone tools, full products, open source or private. The scale does not matter. The process does.
+
 ### How to Start a FutureFlow Session
 
-1. Open a conversation with Claude Code (or any FutureBuddy AI interface)
+1. Open a conversation with Claude Code (or any AI coding interface)
 2. Describe the pain point - no formatting required, just explain what is annoying
 3. Claude will guide the rest - gut check, research, plan, and task list
 
@@ -138,9 +142,9 @@ If your conversation ends and you need to continue in a new session:
 
 The GitHub Issue is the handoff document. It is designed for this exact situation.
 
-### How FutureFlow Runs in Claude Code
+### How FutureFlow Runs in Practice
 
-When working with Claude Code inside a FutureBuddy project, FutureFlow runs automatically. Claude will:
+When working with Claude Code inside any #1 Future project, FutureFlow runs automatically. Claude will:
 - Propose the next step at the right time
 - Ask for approval at the gate steps
 - Create the GitHub Issue before writing any code
@@ -150,4 +154,4 @@ You do not need to memorize the step numbers. Just describe what you want and Cl
 
 ---
 
-*FutureFlow is how FutureBuddy gets built. It is also what FutureBuddy is designed to support.*
+*FutureFlow is how #1 Future builds. Every project. Every time.*
